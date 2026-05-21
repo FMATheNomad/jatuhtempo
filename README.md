@@ -171,4 +171,4 @@ Atau cukup **kirim screenshot** tagihan — bot akan OCR + parse otomatis.
 
 ## 📄 Lisensi
 
-MIT
+GNU GPLv3
