@@ -74,6 +74,6 @@ async def handle_photo(message: Message):
         except OSError:
             pass
 
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to process screenshot")
-        await processing_msg.edit_text(f"Gagal memproses screenshot: {str(e)}")
+        await processing_msg.edit_text("Gagal memproses screenshot. Pastikan gambar berisi tagihan yang jelas.")
