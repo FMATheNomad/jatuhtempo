@@ -8,9 +8,9 @@ class Settings(BaseSettings):
     debug: bool = False
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/jatuhtempo"
-    deepseek_api_key: str = ""
-    deepseek_base_url: str = "https://api.deepseek.com/v1"
-    deepseek_model: str = "deepseek/deepseek-v4-flash"
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_model: str = "deepseek/deepseek-v4-flash:free"
 
     telegram_bot_token: str = ""
 

@@ -24,18 +24,20 @@ Jika ragu, gunakan null untuk nilai yang tidak diketahui."""
 
 
 async def parse_debt_from_text(raw_text: str) -> dict[str, Any]:
-    if not settings.deepseek_api_key:
-        raise ValueError("DEEPSEEK_API_KEY not configured")
+    if not settings.openrouter_api_key:
+        raise ValueError("OPENROUTER_API_KEY not configured")
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
-            f"{settings.deepseek_base_url}/chat/completions",
+            f"{settings.openrouter_base_url}/chat/completions",
             headers={
-                "Authorization": f"Bearer {settings.deepseek_api_key}",
+                "Authorization": f"Bearer {settings.openrouter_api_key}",
                 "Content-Type": "application/json",
+                "HTTP-Referer": "https://github.com/FMATheNomad/jatuhtempo",
+                "X-Title": "JatuhTempo",
             },
             json={
-                "model": settings.deepseek_model,
+                "model": settings.openrouter_model,
                 "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": raw_text},
