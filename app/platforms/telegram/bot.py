@@ -9,8 +9,15 @@ from app.platforms.telegram.handlers import commands, messages
 
 logger = logging.getLogger(__name__)
 
-bot = Bot(token=settings.telegram_bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
+_bot: Bot | None = None
+
+
+def get_bot() -> Bot:
+    global _bot
+    if _bot is None:
+        _bot = Bot(token=settings.telegram_bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    return _bot
 
 
 def register_handlers():
@@ -19,6 +26,10 @@ def register_handlers():
 
 
 async def start_polling():
+    if not settings.telegram_bot_token:
+        logger.warning("TELEGRAM_BOT_TOKEN not set, skipping bot polling")
+        return
     register_handlers()
+    bot = get_bot()
     logger.info("Starting Telegram bot polling")
     await dp.start_polling(bot, skip_updates=True)
