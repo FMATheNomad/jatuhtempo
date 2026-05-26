@@ -40,3 +40,17 @@ app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=li
 @app.get("/health")
 async def health():
     return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
+
+
+@app.get("/api/stats")
+async def get_stats():
+    from app.core.db import async_session_factory
+    from sqlalchemy import text
+    async with async_session_factory() as session:
+        result = await session.execute(text("SELECT COUNT(*) FROM users"))
+        total_users = result.scalar() or 0
+    return {
+        "product": "jatuhtempo",
+        "total_users": total_users,
+        "status": "online",
+    }
