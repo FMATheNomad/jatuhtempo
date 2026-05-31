@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST='{"app/debts/page.tsx -> @/lib/api":{"id":1837,"files":["static/chunks/837.6247ec89dbdf9774.js"]},"app/page.tsx -> @/lib/api":{"id":1837,"files":["static/chunks/837.6247ec89dbdf9774.js"]},"app/settings/page.tsx -> @/lib/api":{"id":1837,"files":["static/chunks/837.6247ec89dbdf9774.js"]}}';
