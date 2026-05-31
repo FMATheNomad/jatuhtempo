@@ -20,4 +20,5 @@ dependencies = [
     "httpx>=0.28.0",
     "apscheduler>=3.10.4",
     "pytesseract>=0.3.13",
+    "pyjwt>=2.10.0",
 ]

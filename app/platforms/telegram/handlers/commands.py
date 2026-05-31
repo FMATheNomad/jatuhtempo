@@ -6,8 +6,10 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from app.core.config import settings
 from app.core.db import async_session_factory
 from app.core.ratelimit import check_rate_limit
+from app.core.auth import create_login_token
 from app.models.debt import DebtSource, DebtStatus
 from app.schemas.debt import DebtCreate
 from app.services.debt_service import (
@@ -525,3 +527,17 @@ async def cmd_history(message: Message):
         lines.append(f"<b>Sisa:</b> Rp{remaining:,}")
 
     await message.reply("\n".join(lines))
+
+
+@router.message(Command("login"))
+async def cmd_login(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        return
+    token = create_login_token(message.from_user.id)
+    link = f"{settings.web_url}/auth?token={token}"
+    await message.reply(
+        f"🔑 <b>Login ke Dashboard</b>\n\n"
+        f"Klik link berikut untuk masuk ke web dashboard:\n"
+        f"{link}\n\n"
+        f"Link ini berlaku 5 menit."
+    )

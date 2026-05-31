@@ -19,6 +19,10 @@ class Settings(BaseSettings):
 
     reminder_check_interval_minutes: int = 1
 
+    jwt_secret: str = "change-me-to-a-random-secret"
+    jwt_algorithm: str = "HS256"
+    web_url: str = "http://localhost:3000"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
     @field_validator("database_url")
