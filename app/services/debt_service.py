@@ -143,6 +143,24 @@ async def update_debt_status(session: AsyncSession, debt_id: uuid.UUID, status: 
     return debt
 
 
+async def update_user_wa(
+    session: AsyncSession, telegram_id: int,
+    phone_number: str | None = None, optout: bool | None = None,
+) -> User | None:
+    result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        return None
+    if phone_number is not None:
+        user.phone_number = phone_number
+        user.wa_linked_at = datetime.now(timezone.utc) if phone_number else None
+    if optout is not None:
+        user.wa_reminder_optout = optout
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
 async def delete_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID) -> bool:
     debt = await session.get(Debt, debt_id)
     if debt and debt.user_id == user_id:

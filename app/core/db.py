@@ -27,6 +27,9 @@ async def get_db() -> AsyncSession:
 
 MIGRATIONS = [
     "ALTER TABLE debts ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number VARCHAR(20)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_linked_at TIMESTAMPTZ",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_reminder_optout BOOLEAN NOT NULL DEFAULT FALSE",
     """CREATE TABLE IF NOT EXISTS payments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,

@@ -13,7 +13,7 @@ from app.core.auth import create_login_token
 from app.models.debt import DebtSource, DebtStatus
 from app.schemas.debt import DebtCreate
 from app.services.debt_service import (
-    get_or_create_user, create_debt, update_debt,
+    get_or_create_user, create_debt, update_debt, update_user_wa,
     get_user_debts, get_user_debt_by_id,
     get_monthly_summary, get_upcoming_debts, delete_debt,
 )
@@ -541,3 +541,41 @@ async def cmd_login(message: Message):
         f"{link}\n\n"
         f"Link ini berlaku 5 menit."
     )
+
+
+@router.message(Command("wa"))
+async def cmd_wa(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        return
+    text = message.text.removeprefix("/wa").strip()
+    async with async_session_factory() as session:
+        if not text:
+            user = await get_or_create_user(session, message.from_user.id)
+            if user.phone_number:
+                await message.reply(
+                    f"📱 Nomor WA Anda: {user.phone_number}\n"
+                    f"Gunakan /wa hapus untuk menghapus."
+                )
+            else:
+                await message.reply(
+                    "Gunakan: /wa <nomor>\n"
+                    "Contoh: /wa 08123456789\n\n"
+                    "Nomor akan digunakan untuk pengingat via WhatsApp."
+                )
+            return
+
+        if text.lower() == "hapus":
+            await update_user_wa(session, message.from_user.id, phone_number="")
+            await message.reply("Nomor WhatsApp berhasil dihapus.")
+            return
+
+    import re
+    digits = re.sub(r"\D", "", text)
+    if not digits.startswith("0") or len(digits) < 10:
+        await message.reply("Nomor tidak valid. Gunakan format: 08123456789")
+        return
+    formatted = f"+62{digits[1:]}"
+
+    async with async_session_factory() as session:
+        await update_user_wa(session, message.from_user.id, phone_number=formatted)
+    await message.reply(f"✅ Nomor WhatsApp tersimpan: {formatted}")
