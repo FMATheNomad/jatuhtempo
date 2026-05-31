@@ -1,12 +1,15 @@
 import logging
 from datetime import datetime, timezone
 
+from sqlalchemy import select
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from app.core.config import settings
 from app.core.db import async_session_factory
 from app.models.reminder import Reminder
+from app.models.debt import Debt
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +29,6 @@ async def check_reminders():
 
     now = datetime.now(timezone.utc)
     async with async_session_factory() as session:
-        from sqlalchemy import select
-
         result = await session.execute(
             select(Reminder).where(Reminder.remind_at <= now, Reminder.sent == False)
         )
@@ -35,9 +36,6 @@ async def check_reminders():
 
         for reminder in reminders:
             try:
-                from app.models.debt import Debt
-                from app.models.user import User
-
                 debt = await session.get(Debt, reminder.debt_id)
                 user = await session.get(User, reminder.user_id)
                 if debt and user:

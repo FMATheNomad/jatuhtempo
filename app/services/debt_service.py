@@ -2,7 +2,7 @@ import logging
 import uuid
 from datetime import date, datetime, timezone, timedelta
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.debt import Debt, DebtStatus, DebtSource
@@ -87,7 +87,7 @@ async def get_monthly_summary(session: AsyncSession, user_id: uuid.UUID) -> Mont
         select(func.count(), func.coalesce(func.sum(Debt.amount), 0)).where(
             Debt.user_id == user_id,
             Debt.status == DebtStatus.paid,
-            Debt.updated_at >= start_of_month,
+            func.coalesce(Debt.paid_at, Debt.updated_at) >= start_of_month,
         )
     )
     paid_count, paid_amount = paid_result.one()
@@ -129,5 +129,17 @@ async def update_debt_status(session: AsyncSession, debt_id: uuid.UUID, status: 
     debt = await session.get(Debt, debt_id)
     if debt:
         debt.status = status
+        if status == DebtStatus.paid:
+            debt.paid_at = datetime.now(timezone.utc)
         await session.commit()
+        await session.refresh(debt)
     return debt
+
+
+async def delete_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID) -> bool:
+    debt = await session.get(Debt, debt_id)
+    if debt and debt.user_id == user_id:
+        await session.delete(debt)
+        await session.commit()
+        return True
+    return False

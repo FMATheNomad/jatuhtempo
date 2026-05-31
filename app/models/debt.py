@@ -1,4 +1,5 @@
 import uuid
+import enum
 from datetime import date, datetime, timezone
 
 from sqlalchemy import String, Integer, Date, DateTime, Enum as SAEnum, ForeignKey
@@ -6,8 +7,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
-
-import enum
 
 
 class DebtStatus(str, enum.Enum):
@@ -35,6 +34,7 @@ class Debt(Base):
     notes: Mapped[str] = mapped_column(String(500), nullable=True)
     status: Mapped[DebtStatus] = mapped_column(SAEnum(DebtStatus), default=DebtStatus.active)
     source: Mapped[DebtSource] = mapped_column(SAEnum(DebtSource), default=DebtSource.manual)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
