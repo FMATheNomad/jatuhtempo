@@ -1,4 +1,5 @@
 import shlex
+import uuid
 from datetime import date, datetime, timezone
 
 from aiogram import Router
@@ -20,16 +21,36 @@ async def cmd_start(message: Message):
     if not check_rate_limit(message.from_user.id):
         return
     async with async_session_factory() as session:
-        await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
-    await message.reply(
-        "Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
-        "Kirim screenshot tagihan atau gunakan perintah:\n"
-        "/add - Tambah utang manual\n"
-        "/debts - Lihat semua utang\n"
-        "/monthly - Rekap bulan ini\n"
-        "/upcoming - Utang mendatang\n"
-        "/summary - Ringkasan singkat"
-    )
+        user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+        debts = await get_user_debts(session, user.id)
+
+    if debts:
+        active = sum(1 for d in debts if d.status.value == "active")
+        paid = sum(1 for d in debts if d.status.value == "paid")
+        late = sum(1 for d in debts if d.status.value == "late")
+        await message.reply(
+            f"Selamat datang kembali, {message.from_user.full_name}!\n\n"
+            f"📊 Statistik utang Anda:\n"
+            f"🟡 Aktif: {active}\n"
+            f"✅ Lunas: {paid}\n"
+            f"🔴 Terlambat: {late}\n"
+            f"📋 Total: {len(debts)}\n\n"
+            "Kirim screenshot tagihan atau gunakan perintah:\n"
+            "/add - Tambah utang manual\n"
+            "/debts - Detail semua utang\n"
+            "/monthly - Rekap bulan ini\n"
+            "/summary - Ringkasan singkat"
+        )
+    else:
+        await message.reply(
+            "Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
+            "Kirim screenshot tagihan atau gunakan perintah:\n"
+            "/add - Tambah utang manual\n"
+            "/debts - Lihat semua utang\n"
+            "/monthly - Rekap bulan ini\n"
+            "/upcoming - Utang mendatang\n"
+            "/summary - Ringkasan singkat"
+        )
 
 
 @router.message(Command("help"))
@@ -159,11 +180,17 @@ async def cmd_debts(message: Message):
     lines = ["<b>Daftar Utang:</b>\n"]
     for d in debts:
         status_emoji = {"active": "🟡", "paid": "✅", "late": "🔴"}
+        short_id = str(d.id)[:8]
         cicilan = f" ({d.installment_current}/{d.installment_total})" if d.installment_current and d.installment_total else ""
+        extra = ""
+        if d.category:
+            extra += f" | {d.category}"
+        if d.notes:
+            extra += f"\n   📝 {d.notes}"
         lines.append(
             f"{status_emoji.get(d.status.value, '⚪')} <b>{d.platform}</b>{cicilan}\n"
             f"   Rp{d.amount:,} | Jatuh tempo: {d.due_date}\n"
-            f"   Status: {d.status.value}"
+            f"   ID: <code>{short_id}</code> | {d.status.value}{extra}"
         )
     await message.reply("\n".join(lines))
 
@@ -231,18 +258,31 @@ async def cmd_delete(message: Message):
         return
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
-        await message.reply("Gunakan: /delete <id_utang>\n\nID utang bisa dilihat dari /debts.")
+        await message.reply(
+            "Gunakan: /delete <id>\n\n"
+            "ID bisa dilihat dari /debts (8 karakter pertama).\n"
+            "Contoh: /delete a1b2c3d4"
+        )
         return
 
-    import uuid
-    try:
-        debt_id = uuid.UUID(args[1].strip())
-    except ValueError:
-        await message.reply("ID utang tidak valid. Gunakan UUID yang benar.")
-        return
+    raw_id = args[1].strip()
 
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+
+        try:
+            debt_id = uuid.UUID(raw_id)
+        except ValueError:
+            debts = await get_user_debts(session, user.id)
+            matched = [d for d in debts if str(d.id).startswith(raw_id)]
+            if len(matched) == 0:
+                await message.reply("ID tidak ditemukan. Gunakan /debts untuk melihat ID utang.")
+                return
+            if len(matched) > 1:
+                await message.reply(f"Ditemukan {len(matched)} utang dengan ID '{raw_id}'. Gunakan ID yang lebih spesifik.")
+                return
+            debt_id = matched[0].id
+
         deleted = await delete_debt(session, debt_id, user.id)
 
     if deleted:

@@ -10,6 +10,7 @@ from app.core.db import async_session_factory
 from app.models.reminder import Reminder
 from app.models.debt import Debt
 from app.models.user import User
+from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -39,13 +40,25 @@ async def check_reminders():
                 debt = await session.get(Debt, reminder.debt_id)
                 user = await session.get(User, reminder.user_id)
                 if debt and user:
+                    label_map = {
+                        "H-7": "⏰ 7 hari lagi",
+                        "H-3": "⏰ 3 hari lagi",
+                        "H-1": "⏰ Besok!",
+                        "due": "⚠️ Jatuh tempo hari ini!",
+                        "overdue": "🚨 Sudah terlambat!",
+                    }
+                    label = label_map.get(reminder.type, reminder.type)
                     msg = (
-                        f"Pengingat: {reminder.type}\n"
+                        f"{label}\n"
                         f"Tagihan: {debt.platform}\n"
                         f"Jumlah: Rp{debt.amount:,}\n"
                         f"Jatuh tempo: {debt.due_date}"
                     )
-                    await _bot_instance.send_message(chat_id=user.telegram_id, text=msg)
+                    await _bot_instance.send_message(
+                        chat_id=user.telegram_id,
+                        text=msg,
+                        reply_markup=debt_keyboard(debt.id),
+                    )
 
                 reminder.sent = True
                 await session.commit()
