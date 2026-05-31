@@ -8,9 +8,13 @@ from aiogram.types import Message
 
 from app.core.db import async_session_factory
 from app.core.ratelimit import check_rate_limit
+from app.models.debt import DebtSource, DebtStatus
 from app.schemas.debt import DebtCreate
-from app.services.debt_service import get_or_create_user, create_debt, get_user_debts, get_monthly_summary, get_upcoming_debts, delete_debt
-from app.models.debt import DebtSource
+from app.services.debt_service import (
+    get_or_create_user, create_debt, update_debt,
+    get_user_debts, get_user_debt_by_id,
+    get_monthly_summary, get_upcoming_debts, delete_debt,
+)
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 router = Router()
@@ -37,6 +41,7 @@ async def cmd_start(message: Message):
             f"📋 Total: {len(debts)}\n\n"
             "Kirim screenshot tagihan atau gunakan perintah:\n"
             "/add - Tambah utang manual\n"
+            "/edit <id> - Edit utang\n"
             "/debts - Detail semua utang\n"
             "/monthly - Rekap bulan ini\n"
             "/summary - Ringkasan singkat"
@@ -46,6 +51,7 @@ async def cmd_start(message: Message):
             "Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
             "Kirim screenshot tagihan atau gunakan perintah:\n"
             "/add - Tambah utang manual\n"
+            "/edit <id> - Edit utang\n"
             "/debts - Lihat semua utang\n"
             "/monthly - Rekap bulan ini\n"
             "/upcoming - Utang mendatang\n"
@@ -66,6 +72,7 @@ async def cmd_help(message: Message):
         "/monthly - Rekap bulan ini\n"
         "/upcoming - Utang 30 hari ke depan\n"
         "/summary - Ringkasan singkat\n"
+        "/edit <id> - Edit utang\n"
         "/delete <id> - Hapus utang\n\n"
         "Atau kirim screenshot tagihan untuk parsing otomatis."
     )
@@ -289,3 +296,135 @@ async def cmd_delete(message: Message):
         await message.reply("Utang berhasil dihapus.")
     else:
         await message.reply("Utang tidak ditemukan atau bukan milik Anda.")
+
+
+@router.message(Command("edit"))
+async def cmd_edit(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        return
+    text = message.text.removeprefix("/edit").strip()
+    if not text:
+        await message.reply(
+            "Gunakan: /edit <id> [--amount N] [--due_date YYYY-MM-DD] [--platform X] "
+            "[--status active|paid|late] [--cicilan X/Y] [--kategori X] [--notes X]\n\n"
+            "Contoh: /edit a1b2c3d4 --amount 250000 --status paid\n"
+            "ID bisa dilihat dari /debts."
+        )
+        return
+
+    try:
+        parts = shlex.split(text)
+    except ValueError:
+        await message.reply("Format tidak valid. Periksa tanda kutip.")
+        return
+
+    raw_id = parts[0]
+    rest = parts[1:]
+
+    if not rest:
+        await message.reply("Tidak ada field yang diubah. Lihat panduan /edit.")
+        return
+
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+
+        try:
+            debt_id = uuid.UUID(raw_id)
+        except ValueError:
+            debts = await get_user_debts(session, user.id)
+            matched = [d for d in debts if str(d.id).startswith(raw_id)]
+            if len(matched) == 0:
+                await message.reply("ID tidak ditemukan. Gunakan /debts untuk melihat ID.")
+                return
+            if len(matched) > 1:
+                await message.reply(f"Ditemukan {len(matched)} utang. Gunakan ID yang lebih spesifik.")
+                return
+            debt_id = matched[0].id
+
+        debt = await get_user_debt_by_id(session, debt_id, user.id)
+        if not debt:
+            await message.reply("Utang tidak ditemukan atau bukan milik Anda.")
+            return
+
+        update_kwargs = {}
+        changed = []
+        i = 0
+        while i < len(rest):
+            if rest[i] == "--amount" and i + 1 < len(rest):
+                try:
+                    update_kwargs["amount"] = int(rest[i + 1])
+                    changed.append(f"jumlah → Rp{update_kwargs['amount']:,}")
+                except ValueError:
+                    await message.reply("Jumlah harus angka.")
+                    return
+                i += 2
+            elif rest[i] == "--due_date" and i + 1 < len(rest):
+                try:
+                    update_kwargs["due_date"] = date.fromisoformat(rest[i + 1])
+                    changed.append(f"jatuh tempo → {update_kwargs['due_date']}")
+                except ValueError:
+                    await message.reply("Tanggal harus format YYYY-MM-DD.")
+                    return
+                i += 2
+            elif rest[i] == "--platform" and i + 1 < len(rest):
+                update_kwargs["platform"] = rest[i + 1]
+                changed.append(f"platform → {update_kwargs['platform']}")
+                i += 2
+            elif rest[i] == "--status" and i + 1 < len(rest):
+                val = rest[i + 1].lower()
+                if val not in ("active", "paid", "late"):
+                    await message.reply("Status harus: active, paid, atau late.")
+                    return
+                update_kwargs["status"] = DebtStatus(val)
+                changed.append(f"status → {val}")
+                i += 2
+            elif rest[i] == "--cicilan" and i + 1 < len(rest):
+                cicilan = rest[i + 1]
+                if cicilan.lower() == "hapus":
+                    update_kwargs["installment_current"] = None
+                    update_kwargs["installment_total"] = None
+                    changed.append("cicilan dihapus")
+                elif "/" in cicilan:
+                    try:
+                        update_kwargs["installment_current"] = int(cicilan.split("/")[0])
+                        update_kwargs["installment_total"] = int(cicilan.split("/")[1])
+                        changed.append(f"cicilan → {cicilan}")
+                    except ValueError:
+                        await message.reply("Format cicilan harus X/Y, contoh: --cicilan 3/12")
+                        return
+                else:
+                    await message.reply("Format cicilan harus X/Y atau 'hapus'.")
+                    return
+                i += 2
+            elif rest[i] == "--kategori" and i + 1 < len(rest):
+                val = rest[i + 1]
+                if val.lower() == "hapus":
+                    update_kwargs["category"] = None
+                    changed.append("kategori dihapus")
+                else:
+                    update_kwargs["category"] = val
+                    changed.append(f"kategori → {val}")
+                i += 2
+            elif rest[i] == "--notes" and i + 1 < len(rest):
+                val = rest[i + 1]
+                if val.lower() == "hapus":
+                    update_kwargs["notes"] = None
+                    changed.append("catatan dihapus")
+                else:
+                    update_kwargs["notes"] = val
+                    changed.append(f"catatan → {val}")
+                i += 2
+            else:
+                i += 1
+
+        if not update_kwargs:
+            await message.reply("Tidak ada field valid yang diubah.")
+            return
+
+        updated = await update_debt(session, debt_id, user.id, **update_kwargs)
+
+    if updated:
+        msg = "✅ <b>Utang diperbarui:</b>\n" + "\n".join(f"• {c}" for c in changed)
+        await message.reply(msg, reply_markup=debt_keyboard(updated.id))
+    else:
+        await message.reply("Gagal memperbarui utang.")

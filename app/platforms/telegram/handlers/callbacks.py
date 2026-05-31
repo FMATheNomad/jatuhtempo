@@ -1,11 +1,17 @@
 import logging
+import uuid
+from pathlib import Path
 
 from aiogram import Router
 from aiogram.types import CallbackQuery
 
 from app.core.db import async_session_factory
-from app.models.debt import DebtStatus
-from app.services.debt_service import update_debt_status
+from app.core.temp_store import pop_ocr
+from app.models.debt import DebtSource, DebtStatus
+from app.models.ocr_log import OcrLog
+from app.schemas.debt import DebtCreate
+from app.services.debt_service import update_debt_status, get_or_create_user, create_debt
+from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +21,6 @@ router = Router()
 @router.callback_query(lambda c: c.data and c.data.startswith("paid:"))
 async def callback_paid(callback: CallbackQuery):
     debt_id_str = callback.data.split(":", 1)[1]
-    import uuid
     try:
         debt_id = uuid.UUID(debt_id_str)
     except ValueError:
@@ -37,7 +42,6 @@ async def callback_paid(callback: CallbackQuery):
 @router.callback_query(lambda c: c.data and c.data.startswith("late:"))
 async def callback_late(callback: CallbackQuery):
     debt_id_str = callback.data.split(":", 1)[1]
-    import uuid
     try:
         debt_id = uuid.UUID(debt_id_str)
     except ValueError:
@@ -54,3 +58,66 @@ async def callback_late(callback: CallbackQuery):
         await callback.answer("Utang ditandai terlambat!")
     else:
         await callback.answer("Utang tidak ditemukan.", show_alert=True)
+
+
+@router.callback_query(lambda c: c.data == "ocr_confirm")
+async def callback_ocr_confirm(callback: CallbackQuery):
+    data = pop_ocr(callback.from_user.id)
+    if not data:
+        await callback.answer("Data sudah kadaluarsa. Kirim ulang screenshot.", show_alert=True)
+        return
+
+    parsed = data["parsed"]
+    raw_text = data.get("raw_text", "")
+    image_path = data.get("image_path")
+
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, callback.from_user.id)
+
+        if image_path:
+            ocr_log = OcrLog(
+                user_id=user.id,
+                image_path=image_path,
+                raw_text=raw_text,
+                parsed_json=parsed,
+            )
+            session.add(ocr_log)
+
+        debt_data = DebtCreate(
+            platform=parsed.get("platform", "Unknown"),
+            amount=parsed.get("amount", 0),
+            due_date=parsed.get("due_date"),
+            installment_current=parsed.get("installment_current"),
+            installment_total=parsed.get("installment_total"),
+            category=parsed.get("category"),
+            notes=parsed.get("notes"),
+        )
+        debt = await create_debt(session, user.id, debt_data, source=DebtSource.screenshot)
+
+    msg = (
+        f"✅ Disimpan!\n"
+        f"Platform: {debt.platform}\n"
+        f"Jumlah: Rp{debt.amount:,}\n"
+        f"Jatuh tempo: {debt.due_date}"
+    )
+    await callback.message.edit_text(msg, reply_markup=debt_keyboard(debt.id))
+    await callback.answer("Utang berhasil disimpan!")
+
+    if image_path:
+        try:
+            Path(image_path).unlink()
+        except OSError:
+            pass
+
+
+@router.callback_query(lambda c: c.data == "ocr_cancel")
+async def callback_ocr_cancel(callback: CallbackQuery):
+    data = pop_ocr(callback.from_user.id)
+    await callback.message.edit_text("❌ Dibatalkan. Tidak ada data yang disimpan.")
+    await callback.answer("Dibatalkan.")
+
+    if data and data.get("image_path"):
+        try:
+            Path(data["image_path"]).unlink()
+        except OSError:
+            pass

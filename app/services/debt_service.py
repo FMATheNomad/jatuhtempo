@@ -143,3 +143,24 @@ async def delete_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.U
         await session.commit()
         return True
     return False
+
+
+async def get_user_debt_by_id(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID) -> Debt | None:
+    debt = await session.get(Debt, debt_id)
+    if debt and debt.user_id == user_id:
+        return debt
+    return None
+
+
+async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID, **kwargs) -> Debt | None:
+    debt = await session.get(Debt, debt_id)
+    if not debt or debt.user_id != user_id:
+        return None
+    for key, value in kwargs.items():
+        if value is not None:
+            setattr(debt, key, value)
+    if kwargs.get("status") == DebtStatus.paid:
+        debt.paid_at = datetime.now(timezone.utc)
+    await session.commit()
+    await session.refresh(debt)
+    return debt
