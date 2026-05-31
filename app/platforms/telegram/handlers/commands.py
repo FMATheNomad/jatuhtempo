@@ -176,15 +176,50 @@ async def cmd_add(message: Message):
 async def cmd_debts(message: Message):
     if not check_rate_limit(message.from_user.id):
         return
+
+    text = message.text.removeprefix("/debts").strip()
+    status_filter = None
+    platform_filter = None
+
+    if text:
+        try:
+            parts = shlex.split(text)
+        except ValueError:
+            await message.reply("Format tidak valid.")
+            return
+        i = 0
+        while i < len(parts):
+            if parts[i] == "--status" and i + 1 < len(parts):
+                val = parts[i + 1].lower()
+                if val not in ("active", "paid", "late"):
+                    await message.reply("Filter status: active, paid, atau late.")
+                    return
+                status_filter = DebtStatus(val)
+                i += 2
+            elif parts[i] == "--platform" and i + 1 < len(parts):
+                platform_filter = parts[i + 1]
+                i += 2
+            else:
+                i += 1
+
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
-        debts = await get_user_debts(session, user.id)
+        debts = await get_user_debts(session, user.id, status=status_filter, platform=platform_filter)
 
     if not debts:
-        await message.reply("Belum ada utang tercatat.")
+        msg = "Tidak ada utang"
+        if status_filter or platform_filter:
+            msg += " dengan filter tersebut"
+        await message.reply(msg + ".")
         return
 
-    lines = ["<b>Daftar Utang:</b>\n"]
+    title = "<b>Daftar Utang</b>"
+    if status_filter:
+        title += f" — {status_filter.value}"
+    if platform_filter:
+        title += f" — {platform_filter}"
+    lines = [title + "\n"]
+
     for d in debts:
         status_emoji = {"active": "🟡", "paid": "✅", "late": "🔴"}
         short_id = str(d.id)[:8]
