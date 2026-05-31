@@ -10,8 +10,10 @@ from app.core.temp_store import pop_ocr
 from app.models.debt import DebtSource, DebtStatus
 from app.models.ocr_log import OcrLog
 from app.schemas.debt import DebtCreate
-from app.services.debt_service import update_debt_status, get_or_create_user, create_debt
+from sqlalchemy import select
+from app.services.debt_service import update_debt_status, get_or_create_user, create_debt, update_user_wa
 from app.services.payment_service import create_payment
+from app.models.user import User
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 logger = logging.getLogger(__name__)
@@ -124,3 +126,16 @@ async def callback_ocr_cancel(callback: CallbackQuery):
             Path(data["image_path"]).unlink()
         except OSError:
             pass
+
+
+@router.callback_query(lambda c: c.data == "wa_optout")
+async def callback_wa_optout(callback: CallbackQuery):
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(User).where(User.telegram_id == callback.from_user.id)
+        )
+        user = result.scalar_one_or_none()
+        if user:
+            await update_user_wa(session, user.telegram_id, optout=True)
+    await callback.message.edit_text("⏸ Notifikasi tautkan WA tidak akan muncul lagi.")
+    await callback.answer("Dimatikan.")
