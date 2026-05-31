@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
-import app.models  # noqa: F401 — ensure all models are loaded for metadata.create_all
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,7 @@ MIGRATIONS = [
 
 
 async def init_db():
+    import app.models  # noqa: F401 — import inside function to avoid circular import
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         for stmt in MIGRATIONS:
