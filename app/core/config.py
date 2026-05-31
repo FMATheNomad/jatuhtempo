@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     reminder_check_interval_minutes: int = 1
 
-    jwt_secret: str = "change-me-to-a-random-secret"
+    jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     web_url: str = "http://localhost:3000"
 

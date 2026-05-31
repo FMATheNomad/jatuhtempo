@@ -4,6 +4,8 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import Optional
 
+from sqlalchemy import select as sa_select
+
 from app.core.auth import verify_token
 from app.core.db import async_session_factory
 from app.models.debt import Debt, DebtStatus
@@ -26,7 +28,7 @@ async def get_current_user(authorization: str = Header(None)):
         raise HTTPException(401, "Invalid or expired token")
     async with async_session_factory() as session:
         result = await session.execute(
-            __import__("sqlalchemy").select(User).where(User.telegram_id == payload["telegram_id"])
+            sa_select(User).where(User.telegram_id == payload["telegram_id"])
         )
         user = result.scalar_one_or_none()
         if not user:

@@ -5,6 +5,9 @@ import jwt
 
 from app.core.config import settings
 
+if not settings.jwt_secret:
+    raise RuntimeError("JWT_SECRET tidak dikonfigurasi. Set di .env atau Railway variables.")
+
 
 def create_login_token(telegram_id: int) -> str:
     payload = {

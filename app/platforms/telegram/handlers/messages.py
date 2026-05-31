@@ -24,6 +24,7 @@ router = Router()
 @router.message(F.photo)
 async def handle_photo(message: Message):
     if not check_rate_limit(message.from_user.id, cooldown=3.0):
+        await message.reply("⏳ Mohon tunggu 3 detik antar foto.")
         return
 
     processing_msg = await message.reply("Memproses screenshot...")

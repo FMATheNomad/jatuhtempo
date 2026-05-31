@@ -12,7 +12,6 @@ from app.models.ocr_log import OcrLog
 from app.schemas.debt import DebtCreate
 from sqlalchemy import select
 from app.services.debt_service import update_debt_status, get_or_create_user, create_debt, update_user_wa
-from app.services.payment_service import create_payment
 from app.models.user import User
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
@@ -32,8 +31,6 @@ async def callback_paid(callback: CallbackQuery):
 
     async with async_session_factory() as session:
         debt = await update_debt_status(session, debt_id, DebtStatus.paid)
-        if debt:
-            await create_payment(session, debt.id, debt.user_id, debt.amount)
 
     if debt:
         await callback.message.edit_text(

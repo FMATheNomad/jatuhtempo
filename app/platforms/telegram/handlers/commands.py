@@ -23,9 +23,13 @@ from app.platforms.telegram.keyboards.inline import debt_keyboard
 router = Router()
 
 
+RATE_MSG = "⏳ Mohon tunggu sebelum menggunakan perintah lagi."
+
+
 @router.message(Command("start"))
 async def cmd_start(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
@@ -65,18 +69,22 @@ async def cmd_start(message: Message):
 @router.message(Command("help"))
 async def cmd_help(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     await message.reply(
         "Perintah yang tersedia:\n"
         "/start - Mulai bot\n"
         "/help - Bantuan ini\n"
         "/add - Tambah utang baru\n"
-        "/debts - Lihat daftar utang\n"
+        "/debts [--status] [--platform] - Daftar utang + filter\n"
+        "/edit <id> - Edit utang\n"
+        "/delete <id> - Hapus utang\n"
+        "/history <id> - Riwayat pembayaran\n"
         "/monthly - Rekap bulan ini\n"
         "/upcoming - Utang 30 hari ke depan\n"
         "/summary - Ringkasan singkat\n"
-        "/edit <id> - Edit utang\n"
-        "/delete <id> - Hapus utang\n\n"
+        "/login - Login ke web dashboard\n"
+        "/wa [nomor] - Atur nomor WhatsApp\n\n"
         "Atau kirim screenshot tagihan untuk parsing otomatis."
     )
 
@@ -84,6 +92,7 @@ async def cmd_help(message: Message):
 @router.message(Command("add"))
 async def cmd_add(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     text = message.text.removeprefix("/add").strip()
     if not text:
@@ -178,6 +187,7 @@ async def cmd_add(message: Message):
 @router.message(Command("debts"))
 async def cmd_debts(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
 
     text = message.text.removeprefix("/debts").strip()
@@ -243,6 +253,7 @@ async def cmd_debts(message: Message):
 @router.message(Command("monthly"))
 async def cmd_monthly(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
@@ -265,6 +276,7 @@ async def cmd_monthly(message: Message):
 @router.message(Command("upcoming"))
 async def cmd_upcoming(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
@@ -284,6 +296,7 @@ async def cmd_upcoming(message: Message):
 @router.message(Command("summary"))
 async def cmd_summary(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     async with async_session_factory() as session:
         user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
@@ -300,6 +313,7 @@ async def cmd_summary(message: Message):
 @router.message(Command("delete"))
 async def cmd_delete(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
@@ -339,6 +353,7 @@ async def cmd_delete(message: Message):
 @router.message(Command("edit"))
 async def cmd_edit(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     text = message.text.removeprefix("/edit").strip()
     if not text:
@@ -471,6 +486,7 @@ async def cmd_edit(message: Message):
 @router.message(Command("history"))
 async def cmd_history(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
@@ -532,9 +548,10 @@ async def cmd_history(message: Message):
 @router.message(Command("login"))
 async def cmd_login(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     token = create_login_token(message.from_user.id)
-    link = f"{settings.web_url}/auth?token={token}"
+    link = f"{settings.web_url}/login?token={token}"
     await message.reply(
         f"🔑 <b>Login ke Dashboard</b>\n\n"
         f"Klik link berikut untuk masuk ke web dashboard:\n"
@@ -546,6 +563,7 @@ async def cmd_login(message: Message):
 @router.message(Command("wa"))
 async def cmd_wa(message: Message):
     if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
         return
     text = message.text.removeprefix("/wa").strip()
     async with async_session_factory() as session:

@@ -6,6 +6,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.debt import Debt, DebtStatus, DebtSource
+from app.models.payment import Payment
 from app.models.reminder import Reminder
 from app.models.user import User
 from app.schemas.debt import DebtCreate, MonthlySummary
@@ -138,6 +139,8 @@ async def update_debt_status(session: AsyncSession, debt_id: uuid.UUID, status: 
         debt.status = status
         if status == DebtStatus.paid:
             debt.paid_at = datetime.now(timezone.utc)
+            payment = Payment(debt_id=debt.id, user_id=debt.user_id, amount_paid=debt.amount)
+            session.add(payment)
         await session.commit()
         await session.refresh(debt)
     return debt
@@ -152,8 +155,12 @@ async def update_user_wa(
     if not user:
         return None
     if phone_number is not None:
-        user.phone_number = phone_number
-        user.wa_linked_at = datetime.now(timezone.utc) if phone_number else None
+        if phone_number == "":
+            user.phone_number = None
+            user.wa_linked_at = None
+        else:
+            user.phone_number = phone_number
+            user.wa_linked_at = datetime.now(timezone.utc)
     if optout is not None:
         user.wa_reminder_optout = optout
     await session.commit()
@@ -186,6 +193,8 @@ async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.U
             setattr(debt, key, value)
     if kwargs.get("status") == DebtStatus.paid:
         debt.paid_at = datetime.now(timezone.utc)
+        payment = Payment(debt_id=debt.id, user_id=debt.user_id, amount_paid=debt.amount)
+        session.add(payment)
     await session.commit()
     await session.refresh(debt)
     return debt
