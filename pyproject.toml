@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "jatuhtempo"
 version = "0.1.0"
 description = "AI-powered debt management assistant for Indonesian users"
+license = { text = "All Rights Reserved" }
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",

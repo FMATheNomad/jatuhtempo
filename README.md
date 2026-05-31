@@ -171,4 +171,4 @@ Atau cukup **kirim screenshot** tagihan — bot akan OCR + parse otomatis.
 
 ## 📄 Lisensi
 
-GNU GPLv3
+All Rights Reserved — © 2026 FMATheNomad
