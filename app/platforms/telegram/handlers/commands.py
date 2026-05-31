@@ -15,6 +15,7 @@ from app.services.debt_service import (
     get_user_debts, get_user_debt_by_id,
     get_monthly_summary, get_upcoming_debts, delete_debt,
 )
+from app.services.payment_service import get_payments_for_debt
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 router = Router()
@@ -463,3 +464,64 @@ async def cmd_edit(message: Message):
         await message.reply(msg, reply_markup=debt_keyboard(updated.id))
     else:
         await message.reply("Gagal memperbarui utang.")
+
+
+@router.message(Command("history"))
+async def cmd_history(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        return
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2:
+        await message.reply("Gunakan: /history <id>\n\nID bisa dilihat dari /debts.")
+        return
+
+    raw_id = args[1].strip()
+
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+
+        try:
+            debt_id = uuid.UUID(raw_id)
+        except ValueError:
+            debts = await get_user_debts(session, user.id)
+            matched = [d for d in debts if str(d.id).startswith(raw_id)]
+            if len(matched) == 0:
+                await message.reply("ID tidak ditemukan.")
+                return
+            if len(matched) > 1:
+                await message.reply("Gunakan ID yang lebih spesifik.")
+                return
+            debt_id = matched[0].id
+
+        debt = await get_user_debt_by_id(session, debt_id, user.id)
+        if not debt:
+            await message.reply("Utang tidak ditemukan.")
+            return
+
+        payments = await get_payments_for_debt(session, debt_id, user.id)
+
+    header = (
+        f"<b>Riwayat Pembayaran</b>\n"
+        f"{debt.platform} — Rp{debt.amount:,}\n"
+        f"Status: {debt.status.value}\n\n"
+    )
+
+    if not payments:
+        await message.reply(header + "Belum ada pembayaran tercatat.")
+        return
+
+    lines = [header]
+    total_paid = 0
+    for p in payments:
+        total_paid += p.amount_paid
+        note = f" — {p.notes}" if p.notes else ""
+        lines.append(
+            f"✓ Rp{p.amount_paid:,} — {p.paid_at.strftime('%d %b %Y %H:%M')}{note}"
+        )
+
+    remaining = debt.amount - total_paid
+    lines.append(f"\n<b>Total dibayar:</b> Rp{total_paid:,}")
+    if remaining > 0 and debt.status.value != "paid":
+        lines.append(f"<b>Sisa:</b> Rp{remaining:,}")
+
+    await message.reply("\n".join(lines))

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
+import app.models  # noqa: F401 — ensure all models are loaded for metadata.create_all
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,14 @@ async def get_db() -> AsyncSession:
 
 MIGRATIONS = [
     "ALTER TABLE debts ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ",
+    """CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        amount_paid INTEGER NOT NULL,
+        paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        notes VARCHAR(500)
+    )""",
 ]
 
 

@@ -11,6 +11,7 @@ from app.models.debt import DebtSource, DebtStatus
 from app.models.ocr_log import OcrLog
 from app.schemas.debt import DebtCreate
 from app.services.debt_service import update_debt_status, get_or_create_user, create_debt
+from app.services.payment_service import create_payment
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 logger = logging.getLogger(__name__)
@@ -29,12 +30,14 @@ async def callback_paid(callback: CallbackQuery):
 
     async with async_session_factory() as session:
         debt = await update_debt_status(session, debt_id, DebtStatus.paid)
+        if debt:
+            await create_payment(session, debt.id, debt.user_id, debt.amount)
 
     if debt:
         await callback.message.edit_text(
             f"✅ {debt.platform} — Rp{debt.amount:,}\nStatus: ✅ Lunas"
         )
-        await callback.answer("Utang ditandai lunas!")
+        await callback.answer("Utang ditandai lunas! Pembayaran tercatat.")
     else:
         await callback.answer("Utang tidak ditemukan.", show_alert=True)
 
