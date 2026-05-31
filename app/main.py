@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.db import init_db
 from app.core.scheduler import start_scheduler, set_bot_instance
 from app.api.auth import router as auth_router
+from app.api.debts import router as debts_router
 from app.platforms.telegram.bot import get_bot, start_polling
 
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +48,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(debts_router)
 
 
 @app.get("/health")
