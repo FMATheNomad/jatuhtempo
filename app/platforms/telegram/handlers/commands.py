@@ -548,15 +548,12 @@ async def cmd_history(message: Message):
 @router.message(Command("login"))
 async def cmd_login(message: Message):
     if not check_rate_limit(message.from_user.id):
-        await message.reply(RATE_MSG)
         return
-    token = create_login_token(message.from_user.id)
-    link = f"{settings.web_url}/login?token={token}"
     await message.reply(
         f"🔑 <b>Login ke Dashboard</b>\n\n"
-        f"Klik link berikut untuk masuk ke web dashboard:\n"
-        f"{link}\n\n"
-        f"Link ini berlaku 5 menit."
+        f"Buka link berikut:\n"
+        f"{settings.web_url}/login\n\n"
+        f"Login dengan Google atau email melalui Clerk."
     )
 
 
