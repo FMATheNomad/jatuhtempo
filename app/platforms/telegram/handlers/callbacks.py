@@ -86,8 +86,8 @@ async def callback_ocr_confirm(callback: CallbackQuery):
             session.add(ocr_log)
 
         debt_data = DebtCreate(
-            platform=parsed.get("platform", "Unknown"),
-            amount=parsed.get("amount", 0),
+            platform=parsed.get("platform") or "Unknown",
+            amount=parsed.get("amount") or 0,
             due_date=parsed.get("due_date"),
             installment_current=parsed.get("installment_current"),
             installment_total=parsed.get("installment_total"),

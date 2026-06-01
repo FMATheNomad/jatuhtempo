@@ -12,16 +12,19 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """Anda adalah asisten yang mengekstrak informasi tagihan keuangan dari teks OCR Indonesia.
 Ekstrak data berikut sebagai JSON:
-- platform (string): nama platform pinjaman/paylater (contoh: Akulaku, Shopee PayLater, Kredivo, dll)
-- amount (number): jumlah tagihan dalam Rupiah (angka saja, tanpa Rp atau titik)
-- due_date (string): tanggal jatuh tempo dalam format YYYY-MM-DD
-- installment_current (number atau null): cicilan ke-berapa (jika ada)
-- installment_total (number atau null): total cicilan (jika ada)
-- category (string atau null): kategori (contoh: "pinjol", "paylater", "gadai", "kredit")
-- notes (string atau null): catatan tambahan
+- platform (string): nama platform/penyedia pinjaman. Cari merek seperti Akulaku, Kredivo, Shopee PayLater, Dana, GoPay Later, SPayLater, Home Credit, FIF, Adira, Kredit Pintar, easycash, dll. Jika tidak ditemukan, perhatikan konteks (misal "Rincian Pinjaman" dengan format tertentu bisa menunjukkan platform tertentu), atau gunakan "Tidak Diketahui".
+- amount (number): jumlah tagihan YANG HARUS DIBAYAR SEKARANG. Prioritas: nominal cicilan bulanan saat ini (contoh: "3/3, Rp403.254" → 403254). Jangan ambil total Jumlah Pembayaran atau breakdown biaya. Jika ada beberapa angka, pilih yang paling relevan sebagai nominal utang aktif.
+- due_date (string): tanggal jatuh tempo dalam format YYYY-MM-DD.
+- installment_current (number atau null): cicilan ke-berapa (angka sebelum garis miring, contoh "3/3" → 3).
+- installment_total (number atau null): total cicilan (angka setelah garis miring, contoh "3/3" → 3).
+- category (string atau null): kategori pinjaman: "pinjol" (pinjaman online), "paylater", "kredit" (kredit bank/leasing), "gadai".
+- notes (string atau null): catatan tambahan relevan.
 
-Hanya kembalikan JSON, tanpa teks lain.
-Jika ragu, gunakan null untuk nilai yang tidak diketahui."""
+Aturan penting:
+- Angka dalam format Indonesia: "Rp1.000.000" = 1000000 (titik adalah pemisah ribuan). Hapus semua titik sebelum konversi ke number.
+- Jangan pernah mengambil "Jumlah Pembayaran" atau total tagihan sebagai amount. Ambil nominal cicilan per bulan.
+- Hanya kembalikan JSON valid, tanpa teks lain.
+- Jika ragu, gunakan null."""
 
 
 def _clean_parsed(parsed: dict[str, Any]) -> dict[str, Any]:
@@ -29,13 +32,23 @@ def _clean_parsed(parsed: dict[str, Any]) -> dict[str, Any]:
     today = date.today()
 
     platform = parsed.get("platform")
-    if not platform or not isinstance(platform, str):
-        platform = "Tagihan"
+    if not platform or not isinstance(platform, str) or platform in ("Tidak Diketahui", "Unknown", ""):
+        platform = None
 
     amount = parsed.get("amount")
-    if not amount or not isinstance(amount, (int, float)):
-        amount = 0
-    amount = int(amount)
+    if isinstance(amount, str):
+        amount = re.sub(r"[^0-9,]", "", amount)
+        amount = amount.replace(",", ".")
+        try:
+            amount = int(float(amount))
+        except (ValueError, TypeError):
+            amount = None
+    elif isinstance(amount, (int, float)):
+        amount = int(amount)
+    else:
+        amount = None
+    if amount is not None and amount <= 0:
+        amount = None
 
     raw_due = parsed.get("due_date")
     due_date = None

@@ -55,17 +55,19 @@ async def handle_photo(message: Message):
         parsed = await parse_debt_from_text(raw_text)
 
         warnings = []
-        if parsed.get("amount", 0) == 0:
-            warnings.append("Jumlah tidak terbaca (Rp0)")
-        if parsed.get("platform", "") in ("Tagihan", "Unknown", ""):
+        if parsed.get("amount") is None:
+            warnings.append("Jumlah tidak terbaca")
+        if parsed.get("platform") is None:
             warnings.append("Platform tidak terdeteksi")
         if parsed.get("due_date") == str(date.today()):
             warnings.append("Tanggal jatuh tempo fallback ke hari ini (gagal terbaca)")
 
+        amt = parsed.get("amount")
+        amt_str = f"Rp{amt:,}" if amt is not None else "?"
         preview = (
             f"📋 <b>Preview Hasil OCR:</b>\n"
-            f"🏷 Platform: {parsed.get('platform', '?')}\n"
-            f"💰 Jumlah: Rp{parsed.get('amount', 0):,}\n"
+            f"🏷 Platform: {parsed.get('platform') or '?'}\n"
+            f"💰 Jumlah: {amt_str}\n"
             f"📅 Jatuh tempo: {parsed.get('due_date', '?')}"
         )
         cicilan = ""
