@@ -550,10 +550,10 @@ async def cmd_login(message: Message):
     if not check_rate_limit(message.from_user.id):
         return
     await message.reply(
-        f"🔑 <b>Login ke Dashboard</b>\n\n"
-        f"Buka link berikut:\n"
+        f"🔑 <b>Akses Web Dashboard</b>\n\n"
+        f"Buka link berikut untuk login:\n"
         f"{settings.web_url}/login\n\n"
-        f"Login dengan Google atau email melalui Clerk."
+        f"Login via Google atau email untuk mengakses dashboard."
     )
 
 
