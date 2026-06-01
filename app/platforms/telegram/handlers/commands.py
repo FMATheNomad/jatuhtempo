@@ -1,6 +1,6 @@
 import shlex
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date
 
 from aiogram import Router
 from aiogram.filters import Command

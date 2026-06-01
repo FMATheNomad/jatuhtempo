@@ -33,6 +33,14 @@ async def handle_photo(message: Message):
         photo = message.photo[-1]
         file = await message.bot.get_file(photo.file_id)
 
+        max_bytes = settings.max_image_size_mb * 1024 * 1024
+        if file.file_size and file.file_size > max_bytes:
+            await processing_msg.edit_text(
+                f"Gambar terlalu besar (maks {settings.max_image_size_mb}MB). "
+                "Kirim gambar dengan resolusi lebih rendah."
+            )
+            return
+
         media_dir = Path(settings.media_dir)
         media_dir.mkdir(parents=True, exist_ok=True)
         image_path = media_dir / f"{uuid.uuid4()}.jpg"

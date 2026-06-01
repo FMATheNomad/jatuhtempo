@@ -10,6 +10,7 @@ export default function HistoryPage() {
   const [selected, setSelected] = useState<string | null>(null)
   const [payments, setPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -17,7 +18,7 @@ export default function HistoryPage() {
         const { getDebts } = await import('@/lib/api')
         const d = await getDebts()
         setDebts(d.filter((x: any) => x.status === 'paid'))
-      } catch { /* ignore */ }
+      } catch { setError('Gagal memuat data.') }
       setLoading(false)
     }
     load()
@@ -49,6 +50,9 @@ export default function HistoryPage() {
               <CardTitle>Utang Lunas</CardTitle>
             </CardHeader>
             <CardContent>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>
+              )}
               {loading ? (
                 <div className="space-y-3">
                   {[1,2,3].map(i => <div key={i} className="h-12 bg-secondary rounded-lg animate-pulse" />)}

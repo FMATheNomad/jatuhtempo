@@ -7,3 +7,4 @@ media/
 *.db
 .DS_Store
 .next/
+run.sh

@@ -2,7 +2,6 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
-from typing import Optional
 
 from sqlalchemy import select as sa_select
 
@@ -10,7 +9,7 @@ from app.core.auth import verify_token
 from app.core.db import async_session_factory
 from app.models.debt import Debt, DebtStatus
 from app.models.user import User
-from app.schemas.debt import DebtCreate, DebtResponse, MonthlySummary
+from app.schemas.debt import DebtResponse
 from app.services.debt_service import (
     get_or_create_user, get_user_debts, create_debt, update_debt,
     get_monthly_summary, get_upcoming_debts, delete_debt, get_user_debt_by_id, update_debt_status, update_user_wa,

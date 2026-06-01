@@ -21,10 +21,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex lg:flex-col w-64 border-r bg-card h-screen sticky top-0">
       <div className="p-6 border-b">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg gradient-card flex items-center justify-center">
-            <span className="text-white font-bold text-sm">JT</span>
-          </div>
-          <span className="font-semibold text-lg">JatuhTempo</span>
+          <img src="/assets/logo.png" alt="JatuhTempo" className="h-8 w-auto" />
         </Link>
       </div>
 

@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
-    web_url: str = "http://localhost:3000"
+    web_url: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

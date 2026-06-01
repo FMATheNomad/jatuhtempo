@@ -9,7 +9,7 @@ Kirim screenshot tagihan, biarkan AI yang mengekstrak jumlah, platform, dan jatu
 ## ✨ Fitur
 
 ### 📸 OCR + AI Parsing
-- Upload screenshot tagihan → PaddleOCR baca teks → DeepSeek AI ekstrak data terstruktur
+- Upload screenshot tagihan → Tesseract OCR baca teks → DeepSeek AI ekstrak data terstruktur
 - Otomatis deteksi: platform (Akulaku, Kredivo, Shopee PayLater, dll), jumlah, tanggal jatuh tempo, cicilan
 
 ### 📝 Manual Entry
@@ -58,7 +58,7 @@ app/
 | Bot | Aiogram 3.17+ |
 | Database | PostgreSQL (asyncpg) + SQLAlchemy 2.0 async |
 | Migrasi | Alembic |
-| OCR | PaddleOCR (dengan model bahasa Indonesia) |
+| OCR | Tesseract OCR (pytesseract) |
 | AI | DeepSeek Chat API (structured extraction) |
 | Scheduler | APScheduler |
 | Container | Docker |

@@ -20,5 +20,9 @@ dependencies = [
     "httpx>=0.28.0",
     "apscheduler>=3.10.4",
     "pytesseract>=0.3.13",
+    "Pillow>=11.0.0",
     "pyjwt>=2.10.0",
 ]
+
+[project.scripts]
+jatuhtempo = "uvicorn:main"

@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('')
   const [saved, setSaved] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -19,7 +20,7 @@ export default function SettingsPage() {
         const u = await getUser()
         setUser(u)
         setPhone(u.phone_number || '')
-      } catch { /* ignore */ }
+      } catch { setError('Gagal memuat profil.') }
     }
     load()
   }, [])
@@ -45,6 +46,9 @@ export default function SettingsPage() {
         </header>
 
         <div className="p-4 lg:p-8 max-w-2xl space-y-6 animate-fade-in">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">{error}</div>
+          )}
           {/* Profile Card */}
           <Card>
             <CardHeader>

@@ -1,5 +1,6 @@
 import logging
 import uuid
+from datetime import date
 from pathlib import Path
 
 from aiogram import Router
@@ -85,10 +86,16 @@ async def callback_ocr_confirm(callback: CallbackQuery):
             )
             session.add(ocr_log)
 
+        raw_due = parsed.get("due_date")
+        try:
+            due_date_val = date.fromisoformat(raw_due) if raw_due else date.today()
+        except (ValueError, TypeError):
+            due_date_val = date.today()
+
         debt_data = DebtCreate(
             platform=parsed.get("platform") or "Unknown",
             amount=parsed.get("amount") or 0,
-            due_date=parsed.get("due_date"),
+            due_date=due_date_val,
             installment_current=parsed.get("installment_current"),
             installment_total=parsed.get("installment_total"),
             category=parsed.get("category"),

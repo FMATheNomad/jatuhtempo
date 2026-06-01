@@ -15,6 +15,7 @@ const statusVariant: Record<string, 'active' | 'paid' | 'late'> = {
 export default function DebtsPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
@@ -24,7 +25,7 @@ export default function DebtsPage() {
         const { getDebts } = await import('@/lib/api')
         const d = await getDebts()
         setDebts(d)
-      } catch { /* ignore */ }
+      } catch { setError('Gagal memuat data.') }
       setLoading(false)
     }
     load()
@@ -76,6 +77,9 @@ export default function DebtsPage() {
               </div>
             </CardHeader>
             <CardContent>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>
+              )}
               {loading ? (
                 <div className="space-y-3">
                   {[1,2,3,4,5].map(i => <div key={i} className="h-14 bg-secondary rounded-lg animate-pulse" />)}

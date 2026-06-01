@@ -3,9 +3,16 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 
 if ! pg_isready -q 2>/dev/null; then
     echo "Memulai PostgreSQL..."
-    echo "fariz5410" | sudo -S mkdir -p /run/postgresql
-    echo "fariz5410" | sudo -S chown postgres:postgres /run/postgresql
-    echo "fariz5410" | sudo -S -u postgres pg_ctl -D /var/lib/postgres/data -l /tmp/pg.log start
+    SUDO_PASSWORD="${SUDO_PASSWORD:-}"
+    if [ -n "$SUDO_PASSWORD" ]; then
+        echo "$SUDO_PASSWORD" | sudo -S mkdir -p /run/postgresql
+        echo "$SUDO_PASSWORD" | sudo -S chown postgres:postgres /run/postgresql
+        echo "$SUDO_PASSWORD" | sudo -S -u postgres pg_ctl -D /var/lib/postgres/data -l /tmp/pg.log start
+    else
+        sudo mkdir -p /run/postgresql
+        sudo chown postgres:postgres /run/postgresql
+        sudo -u postgres pg_ctl -D /var/lib/postgres/data -l /tmp/pg.log start
+    fi
     sleep 2
 fi
 

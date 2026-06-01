@@ -20,11 +20,8 @@ function LandingPage() {
       {/* Hero */}
       <section className="gradient-hero text-white">
         <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-              <span className="font-bold text-sm">JT</span>
-            </div>
-            <span className="font-semibold text-lg">JatuhTempo</span>
+          <div className="flex items-center gap-3">
+            <img src="/assets/logo.png" alt="JatuhTempo" className="h-8 w-auto" />
           </div>
           <div className="hidden sm:flex items-center gap-6 text-sm text-white/70">
             <a href="#features" className="hover:text-white transition-colors">Fitur</a>
@@ -32,32 +29,37 @@ function LandingPage() {
           </div>
         </nav>
 
-        <div className="max-w-7xl mx-auto px-6 py-24 md:py-32">
-          <div className="max-w-3xl animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm mb-8">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              AI-Powered Debt Management
+        <div className="max-w-7xl mx-auto px-6 py-16 md:py-24">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="flex-1 animate-fade-in">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm mb-8">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                AI-Powered Debt Management
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+                Kelola Utang dengan{' '}
+                <span className="bg-gradient-to-r from-emerald-300 to-cyan-300 text-transparent bg-clip-text">Cerdas</span>
+              </h1>
+              <p className="text-lg md:text-xl text-white/60 mb-10 max-w-xl leading-relaxed">
+                OCR otomatis, pengingat cerdas, dan dashboard real-time. 
+                Pantau semua tagihan dari Telegram atau Web.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a href="/login">
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto">
+                    Mulai Sekarang
+                    <ArrowUpRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </a>
+                <a href="#features">
+                  <Button size="lg" variant="outline" className="border-white/20 text-white bg-white/10 hover:bg-white/20 w-full sm:w-auto">
+                    Pelajari Fitur
+                  </Button>
+                </a>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-              Kelola Utang dengan{' '}
-              <span className="bg-gradient-to-r from-emerald-300 to-cyan-300 text-transparent bg-clip-text">Cerdas</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/60 mb-10 max-w-xl leading-relaxed">
-              OCR otomatis, pengingat cerdas, dan dashboard real-time. 
-              Pantau semua tagihan dari Telegram atau Web.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a href="/login">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto">
-                  Mulai Sekarang
-                  <ArrowUpRight className="w-4 h-4 ml-2" />
-                </Button>
-              </a>
-              <a href="#features">
-                <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 w-full sm:w-auto">
-                  Pelajari Fitur
-                </Button>
-              </a>
+            <div className="flex-1 animate-fade-in hidden lg:block">
+              <img src="/assets/hero.png" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
             </div>
           </div>
         </div>
@@ -123,16 +125,16 @@ function DashboardPage() {
   const [summary, setSummary] = useState<any>(null)
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
         const { getSummary, getDebts } = await import('@/lib/api')
-        const s = await getSummary()
-        const d = await getDebts()
+        const [s, d] = await Promise.all([getSummary(), getDebts()])
         setSummary(s)
         setDebts(d)
-      } catch { /* ignore */ }
+      } catch { setError('Gagal memuat data. Coba refresh.') }
       setLoading(false)
     }
     load()
@@ -150,6 +152,9 @@ function DashboardPage() {
         </header>
 
         <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">{error}</div>
+          )}
           {summary && <SummaryCards summary={summary} />}
 
           <Card>
