@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     polar_access_token: str = ""
     polar_product_id: str = ""
     polar_success_url: str = ""
+    polar_webhook_secret: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

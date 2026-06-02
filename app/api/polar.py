@@ -3,6 +3,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
+from sqlalchemy import select
 
 from app.core.db import async_session_factory
 from app.api.debts import get_current_user
@@ -28,34 +29,60 @@ async def polar_checkout(user: User = Depends(get_current_user)):
 
 @router.post("/webhook")
 async def polar_webhook(request: Request):
-    payload = await request.json()
+    body = await request.body()
+    headers = dict(request.headers)
+
+    secret = os.environ.get("POLAR_WEBHOOK_SECRET", "")
+    if secret:
+        try:
+            from polar_sdk.webhooks import validate_event, WebhookVerificationError
+            validate_event(body=body, headers=headers, secret=secret)
+        except WebhookVerificationError:
+            logger.warning("Invalid webhook signature")
+            return "", 403
+        except ImportError:
+            logger.warning("polar_sdk.webhooks not available, skipping verification")
+
+    import json
+    payload = json.loads(body)
     event = payload.get("type", "")
 
-    if event == "checkout.created":
-        metadata = payload.get("data", {}).get("metadata", {})
+    if event == "order.paid":
+        data = payload.get("data", {})
+        metadata = data.get("metadata", {})
         telegram_id = metadata.get("telegram_id")
+        customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
+
         if telegram_id:
             async with async_session_factory() as session:
-                from sqlalchemy import select
                 result = await session.execute(
                     select(User).where(User.telegram_id == int(telegram_id))
                 )
                 user = result.scalar_one_or_none()
                 if user:
-                    logger.info(f"User {telegram_id} completed checkout")
-                    # TODO: set subscription status when Polar integration is complete
+                    user.subscription_status = "pro"
+                    if customer_id:
+                        user.polar_customer_id = str(customer_id)
+                    await session.commit()
+                    logger.info(f"User {telegram_id} upgraded to pro via order.paid")
 
     elif event == "subscription.active":
-        metadata = payload.get("data", {}).get("metadata", {})
+        data = payload.get("data", {})
+        metadata = data.get("metadata", {})
         telegram_id = metadata.get("telegram_id")
+        customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
+
         if telegram_id:
             async with async_session_factory() as session:
-                from sqlalchemy import select
                 result = await session.execute(
                     select(User).where(User.telegram_id == int(telegram_id))
                 )
                 user = result.scalar_one_or_none()
                 if user:
-                    logger.info(f"Subscription activated for user {telegram_id}")
+                    user.subscription_status = "pro"
+                    if customer_id:
+                        user.polar_customer_id = str(customer_id)
+                    await session.commit()
+                    logger.info(f"User {telegram_id} subscription activated")
 
     return {"ok": True}

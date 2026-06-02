@@ -17,6 +17,8 @@ class User(Base):
     phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
     wa_linked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     wa_reminder_optout: Mapped[bool] = mapped_column(Boolean, default=False)
+    polar_customer_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    subscription_status: Mapped[str] = mapped_column(String(20), default="free")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     debts = relationship("Debt", back_populates="user", cascade="all, delete-orphan")

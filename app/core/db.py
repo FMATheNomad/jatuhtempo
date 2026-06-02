@@ -29,6 +29,8 @@ MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number VARCHAR(20)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_linked_at TIMESTAMPTZ",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_reminder_optout BOOLEAN NOT NULL DEFAULT FALSE",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS polar_customer_id VARCHAR(100)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'",
     """CREATE TABLE IF NOT EXISTS payments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
