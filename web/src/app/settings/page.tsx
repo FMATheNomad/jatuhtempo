@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles } from 'lucide-react'
 
 export default function SettingsPage() {
   const [phone, setPhone] = useState('')
@@ -64,6 +64,33 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground">Telegram ID</p>
                 <p className="font-medium">{user?.telegram_id || '-'}</p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Subscription Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                <div>
+                  <CardTitle>Langganan</CardTitle>
+                  <CardDescription>Upgrade untuk fitur unlimited</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="accent"
+                onClick={async () => {
+                  try {
+                    const { getCheckoutUrl } = await import('@/lib/api')
+                    const { url } = await getCheckoutUrl()
+                    if (url) window.location.href = url
+                  } catch { alert('Gagal memuat checkout.') }
+                }}
+              >
+                Upgrade ke Pro
+              </Button>
             </CardContent>
           </Card>
 

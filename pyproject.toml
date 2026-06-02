@@ -22,6 +22,7 @@ dependencies = [
     "pytesseract>=0.3.13",
     "Pillow>=11.0.0",
     "pyjwt>=2.10.0",
+    "polar-sdk>=0.20.0",
 ]
 
 [project.scripts]

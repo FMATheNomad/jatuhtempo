@@ -109,3 +109,7 @@ export async function updatePhone(phone_number: string) {
     body: JSON.stringify({ phone_number }),
   }) as Promise<{ phone_number: string }>
 }
+
+export async function getCheckoutUrl() {
+  return fetchAPI('/api/polar/checkout') as Promise<{ url: string }>
+}

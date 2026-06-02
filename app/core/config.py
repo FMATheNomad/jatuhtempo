@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     web_url: str = ""
 
+    polar_access_token: str = ""
+    polar_product_id: str = ""
+    polar_success_url: str = ""
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
     @field_validator("database_url")
