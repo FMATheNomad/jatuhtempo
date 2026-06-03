@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
