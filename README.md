@@ -109,7 +109,7 @@ Bot Telegram akan otomatis mulai polling. API berjalan di `http://localhost:8000
 ### Docker
 
 ```bash
-docker build -t jatuhtempo -f docker/Dockerfile .
+docker build -t jatuhtempo .
 docker run -p 8000:8000 --env-file .env jatuhtempo
 ```
 
@@ -150,7 +150,7 @@ Atau cukup **kirim screenshot** tagihan — bot akan OCR + parse otomatis.
 | `APP_NAME` | JatuhTempo | Nama aplikasi |
 | `DATABASE_URL` | postgresql+asyncpg://... | Koneksi database |
 | `DEEPSEEK_API_KEY` | — | API key untuk AI parsing |
-| `DEEPSEEK_MODEL` | deepseek-chat | Model DeepSeek |
+| `DEEPSEEK_MODEL` | deepseek-v4-flash | Model DeepSeek |
 | `TELEGRAM_BOT_TOKEN` | — | Token bot Telegram |
 | `MEDIA_DIR` | media | Direktori penyimpanan gambar sementara |
 | `MAX_IMAGE_SIZE_MB` | 10 | Maksimal ukuran gambar |

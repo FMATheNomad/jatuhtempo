@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timezone
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -33,14 +34,16 @@ async def check_reminders():
     now = datetime.now(timezone.utc)
     async with async_session_factory() as session:
         result = await session.execute(
-            select(Reminder).where(Reminder.remind_at <= now, Reminder.sent == False)
+            select(Reminder)
+            .options(selectinload(Reminder.debt), selectinload(Reminder.user))
+            .where(Reminder.remind_at <= now, Reminder.sent == False)
         )
         reminders = result.scalars().all()
 
         for reminder in reminders:
             try:
-                debt = await session.get(Debt, reminder.debt_id)
-                user = await session.get(User, reminder.user_id)
+                debt = reminder.debt
+                user = reminder.user
                 if debt and user:
                     label_map = {
                         "H-7": "⏰ 7 hari lagi",
