@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
-  LayoutDashboard, CreditCard, Settings, History, LogOut,
+  LayoutDashboard, CreditCard, Settings, History, LogOut, TrendingDown,
 } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/debts', label: 'Utang', icon: CreditCard },
+  { href: '/strategy', label: 'Strategi', icon: TrendingDown },
   { href: '/history', label: 'Riwayat', icon: History },
   { href: '/settings', label: 'Pengaturan', icon: Settings },
 ]
