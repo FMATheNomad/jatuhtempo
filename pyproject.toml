@@ -23,6 +23,7 @@ dependencies = [
     "Pillow>=11.0.0",
     "pyjwt>=2.10.0",
     "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.18",
     "polar-sdk>=0.20.0",
 ]
 
