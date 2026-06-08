@@ -71,11 +71,21 @@ def _clean_parsed(parsed: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_http_client: httpx.AsyncClient | None = None
+
+
+def _get_client() -> httpx.AsyncClient:
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(timeout=30.0, limits=httpx.Limits(max_keepalive_connections=5))
+    return _http_client
+
+
 async def parse_debt_from_text(raw_text: str) -> dict[str, Any]:
     if not settings.deepseek_api_key:
         raise ValueError("DEEPSEEK_API_KEY not configured")
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
+    client = _get_client()
         response = await client.post(
             f"{settings.deepseek_base_url}/chat/completions",
             headers={

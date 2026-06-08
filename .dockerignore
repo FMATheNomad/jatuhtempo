@@ -4,6 +4,15 @@ __pycache__/
 *.egg-info/
 .env
 .gitkeep
+.git/
+.gitignore
 media/
 *.db
 .DS_Store
+.venv/
+venv/
+web/node_modules/
+web/.next/
+web/out/
+node_modules/
+.next/
