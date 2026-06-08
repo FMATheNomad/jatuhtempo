@@ -135,6 +135,67 @@ async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = D
         return DebtResponse.model_validate(debt)
 
 
+@router.post("/debts")
+async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_current_user)):
+    from datetime import date
+    try:
+        due = date.fromisoformat(body.due_date) if isinstance(body.due_date, str) else body.due_date
+    except (ValueError, TypeError):
+        raise HTTPException(400, "Invalid due_date format (use YYYY-MM-DD)")
+    from app.schemas.debt import DebtCreate as DebtCreateSchema
+    data = DebtCreateSchema(
+        platform=body.platform,
+        amount=body.amount,
+        due_date=due,
+        installment_current=body.installment_current,
+        installment_total=body.installment_total,
+        category=body.category,
+        notes=body.notes,
+    )
+    async with async_session_factory() as session:
+        debt = await create_debt(session, user.id, data, source=DebtSource.manual)
+        return DebtResponse.model_validate(debt)
+
+
+@router.patch("/debts/{debt_id_str}")
+async def patch_debt(debt_id_str: str, body: DebtCreateBody, user: User = Depends(get_current_user)):
+    try:
+        did = uuid.UUID(debt_id_str)
+    except ValueError:
+        raise HTTPException(404, "Invalid debt id")
+    from datetime import date
+    kwargs = {
+        "platform": body.platform,
+        "amount": body.amount,
+        "category": body.category,
+        "notes": body.notes,
+        "installment_current": body.installment_current,
+        "installment_total": body.installment_total,
+    }
+    try:
+        kwargs["due_date"] = date.fromisoformat(body.due_date) if isinstance(body.due_date, str) else body.due_date
+    except (ValueError, TypeError):
+        raise HTTPException(400, "Invalid due_date")
+    async with async_session_factory() as session:
+        debt = await update_debt(session, did, user.id, **kwargs)
+        if not debt:
+            raise HTTPException(404, "Debt not found")
+        return DebtResponse.model_validate(debt)
+
+
+@router.delete("/debts/{debt_id_str}")
+async def delete_debt_endpoint(debt_id_str: str, user: User = Depends(get_current_user)):
+    try:
+        did = uuid.UUID(debt_id_str)
+    except ValueError:
+        raise HTTPException(404, "Invalid debt id")
+    async with async_session_factory() as session:
+        ok = await delete_debt(session, did, user.id)
+        if not ok:
+            raise HTTPException(404, "Debt not found")
+        return {"ok": True}
+
+
 @router.get("/user/me")
 async def get_current_user_endpoint(user: User = Depends(get_current_user)):
     return {

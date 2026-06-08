@@ -111,3 +111,19 @@ export async function updatePhone(phone_number: string) {
 export async function getCheckoutUrl() {
   return fetchAPI('/api/polar/checkout') as Promise<{ url: string }>
 }
+
+export async function createDebt(data: {
+  platform: string; amount: number; due_date: string;
+  category?: string | null; notes?: string | null;
+  installment_current?: number | null; installment_total?: number | null;
+}) {
+  return fetchAPI('/api/debts', { method: 'POST', body: JSON.stringify(data) }) as Promise<DebtResponse>
+}
+
+export async function updateDebt(id: string, data: any) {
+  return fetchAPI(`/api/debts/${id}`, { method: 'PATCH', body: JSON.stringify(data) }) as Promise<DebtResponse>
+}
+
+export async function deleteDebtApi(id: string) {
+  return fetchAPI(`/api/debts/${id}`, { method: 'DELETE' }) as Promise<{ ok: boolean }>
+}
