@@ -86,27 +86,27 @@ async def parse_debt_from_text(raw_text: str) -> dict[str, Any]:
         raise ValueError("DEEPSEEK_API_KEY not configured")
 
     client = _get_client()
-        response = await client.post(
-            f"{settings.deepseek_base_url}/chat/completions",
-            headers={
-                "Authorization": f"Bearer {settings.deepseek_api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": settings.deepseek_model,
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": raw_text},
-                ],
-                "temperature": 0.1,
-            },
-        )
-        response.raise_for_status()
-        data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        content = content.strip()
-        if content.startswith("```"):
-            content = content.split("\n", 1)[1]
-            content = content.rsplit("```", 1)[0]
-        parsed = json.loads(content.strip())
-        return _clean_parsed(parsed)
+    response = await client.post(
+        f"{settings.deepseek_base_url}/chat/completions",
+        headers={
+            "Authorization": f"Bearer {settings.deepseek_api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": settings.deepseek_model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": raw_text},
+            ],
+            "temperature": 0.1,
+        },
+    )
+    response.raise_for_status()
+    data = response.json()
+    content = data["choices"][0]["message"]["content"]
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[1]
+        content = content.rsplit("```", 1)[0]
+    parsed = json.loads(content.strip())
+    return _clean_parsed(parsed)
