@@ -265,13 +265,13 @@ export default function DebtsPage() {
                           <td className="py-3">
                             <div className="flex items-center gap-1">
                               {d.status !== 'paid' && (
-                                <button onClick={() => handleStatus(d.id, 'paid')} className="p-1.5 rounded hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-4 h-4" /></button>
+                                <button onClick={() => handleStatus(d.id, 'paid')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-5 h-5" /></button>
                               )}
                               {d.status !== 'late' && (
-                                <button onClick={() => handleStatus(d.id, 'late')} className="p-1.5 rounded hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-4 h-4" /></button>
+                                <button onClick={() => handleStatus(d.id, 'late')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-5 h-5" /></button>
                               )}
-                              <button onClick={() => openEdit(d)} className="p-1.5 rounded hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-4 h-4" /></button>
-                              <button onClick={() => handleDelete(d.id)} className="p-1.5 rounded hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                              <button onClick={() => openEdit(d)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-5 h-5" /></button>
+                              <button onClick={() => handleDelete(d.id)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="w-5 h-5" /></button>
                             </div>
                           </td>
                         </tr>

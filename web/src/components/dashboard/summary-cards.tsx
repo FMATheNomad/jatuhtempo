@@ -63,7 +63,7 @@ export function SummaryCards({ summary }: { summary: Summary }) {
                   <Icon className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <p className="text-2xl font-bold tracking-tight">{value}</p>
+              <p className="text-2xl font-bold tracking-tight truncate">{value}</p>
             </CardContent>
           </Card>
         )

@@ -241,7 +241,7 @@ export default function StrategyPage() {
                   {/* Income-based simulator */}
                   <div className="border-t pt-6">
                     <h3 className="text-sm font-medium mb-3">Simulasi Berdasarkan Pendapatan</h3>
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                       <div>
                         <label className="text-xs text-muted-foreground mb-1 block">Pendapatan / Bulan</label>
                         <input

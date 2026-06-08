@@ -23,9 +23,9 @@ function LandingPage() {
           <div className="flex items-center gap-3">
             <img src="/assets/logo.png" alt="JatuhTempo" className="h-8 w-auto" />
           </div>
-          <div className="hidden sm:flex items-center gap-6 text-sm text-white/70">
-            <a href="#features" className="hover:text-white transition-colors">Fitur</a>
-            <a href="/login" className="hover:text-white transition-colors">Masuk</a>
+          <div className="flex items-center gap-4 sm:gap-6 text-sm text-white/70">
+            <a href="#features" className="hover:text-white transition-colors py-2">Fitur</a>
+            <a href="/login" className="hover:text-white transition-colors py-2">Masuk</a>
           </div>
         </nav>
 
@@ -58,7 +58,7 @@ function LandingPage() {
                 </a>
               </div>
             </div>
-            <div className="flex-1 animate-fade-in hidden lg:block">
+            <div className="flex-1 animate-fade-in hidden sm:block">
               <img src="/assets/hero.png" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
             </div>
           </div>
@@ -184,11 +184,11 @@ function DashboardPage() {
               </p>
 
               <form onSubmit={handleAdd} className="max-w-lg mx-auto space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Nama platform (Akulaku, Kredivo...)" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Nama platform" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                   <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah (Rp)" type="number" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                   <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori (opsional)" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>

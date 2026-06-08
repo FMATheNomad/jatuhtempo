@@ -20,7 +20,7 @@ export function MobileNav() {
 
   return (
     <div className="lg:hidden">
-      <button onClick={() => setOpen(!open)} className="p-2 hover:bg-secondary rounded-lg">
+      <button onClick={() => setOpen(!open)} className="min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-secondary rounded-lg">
         {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
@@ -37,7 +37,7 @@ export function MobileNav() {
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                      "flex items-center gap-3 px-4 min-h-[44px] rounded-lg text-sm font-medium transition-all",
                       active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
                     )}
                   >
