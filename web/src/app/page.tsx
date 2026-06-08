@@ -126,19 +126,37 @@ function DashboardPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+  const [adding, setAdding] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const { getSummary, getDebts } = await import('@/lib/api')
-        const [s, d] = await Promise.all([getSummary(), getDebts()])
-        setSummary(s)
-        setDebts(d)
-      } catch { setError('Gagal memuat data. Coba refresh.') }
-      setLoading(false)
-    }
-    load()
-  }, [])
+  async function load() {
+    try {
+      const { getSummary, getDebts } = await import('@/lib/api')
+      const [s, d] = await Promise.all([getSummary(), getDebts()])
+      setSummary(s); setDebts(d)
+    } catch { setError('Gagal memuat data. Coba refresh.') }
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.platform || !form.amount || !form.due_date) return
+    setAdding(true)
+    try {
+      const { createDebt } = await import('@/lib/api')
+      await createDebt({
+        platform: form.platform, amount: parseInt(form.amount) || 0,
+        due_date: form.due_date, category: form.category || null, notes: form.notes || null,
+      })
+      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+      load()
+    } catch { setError('Gagal simpan utang') }
+    setAdding(false)
+  }
+
+  const empty = !loading && debts.length === 0
 
   return (
     <div className="flex">
@@ -151,49 +169,80 @@ function DashboardPage() {
           </div>
         </header>
 
-        <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
+        <div className="p-4 lg:p-8 space-y-6 animate-fade-in">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">{error}</div>
           )}
-          {summary && <SummaryCards summary={summary} />}
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Utang Terbaru</CardTitle>
-              <a href="/debts" className="text-sm text-accent hover:underline flex items-center gap-1">
-                Lihat semua <ChevronRight className="w-3 h-3" />
-              </a>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => <div key={i} className="h-12 bg-secondary rounded-lg animate-pulse" />)}
+          {/* Empty state hero */}
+          {empty && !loading && (
+            <div className="bg-gradient-to-br from-primary to-[#1a1a4e] rounded-2xl p-8 text-white text-center">
+              <CreditCard className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <h2 className="text-2xl font-bold mb-2">Catat Utang Pertama Kamu</h2>
+              <p className="text-white/60 mb-8 max-w-md mx-auto">
+                Masukkan informasi tagihan kamu di bawah. Nanti bisa upload screenshot juga.
+              </p>
+
+              <form onSubmit={handleAdd} className="max-w-lg mx-auto space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Nama platform (Akulaku, Kredivo...)" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                  <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah (Rp)" type="number" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
-              ) : debts.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                  <p>Belum ada utang tercatat</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                  <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori (opsional)" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {debts.slice(0, 5).map((d: any) => (
-                    <div key={d.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Badge variant={statusVariant[d.status] || 'default'}>
-                          {d.status === 'active' ? '🟡' : d.status === 'paid' ? '✅' : '🔴'}
-                        </Badge>
-                        <div>
-                          <p className="font-medium text-sm">{d.platform}</p>
-                          <p className="text-xs text-muted-foreground">Jatuh tempo {d.due_date}</p>
+                <button type="submit" disabled={adding} className="w-full h-12 rounded-xl bg-white text-primary font-semibold hover:bg-white/90 transition-colors disabled:opacity-50">
+                  {adding ? 'Menyimpan...' : 'Tambah Utang'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {summary && !empty && (
+            <>
+              <SummaryCards summary={summary} />
+
+              {/* Quick add */}
+              <Card>
+                <CardHeader><CardTitle>Tambah Utang Cepat</CardTitle></CardHeader>
+                <CardContent>
+                  <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3">
+                    <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Platform" className="flex-1 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-36 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Recent debts */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Utang Terbaru</CardTitle>
+                  <a href="/debts" className="text-sm text-accent hover:underline flex items-center gap-1">Lihat semua <ChevronRight className="w-3 h-3" /></a>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {debts.slice(0, 5).map((d: any) => (
+                      <div key={d.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Badge variant={statusVariant[d.status] || 'default'}>
+                            {d.status === 'active' ? '🟡' : d.status === 'paid' ? '✅' : '🔴'}
+                          </Badge>
+                          <div>
+                            <p className="font-medium text-sm">{d.platform}</p>
+                            <p className="text-xs text-muted-foreground">Jatuh tempo {d.due_date}</p>
+                          </div>
                         </div>
+                        <p className="font-semibold">Rp{d.amount.toLocaleString('id-ID')}</p>
                       </div>
-                      <p className="font-semibold">Rp{d.amount.toLocaleString('id-ID')}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </main>
     </div>

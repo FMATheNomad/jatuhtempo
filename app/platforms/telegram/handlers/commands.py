@@ -46,23 +46,22 @@ async def cmd_start(message: Message):
             f"✅ Lunas: {paid}\n"
             f"🔴 Terlambat: {late}\n"
             f"📋 Total: {len(debts)}\n\n"
-            "Kirim screenshot tagihan atau gunakan perintah:\n"
-            "/add - Tambah utang manual\n"
-            "/edit <id> - Edit utang\n"
-            "/debts - Detail semua utang\n"
-            "/monthly - Rekap bulan ini\n"
-            "/summary - Ringkasan singkat"
+            "Contoh penggunaan:\n"
+            "📸 Kirim screenshot tagihan → otomatis terbaca\n"
+            "➕ /add Kredivo 350000 2026-07-15\n"
+            "📋 /debts --status active\n\n"
+            "Perintah lainnya: /help"
         )
     else:
         await message.reply(
-            "Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
-            "Kirim screenshot tagihan atau gunakan perintah:\n"
-            "/add - Tambah utang manual\n"
-            "/edit <id> - Edit utang\n"
-            "/debts - Lihat semua utang\n"
-            "/monthly - Rekap bulan ini\n"
-            "/upcoming - Utang mendatang\n"
-            "/summary - Ringkasan singkat"
+            "👋 Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
+            "Mulai dengan cara termudah:\n\n"
+            "📸 Kirim screenshot tagihan → AI baca otomatis\n"
+            "➕ Atau ketik: /add Kredivo 350000 2026-07-15\n\n"
+            "Contoh lain:\n"
+            "/debts — Lihat daftar utang\n"
+            "/summary — Ringkasan singkat\n\n"
+            "Butuh bantuan? Ketik /help"
         )
 
 
@@ -72,20 +71,21 @@ async def cmd_help(message: Message):
         await message.reply(RATE_MSG)
         return
     await message.reply(
-        "Perintah yang tersedia:\n"
-        "/start - Mulai bot\n"
-        "/help - Bantuan ini\n"
-        "/add - Tambah utang baru\n"
-        "/debts [--status] [--platform] - Daftar utang + filter\n"
-        "/edit <id> - Edit utang\n"
-        "/delete <id> - Hapus utang\n"
-        "/history <id> - Riwayat pembayaran\n"
-        "/monthly - Rekap bulan ini\n"
-        "/upcoming - Utang 30 hari ke depan\n"
-        "/summary - Ringkasan singkat\n"
-        "/login - Login ke web dashboard\n"
-        "/wa [nomor] - Atur nomor WhatsApp\n\n"
-        "Atau kirim screenshot tagihan untuk parsing otomatis."
+        "Berikut perintah yang bisa kamu gunakan:\n\n"
+        "📸 <b>Kirim foto screenshot</b> — otomatis dibaca AI\n\n"
+        "➕ <b>/add</b> — Tambah utang\n"
+        "   Contoh: /add Kredivo 350000 2026-07-15\n\n"
+        "📋 <b>/debts</b> — Lihat semua utang\n"
+        "   Filter: /debts --status active\n\n"
+        "✏️ <b>/edit</b> — Edit utang\n"
+        "🗑 <b>/delete</b> — Hapus utang\n"
+        "📜 <b>/history</b> — Riwayat pembayaran\n\n"
+        "📊 <b>/monthly</b> — Rekap bulan ini\n"
+        "🔜 <b>/upcoming</b> — Utang 30 hari ke depan\n"
+        "📄 <b>/summary</b> — Ringkasan singkat\n\n"
+        "🔑 <b>/login</b> — Login ke web dashboard\n"
+        "📱 <b>/wa</b> — Atur nomor WhatsApp\n\n"
+        "ID utang (8 karakter) bisa dilihat dari /debts"
     )
 
 
@@ -97,21 +97,24 @@ async def cmd_add(message: Message):
     text = message.text.removeprefix("/add").strip()
     if not text:
         await message.reply(
-            "Gunakan format:\n"
-            "/add <platform> <amount> <YYYY-MM-DD> [--cicilan X/Y] [--kategori <kat>] [--notes <catatan>]\n\n"
-            "Contoh: /add Akulaku 500000 2026-06-15 --cicilan 3/12 --kategori pinjol"
+            "➕ Tambah utang baru\n\n"
+            "Cukup ketik:\n"
+            "/add <platform> <jumlah> <tanggal>\n\n"
+            "Contoh: /add Kredivo 350000 2026-07-15\n\n"
+            "Bisa juga tambah detail:\n"
+            "/add ShopeePayLater 250000 2026-08-10 --cicilan 2/6 --kategori paylater"
         )
         return
 
     try:
         parts = shlex.split(text)
     except ValueError:
-        await message.reply("Format tidak valid. Periksa tanda kutip.")
+        await message.reply("Maaf, format tidak dikenal. Coba /add Akulaku 500000 2026-06-15")
         return
 
     if len(parts) < 3:
         await message.reply(
-            "Format tidak lengkap. Minimal: /add <platform> <amount> <YYYY-MM-DD>"
+            "Masih kurang. Contoh: /add Kredivo 350000 2026-07-15"
         )
         return
 
@@ -119,13 +122,13 @@ async def cmd_add(message: Message):
     try:
         amount = int(parts[1])
     except ValueError:
-        await message.reply("Jumlah harus angka.")
+        await message.reply("Jumlah harus angka ya. Contoh: /add Kredivo 350000 2026-07-15")
         return
 
     try:
         due_date = date.fromisoformat(parts[2])
     except ValueError:
-        await message.reply("Tanggal harus format YYYY-MM-DD.")
+        await message.reply("Tanggal pakai format YYYY-MM-DD ya. Contoh: 2026-07-15")
         return
 
     installment_current = None
@@ -318,8 +321,9 @@ async def cmd_delete(message: Message):
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
         await message.reply(
-            "Gunakan: /delete <id>\n\n"
-            "ID bisa dilihat dari /debts (8 karakter pertama).\n"
+            "🗑 Hapus utang\n\n"
+            "Ketik: /delete <id>\n"
+            "ID bisa dilihat dari /debts (8 karakter).\n\n"
             "Contoh: /delete a1b2c3d4"
         )
         return
@@ -358,10 +362,13 @@ async def cmd_edit(message: Message):
     text = message.text.removeprefix("/edit").strip()
     if not text:
         await message.reply(
-            "Gunakan: /edit <id> [--amount N] [--due_date YYYY-MM-DD] [--platform X] "
-            "[--status active|paid|late] [--cicilan X/Y] [--kategori X] [--notes X]\n\n"
-            "Contoh: /edit a1b2c3d4 --amount 250000 --status paid\n"
-            "ID bisa dilihat dari /debts."
+            "✏️ Edit utang\n\n"
+            "Ketik: /edit <id> [--amount N] [--due_date YYYY-MM-DD] [--status paid/late]\n\n"
+            "Contoh: /edit a1b2c3d4 --amount 250000 --status paid\n\n"
+            "Semua field bisa diedit:\n"
+            "--amount, --due_date, --platform, --status\n"
+            "--cicilan, --kategori, --notes\n\n"
+            "ID bisa dilihat dari /debts (8 karakter)"
         )
         return
 
@@ -554,8 +561,9 @@ async def cmd_login(message: Message):
     link = f"{settings.web_url}/login?token={token}"
     await message.reply(
         f"🔑 <b>Akses Web Dashboard</b>\n\n"
-        f"Klik link berikut (berlaku 5 menit):\n"
-        f"{link}"
+        f"Klik link ini untuk masuk ke dashboard:\n"
+        f"{link}\n\n"
+        f"Link berlaku 5 menit. Kalo sudah punya akun web, ini akan menautkan akun Telegram kamu."
     )
 
 

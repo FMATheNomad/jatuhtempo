@@ -125,33 +125,41 @@ export default function DebtsPage() {
           {/* OCR Upload */}
           <Card className="mb-6">
             <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                  <Upload className="w-5 h-5" />
-                  <span>Upload screenshot tagihan</span>
-                  <input type="file" accept="image/*" className="hidden" disabled={ocrLoading}
-                    onChange={async e => {
-                      const f = e.target.files?.[0]
-                      if (!f) return
-                      setOcrLoading(true); setError(null)
-                      try {
-                        const fd = new FormData()
-                        fd.append('file', f)
-                        const res = await fetch(`${API}/api/ocr`, {
-                          method: 'POST',
-                          headers: token() ? { Authorization: `Bearer ${token()}` } : {},
-                          body: fd,
-                        })
-                        if (!res.ok) throw new Error(await res.text())
-                        const data = await res.json()
-                        setOcrPreview(data.parsed)
-                      } catch (e: any) { setError(e.message || 'OCR gagal') }
-                      setOcrLoading(false)
-                    }}
-                  />
-                </label>
-                {ocrLoading && <span className="text-sm text-muted-foreground">Memproses...</span>}
+              <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors hover:border-accent hover:bg-accent/5"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={async (e) => {
+                  e.preventDefault()
+                  const file = e.dataTransfer.files?.[0]
+                  if (!file || !file.type.startsWith('image/')) return
+                  setOcrLoading(true); setError(null)
+                  try {
+                    const fd = new FormData(); fd.append('file', file)
+                    const res = await fetch(API + '/api/ocr', { method: 'POST', headers: token() ? { Authorization: 'Bearer ' + token() } : {}, body: fd })
+                    if (!res.ok) throw new Error(await res.text())
+                    setOcrPreview((await res.json()).parsed)
+                  } catch (e) { setError('OCR gagal') }
+                  setOcrLoading(false)
+                }}
+                onClick={() => document.getElementById('ocr-input')?.click()}
+              >
+                <Upload className="w-10 h-10 text-muted-foreground/50 mb-3" />
+                <p className="font-medium text-sm">{ocrLoading ? 'Memproses...' : 'Upload screenshot tagihan'}</p>
+                <p className="text-xs text-muted-foreground mt-1">Atau klik untuk pilih file</p>
               </div>
+              <input id="ocr-input" type="file" accept="image/*" className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setOcrLoading(true); setError(null)
+                  try {
+                    const fd = new FormData(); fd.append('file', file)
+                    const res = await fetch(API + '/api/ocr', { method: 'POST', headers: token() ? { Authorization: 'Bearer ' + token() } : {}, body: fd })
+                    if (!res.ok) throw new Error(await res.text())
+                    setOcrPreview((await res.json()).parsed)
+                  } catch { setError('OCR gagal') }
+                  setOcrLoading(false)
+                }}
+              />
 
               {ocrPreview && (
                 <div className="mt-4 p-3 bg-secondary rounded-lg text-sm space-y-1">
