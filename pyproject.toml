@@ -9,10 +9,10 @@ description = "AI-powered debt management assistant for Indonesian users"
 license = { text = "All Rights Reserved" }
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.115.0",
+    "fastapi>=0.136.0",
     "uvicorn[standard]>=0.32.0",
-    "aiogram>=3.17.0",
-    "sqlalchemy[asyncio]>=2.0.36",
+    "aiogram>=3.28.0",
+    "sqlalchemy[asyncio]>=2.0.50",
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",
     "pydantic>=2.10.0",
