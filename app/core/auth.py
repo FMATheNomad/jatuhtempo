@@ -30,7 +30,7 @@ def create_session_token(telegram_id: int | None, user_id: uuid.UUID) -> str:
     payload = {
         "telegram_id": telegram_id,
         "user_id": str(user_id),
-        "exp": datetime.now(timezone.utc) + timedelta(days=30),
+        "exp": datetime.now(timezone.utc) + timedelta(days=7),
         "iat": datetime.now(timezone.utc),
         "type": "session",
     }

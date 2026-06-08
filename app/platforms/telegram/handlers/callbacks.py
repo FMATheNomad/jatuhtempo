@@ -7,6 +7,7 @@ from pathlib import Path
 from aiogram import Router
 from aiogram.types import CallbackQuery
 
+from app.core.crypto import encrypt
 from app.core.db import async_session_factory
 from app.core.temp_store import pop_ocr
 from app.models.debt import DebtSource, DebtStatus
@@ -90,7 +91,7 @@ async def callback_ocr_confirm(callback: CallbackQuery):
             ocr_log = OcrLog(
                 user_id=user.id,
                 image_path=image_path,
-                raw_text=raw_text,
+                raw_text=encrypt(raw_text),
                 parsed_json=parsed,
             )
             session.add(ocr_log)

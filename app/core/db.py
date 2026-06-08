@@ -32,6 +32,16 @@ MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS polar_customer_id VARCHAR(100)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'",
     "ALTER TABLE users ALTER COLUMN telegram_id DROP NOT NULL",
+    """CREATE TABLE IF NOT EXISTS audit_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id),
+        action VARCHAR(50) NOT NULL,
+        resource VARCHAR(50) NOT NULL,
+        resource_id VARCHAR(100),
+        detail TEXT,
+        ip_address VARCHAR(50),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )""",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)",
     """CREATE TABLE IF NOT EXISTS payments (

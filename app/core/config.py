@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     web_url: str = ""
 
+    encryption_key: str = ""
     polar_access_token: str = ""
     polar_product_id: str = ""
     polar_success_url: str = ""

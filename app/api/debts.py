@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 
 from pathlib import Path
-from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File, Request
 from pydantic import BaseModel
 
 from sqlalchemy import select as sa_select
@@ -19,8 +19,15 @@ from app.services.debt_service import (
 from app.services.payment_service import get_payments_for_debt
 from app.services.ocr_service import ocr_image
 from app.services.ai_parser import parse_debt_from_text
+from app.services.audit_service import log_audit
 
 router = APIRouter(prefix="/api")
+
+
+def get_client_ip(request: Request = None) -> str | None:
+    if request and request.client:
+        return request.client.host
+    return None
 
 
 async def get_current_user(authorization: str = Header(None)):
@@ -73,6 +80,7 @@ async def list_debts(
     status: str | None = None,
     platform: str | None = None,
     user: User = Depends(get_current_user),
+    request: Request = None,
 ):
     async with async_session_factory() as session:
         status_enum = DebtStatus(status) if status else None
@@ -119,7 +127,7 @@ async def get_debt_payments(debt_id_str: str, user: User = Depends(get_current_u
 
 
 @router.patch("/debts/{debt_id_str}/status")
-async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = Depends(get_current_user)):
+async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = Depends(get_current_user), request: Request = None):
     try:
         did = uuid.UUID(debt_id_str)
     except ValueError:
@@ -135,6 +143,7 @@ async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = D
         if not debt:
             raise HTTPException(404, "Debt not found")
         debt = await update_debt_status(session, did, new_status)
+        await log_audit(session, user.id, "update_status", "debt", str(did), f"→ {body.status}", ip_address=get_client_ip(request))
         return DebtResponse.model_validate(debt)
 
 
@@ -171,7 +180,7 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
 
 
 @router.post("/debts")
-async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_current_user)):
+async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_current_user), request: Request = None):
     from datetime import date
     try:
         due = date.fromisoformat(body.due_date) if isinstance(body.due_date, str) else body.due_date
@@ -189,6 +198,7 @@ async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_cu
     )
     async with async_session_factory() as session:
         debt = await create_debt(session, user.id, data, source=DebtSource.manual)
+        await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
         return DebtResponse.model_validate(debt)
 
 
@@ -219,7 +229,7 @@ async def patch_debt(debt_id_str: str, body: DebtCreateBody, user: User = Depend
 
 
 @router.delete("/debts/{debt_id_str}")
-async def delete_debt_endpoint(debt_id_str: str, user: User = Depends(get_current_user)):
+async def delete_debt_endpoint(debt_id_str: str, user: User = Depends(get_current_user), request: Request = None):
     try:
         did = uuid.UUID(debt_id_str)
     except ValueError:
@@ -228,6 +238,7 @@ async def delete_debt_endpoint(debt_id_str: str, user: User = Depends(get_curren
         ok = await delete_debt(session, did, user.id)
         if not ok:
             raise HTTPException(404, "Debt not found")
+        await log_audit(session, user.id, "delete", "debt", str(did), ip_address=get_client_ip(request))
         return {"ok": True}
 
 

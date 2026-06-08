@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.db import init_db
 from app.core.scheduler import start_scheduler, set_bot_instance
+from app.core.ratelimit_mw import RateLimitMiddleware
 from app.api.auth import router as auth_router
 from app.api.debts import router as debts_router
 from app.api.polar import router as polar_router
@@ -59,6 +60,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RateLimitMiddleware)
 
 app.include_router(auth_router)
 app.include_router(debts_router)
