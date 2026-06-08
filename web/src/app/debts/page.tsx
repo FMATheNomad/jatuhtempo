@@ -231,54 +231,81 @@ export default function DebtsPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="overflow-x-auto">
+            <CardContent>
               {loading ? <div className="space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-14 bg-secondary rounded-lg animate-pulse" />)}</div>
               : debts.length === 0 ? <div className="text-center py-12 text-muted-foreground">Belum ada utang. Tambah via form di atas atau kirim screenshot ke Telegram.</div>
-              : 
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b text-left text-sm text-muted-foreground">
-                        <th className="pb-3 font-medium">Status</th>
-                        <th className="pb-3 font-medium">Platform</th>
-                        <th className="pb-3 font-medium">Jumlah</th>
-                        <th className="pb-3 font-medium">Jatuh Tempo</th>
-                        <th className="pb-3 font-medium hidden md:table-cell">Cicilan</th>
-                        <th className="pb-3 font-medium hidden md:table-cell">Kategori</th>
-                        <th className="pb-3 font-medium">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {debts.map(d => (
-                        <tr key={d.id} className="border-b last:border-0 hover:bg-secondary/30 transition-colors">
-                          <td className="py-3">
+              : <>
+                  {/* Mobile: Card list */}
+                  <div className="space-y-3 lg:hidden">
+                    {debts.map(d => (
+                      <div key={d.id} className="border rounded-xl p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
                             <Badge variant={statusVariant[d.status] || 'default'}>
                               {d.status === 'active' ? 'Aktif' : d.status === 'paid' ? 'Lunas' : 'Terlambat'}
                             </Badge>
-                          </td>
-                          <td className="py-3 font-medium">{d.platform}</td>
-                          <td className="py-3 font-semibold">Rp{d.amount.toLocaleString('id-ID')}</td>
-                          <td className="py-3 text-sm text-muted-foreground">{d.due_date}</td>
-                          <td className="py-3 text-sm text-muted-foreground hidden md:table-cell">
-                            {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
-                          </td>
-                          <td className="py-3 text-sm text-muted-foreground hidden md:table-cell">{d.category || '-'}</td>
-                          <td className="py-3">
-                            <div className="flex items-center gap-1">
-                              {d.status !== 'paid' && (
-                                <button onClick={() => handleStatus(d.id, 'paid')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-5 h-5" /></button>
-                              )}
-                              {d.status !== 'late' && (
-                                <button onClick={() => handleStatus(d.id, 'late')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-5 h-5" /></button>
-                              )}
-                              <button onClick={() => openEdit(d)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-5 h-5" /></button>
-                              <button onClick={() => handleDelete(d.id)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="w-5 h-5" /></button>
-                            </div>
-                          </td>
+                            <span className="font-semibold">{d.platform}</span>
+                          </div>
+                          <span className="font-bold">Rp{d.amount.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>Jatuh tempo {d.due_date}</span>
+                          {d.installment_current && d.installment_total && (
+                            <span>{d.installment_current}/{d.installment_total}</span>
+                          )}
+                        </div>
+                        {d.category && <p className="text-xs text-muted-foreground">{d.category}</p>}
+                        <div className="flex items-center gap-2 pt-1 border-t">
+                          {d.status !== 'paid' && (
+                            <button onClick={() => handleStatus(d.id, 'paid')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-5 h-5" /></button>
+                          )}
+                          {d.status !== 'late' && (
+                            <button onClick={() => handleStatus(d.id, 'late')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-5 h-5" /></button>
+                          )}
+                          <button onClick={() => openEdit(d)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-5 h-5" /></button>
+                          <button onClick={() => handleDelete(d.id)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="w-5 h-5" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop: Table */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b text-left text-sm text-muted-foreground">
+                          <th className="pb-3 font-medium">Status</th>
+                          <th className="pb-3 font-medium">Platform</th>
+                          <th className="pb-3 font-medium">Jumlah</th>
+                          <th className="pb-3 font-medium">Jatuh Tempo</th>
+                          <th className="pb-3 font-medium">Cicilan</th>
+                          <th className="pb-3 font-medium">Kategori</th>
+                          <th className="pb-3 font-medium">Aksi</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                }
+                      </thead>
+                      <tbody>
+                        {debts.map(d => (
+                          <tr key={d.id} className="border-b last:border-0 hover:bg-secondary/30 transition-colors">
+                            <td className="py-3"><Badge variant={statusVariant[d.status] || 'default'}>{d.status === 'active' ? 'Aktif' : d.status === 'paid' ? 'Lunas' : 'Terlambat'}</Badge></td>
+                            <td className="py-3 font-medium">{d.platform}</td>
+                            <td className="py-3 font-semibold">Rp{d.amount.toLocaleString('id-ID')}</td>
+                            <td className="py-3 text-sm text-muted-foreground">{d.due_date}</td>
+                            <td className="py-3 text-sm text-muted-foreground">{d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}</td>
+                            <td className="py-3 text-sm text-muted-foreground">{d.category || '-'}</td>
+                            <td className="py-3">
+                              <div className="flex items-center gap-1">
+                                {d.status !== 'paid' && <button onClick={() => handleStatus(d.id, 'paid')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-5 h-5" /></button>}
+                                {d.status !== 'late' && <button onClick={() => handleStatus(d.id, 'late')} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-5 h-5" /></button>}
+                                <button onClick={() => openEdit(d)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-5 h-5" /></button>
+                                <button onClick={() => handleDelete(d.id)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="w-5 h-5" /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              }
             </CardContent>
           </Card>
         </div>
