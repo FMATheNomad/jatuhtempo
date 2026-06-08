@@ -27,7 +27,7 @@ export function MobileNav() {
       {open && (
         <>
           <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 bg-card rounded-t-2xl border-t z-50 p-4 pb-8 animate-slide-in">
+          <div className="fixed top-14 left-0 right-0 bg-card border-b z-50 p-4 shadow-lg animate-fade-in">
             <nav className="space-y-1">
               {links.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || (href !== '/' && pathname.startsWith(href))
