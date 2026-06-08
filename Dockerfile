@@ -1,3 +1,10 @@
+FROM node:20-alpine AS next-builder
+WORKDIR /web
+COPY web/package.json web/package-lock.json* ./
+RUN npm install --frozen-lockfile
+COPY web/ .
+RUN npm run build
+
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -11,6 +18,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+COPY --from=next-builder /web/out /app/web-out
 
 ENV PYTHONPATH=/app
 

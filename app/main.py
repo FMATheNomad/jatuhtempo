@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.db import init_db
@@ -70,3 +71,9 @@ async def get_stats():
         "total_users": total_users,
         "status": "online",
     }
+
+
+import os
+web_out = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web-out")
+if os.path.isdir(web_out):
+    app.mount("/", StaticFiles(directory=web_out, html=True), name="web")

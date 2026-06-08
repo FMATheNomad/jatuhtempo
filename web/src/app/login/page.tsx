@@ -16,9 +16,7 @@ function LoginContent() {
       return
     }
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
-    fetch(`${API_BASE}/api/auth/login`, {
+    fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),

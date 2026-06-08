@@ -1,5 +1,3 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
 function getToken(): string | null {
   if (typeof window === 'undefined') return null
   return localStorage.getItem('session_token')
@@ -7,7 +5,7 @@ function getToken(): string | null {
 
 async function fetchAPI(path: string, options?: RequestInit) {
   const token = getToken()
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(path, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -24,6 +22,16 @@ async function fetchAPI(path: string, options?: RequestInit) {
     throw new Error(text)
   }
   return res.json()
+}
+
+export async function loginWithToken(token: string) {
+  const data = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  }).then(r => { if (!r.ok) throw new Error('Login failed'); return r.json() })
+  localStorage.setItem('session_token', data.session_token)
+  return data
 }
 
 export interface DebtResponse {
@@ -56,16 +64,6 @@ export interface MonthlySummary {
   paid_this_month: number
   paid_amount: number
   upcoming: DebtResponse[]
-}
-
-export async function loginWithToken(token: string) {
-  const data = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token }),
-  }).then(r => { if (!r.ok) throw new Error('Login failed'); return r.json() })
-  localStorage.setItem('session_token', data.session_token)
-  return data
 }
 
 export async function getDebts(status?: string, platform?: string) {
