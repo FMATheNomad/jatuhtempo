@@ -5,7 +5,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from app.core.config import settings
-from app.platforms.telegram.handlers import commands, messages, callbacks
+from app.platforms.telegram.handlers import commands, messages, callbacks, add_debt
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ def register_handlers():
     dp.include_router(commands.router)
     dp.include_router(messages.router)
     dp.include_router(callbacks.router)
+    dp.include_router(add_debt.router)
 
 
 async def start_polling():

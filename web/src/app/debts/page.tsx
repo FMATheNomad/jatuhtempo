@@ -229,7 +229,24 @@ export default function DebtsPage() {
             <Card className="mb-6">
               <CardContent className="p-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Platform" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                  <select value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} className="h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                    <option value="">Pilih platform</option>
+                    <option value="Akulaku">Akulaku</option>
+                    <option value="Kredivo">Kredivo</option>
+                    <option value="Shopee PayLater">Shopee PayLater</option>
+                    <option value="GoPay Later">GoPay Later</option>
+                    <option value="SPayLater">SPayLater</option>
+                    <option value="Home Credit">Home Credit</option>
+                    <option value="FIF">FIF</option>
+                    <option value="Adira">Adira</option>
+                    <option value="Kredit Pintar">Kredit Pintar</option>
+                    <option value="EasyCash">EasyCash</option>
+                    <option value="BCA">BCA</option>
+                    <option value="Mandiri">Mandiri</option>
+                    <option value="Pinjaman Teman">Pinjaman Teman</option>
+                    <option value="Cash / Tunai">Cash / Tunai</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
                   <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah (Rp)" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
