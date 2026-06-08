@@ -58,7 +58,7 @@ function LandingPage() {
                 </a>
               </div>
             </div>
-            <div className="flex-1 animate-fade-in hidden sm:block">
+            <div className="flex-1 animate-fade-in">
               <img src="/assets/hero.png" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
             </div>
           </div>

@@ -1,4 +1,5 @@
 import logging
+import random
 import uuid
 from datetime import date
 from pathlib import Path
@@ -34,10 +35,18 @@ async def callback_paid(callback: CallbackQuery):
         debt = await update_debt_status(session, debt_id, DebtStatus.paid)
 
     if debt:
+        party = random.choice(["🎉", "🥳", "🏆", "⭐", "🚀", "💪", "✨"])
+        msgs = [
+            f"SELAMAT! {debt.platform} sudah lunas!",
+            f"LUNAS! {debt.platform} beres! Kebebasan finansial selangkah lagi!",
+            f"Mantap! {debt.platform} lunas! Kamu hebat!",
+            f"Yes! {debt.platform} selesai! Rasakan lega nya!",
+            f"Keren! {debt.platform} lunas! Semakin dekat menuju bebas utang!",
+        ]
         await callback.message.edit_text(
-            f"✅ {debt.platform} — Rp{debt.amount:,}\nStatus: ✅ Lunas"
+            f"{party} {random.choice(msgs)}\nRp{debt.amount:,} — Jatuh tempo {debt.due_date}"
         )
-        await callback.answer("Utang ditandai lunas! Pembayaran tercatat.")
+        await callback.answer("✅ Lunas! 🎉")
     else:
         await callback.answer("Utang tidak ditemukan.", show_alert=True)
 
