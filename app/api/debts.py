@@ -4,8 +4,6 @@ from typing import Optional
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File, Request
 from pydantic import BaseModel
-from pydantic import BaseModel
-
 from sqlalchemy import select as sa_select
 
 from app.core.auth import verify_token
