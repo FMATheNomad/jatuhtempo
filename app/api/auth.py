@@ -3,11 +3,11 @@ import uuid
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from sqlalchemy import select
+from passlib.hash import bcrypt
 
 from app.core.auth import verify_token, create_session_token, create_login_token
 from app.core.db import async_session_factory
 from app.models.user import User
-from app.services.debt_service import get_or_create_user
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -16,15 +16,71 @@ class LoginRequest(BaseModel):
     token: str
 
 
-class LoginResponse(BaseModel):
-    session_token: str
-    user_id: str
-    telegram_id: int | None = None
-    name: str | None = None
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    nama: str = ""
+
+
+class LoginWebRequest(BaseModel):
+    email: str
+    password: str
 
 
 class LinkTelegramRequest(BaseModel):
     token: str
+
+
+class LoginResponse(BaseModel):
+    session_token: str
+    user_id: str
+    telegram_id: int | None = None
+    email: str | None = None
+    nama: str | None = None
+
+
+@router.post("/register")
+async def register(req: RegisterRequest) -> LoginResponse:
+    if not req.email or "@" not in req.email:
+        raise HTTPException(400, "Email tidak valid")
+    if len(req.password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+
+    async with async_session_factory() as session:
+        existing = await session.execute(select(User).where(User.email == req.email))
+        if existing.scalar_one_or_none():
+            raise HTTPException(409, "Email sudah terdaftar")
+
+        user = User(email=req.email, password_hash=bcrypt.hash(req.password), nama=req.nama or "User")
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+
+        session_token = create_session_token(None, user.id)
+        return LoginResponse(
+            session_token=session_token, user_id=str(user.id),
+            email=user.email, nama=user.nama,
+        )
+
+
+@router.post("/login-web")
+async def login_web(req: LoginWebRequest) -> LoginResponse:
+    if not req.email or not req.password:
+        raise HTTPException(400, "Email dan password wajib diisi")
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.email == req.email))
+        user = result.scalar_one_or_none()
+        if not user or not user.password_hash:
+            raise HTTPException(401, "Email atau password salah")
+        if not bcrypt.verify(req.password, user.password_hash):
+            raise HTTPException(401, "Email atau password salah")
+
+        session_token = create_session_token(user.telegram_id, user.id)
+        return LoginResponse(
+            session_token=session_token, user_id=str(user.id),
+            telegram_id=user.telegram_id, email=user.email, nama=user.nama,
+        )
 
 
 @router.post("/login")
@@ -47,23 +103,7 @@ async def login(req: LoginRequest) -> LoginResponse:
         session_token=session_token,
         user_id=str(user.id),
         telegram_id=telegram_id,
-        name=user.nama,
-    )
-
-
-@router.post("/guest")
-async def guest_login() -> LoginResponse:
-    async with async_session_factory() as session:
-        user = User(nama="Guest")
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        session_token = create_session_token(None, user.id)
-
-    return LoginResponse(
-        session_token=session_token,
-        user_id=str(user.id),
-        name=user.nama,
+        nama=user.nama,
     )
 
 
@@ -102,7 +142,7 @@ async def link_telegram(req: LinkTelegramRequest, authorization: str = Header(No
         session_token=new_token,
         user_id=str(user.id),
         telegram_id=telegram_id,
-        name=user.nama,
+        nama=user.nama,
     )
 
 

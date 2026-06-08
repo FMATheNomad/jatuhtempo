@@ -236,6 +236,7 @@ async def get_current_user_endpoint(user: User = Depends(get_current_user)):
     return {
         "id": str(user.id),
         "telegram_id": user.telegram_id,
+        "email": user.email,
         "nama": user.nama,
         "phone_number": user.phone_number,
     }

@@ -61,8 +61,12 @@ export default function SettingsPage() {
                 <p className="font-medium">{user?.nama || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Telegram ID</p>
-                <p className="font-medium">{user?.telegram_id || '-'}</p>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="font-medium">{user?.email || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Telegram</p>
+                <p className="font-medium">{user?.telegram_id ? `Terhubung (ID: ${user.telegram_id})` : 'Belum terhubung'}</p>
               </div>
             </CardContent>
           </Card>

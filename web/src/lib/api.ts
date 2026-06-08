@@ -95,7 +95,8 @@ export async function updateDebtStatus(id: string, status: string) {
 export async function getUser() {
   return fetchAPI('/api/user/me') as Promise<{
     id: string
-    telegram_id: number
+    telegram_id: number | null
+    email: string | null
     nama: string | null
     phone_number: string | null
   }>

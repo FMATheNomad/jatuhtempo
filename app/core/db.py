@@ -32,6 +32,8 @@ MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS polar_customer_id VARCHAR(100)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'",
     "ALTER TABLE users ALTER COLUMN telegram_id DROP NOT NULL",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)",
     """CREATE TABLE IF NOT EXISTS payments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,

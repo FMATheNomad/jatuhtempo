@@ -13,6 +13,8 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     telegram_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, unique=True, index=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True, index=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     nama: Mapped[str] = mapped_column(String(255), nullable=True)
     phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
     wa_linked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
