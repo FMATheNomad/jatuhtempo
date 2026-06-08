@@ -31,6 +31,7 @@ MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_reminder_optout BOOLEAN NOT NULL DEFAULT FALSE",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS polar_customer_id VARCHAR(100)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'",
+    "ALTER TABLE users ALTER COLUMN telegram_id DROP NOT NULL",
     """CREATE TABLE IF NOT EXISTS payments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,

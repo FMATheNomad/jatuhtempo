@@ -25,7 +25,7 @@ def create_login_token(telegram_id: int) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def create_session_token(telegram_id: int, user_id: uuid.UUID) -> str:
+def create_session_token(telegram_id: int | None, user_id: uuid.UUID) -> str:
     _require_jwt_secret()
     payload = {
         "telegram_id": telegram_id,

@@ -26,10 +26,21 @@ async def get_current_user(authorization: str = Header(None)):
     payload = verify_token(authorization.split(" ", 1)[1])
     if not payload or payload.get("type") != "session":
         raise HTTPException(401, "Invalid or expired token")
+
+    telegram_id = payload.get("telegram_id")
+    user_id = payload.get("user_id")
+
     async with async_session_factory() as session:
-        result = await session.execute(
-            sa_select(User).where(User.telegram_id == payload["telegram_id"])
-        )
+        if telegram_id is not None:
+            result = await session.execute(
+                sa_select(User).where(User.telegram_id == telegram_id)
+            )
+        elif user_id:
+            result = await session.execute(
+                sa_select(User).where(User.id == uuid.UUID(user_id))
+            )
+        else:
+            raise HTTPException(401, "Invalid session")
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(404, "User not found")

@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut, Sparkles } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles, MessageCircle } from 'lucide-react'
 
 export default function SettingsPage() {
   const [phone, setPhone] = useState('')
@@ -66,6 +66,34 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Link Telegram Card */}
+          {user && !user.telegram_id && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-blue-500" />
+                  <div>
+                    <CardTitle>Tautkan Telegram</CardTitle>
+                    <CardDescription>Hubungkan akun Telegram untuk notifikasi</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Buka bot Telegram dan ketik /login, lalu klik link yang dikirim.
+                </p>
+                <a
+                  href={`https://t.me/JatuhTempo_bot`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90"
+                >
+                  Buka Bot Telegram
+                </a>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Subscription Card */}
           <Card>
