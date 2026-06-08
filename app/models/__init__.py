@@ -4,3 +4,4 @@ from app.models.reminder import Reminder
 from app.models.ocr_log import OcrLog
 from app.models.payment import Payment
 from app.models.audit_log import AuditLog
+from app.models.platform_signature import PlatformSignature

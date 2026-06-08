@@ -4,6 +4,7 @@ from typing import Optional
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File, Request
 from pydantic import BaseModel
+from pydantic import BaseModel
 
 from sqlalchemy import select as sa_select
 
@@ -20,6 +21,7 @@ from app.services.payment_service import get_payments_for_debt
 from app.services.ocr_service import ocr_image
 from app.services.ai_parser import parse_debt_from_text
 from app.services.audit_service import log_audit
+from app.services.platform_matcher import match_platform, learn_from_correction
 
 router = APIRouter(prefix="/api")
 
@@ -171,12 +173,30 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
 
     parsed = await parse_debt_from_text(raw_text)
 
+    async with async_session_factory() as session:
+        matched = await match_platform(raw_text, session)
+        if matched and (not parsed.get("platform") or parsed["platform"] in ("Tidak Diketahui", None)):
+            parsed["platform"] = matched
+
     image_path.unlink(missing_ok=True)
 
     return {
         "raw_text": raw_text,
         "parsed": parsed,
     }
+
+
+class TrainPlatformRequest(BaseModel):
+    raw_text: str
+    platform: str
+    old_platform: str | None = None
+
+
+@router.post("/platform/learn")
+async def learn_platform(body: TrainPlatformRequest, user: User = Depends(get_current_user)):
+    async with async_session_factory() as session:
+        await learn_from_correction(session, body.raw_text, body.platform, body.old_platform)
+    return {"ok": True}
 
 
 @router.post("/debts")

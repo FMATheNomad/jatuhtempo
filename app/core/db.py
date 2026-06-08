@@ -32,6 +32,15 @@ MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS polar_customer_id VARCHAR(100)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'",
     "ALTER TABLE users ALTER COLUMN telegram_id DROP NOT NULL",
+    """CREATE TABLE IF NOT EXISTS platform_signatures (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        platform VARCHAR(100) NOT NULL,
+        keyword VARCHAR(255) NOT NULL,
+        weight INTEGER NOT NULL DEFAULT 1,
+        source VARCHAR(20) NOT NULL DEFAULT 'manual',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_platform_sig_platform ON platform_signatures(platform)",
     """CREATE TABLE IF NOT EXISTS audit_logs (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID REFERENCES users(id),
@@ -56,7 +65,7 @@ MIGRATIONS = [
 
 
 async def init_db():
-    import app.models  # noqa: F401 — import inside function to avoid circular import
+    import app.models  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         for stmt in MIGRATIONS:
@@ -65,3 +74,6 @@ async def init_db():
                 logger.info("Migration applied: %s", stmt[:60])
             except Exception as e:
                 logger.warning("Migration skipped (%s): %s", e, stmt[:60])
+    async with async_session_factory() as session:
+        from app.services.platform_matcher import seed_signatures
+        await seed_signatures(session)
