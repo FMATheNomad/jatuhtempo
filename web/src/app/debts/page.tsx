@@ -213,7 +213,7 @@ export default function DebtsPage() {
             </Card>
           )}
 
-          <Card>
+          <Card className="overflow-hidden">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <CardTitle>Daftar Utang</CardTitle>
@@ -231,10 +231,10 @@ export default function DebtsPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-x-auto">
               {loading ? <div className="space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-14 bg-secondary rounded-lg animate-pulse" />)}</div>
               : debts.length === 0 ? <div className="text-center py-12 text-muted-foreground">Belum ada utang. Tambah via form di atas atau kirim screenshot ke Telegram.</div>
-              : <div className="overflow-x-auto">
+              : 
                   <table className="w-full">
                     <thead>
                       <tr className="border-b text-left text-sm text-muted-foreground">
@@ -278,7 +278,7 @@ export default function DebtsPage() {
                       ))}
                     </tbody>
                   </table>
-                </div>}
+                }
             </CardContent>
           </Card>
         </div>
