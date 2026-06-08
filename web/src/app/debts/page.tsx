@@ -42,6 +42,8 @@ export default function DebtsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+  const [ocrPreview, setOcrPreview] = useState<any>(null)
+  const [ocrLoading, setOcrLoading] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -119,6 +121,70 @@ export default function DebtsPage() {
 
         <div className="p-4 lg:p-8 animate-fade-in">
           {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>}
+
+          {/* OCR Upload */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                  <Upload className="w-5 h-5" />
+                  <span>Upload screenshot tagihan</span>
+                  <input type="file" accept="image/*" className="hidden" disabled={ocrLoading}
+                    onChange={async e => {
+                      const f = e.target.files?.[0]
+                      if (!f) return
+                      setOcrLoading(true); setError(null)
+                      try {
+                        const fd = new FormData()
+                        fd.append('file', f)
+                        const res = await fetch(`${API}/api/ocr`, {
+                          method: 'POST',
+                          headers: token() ? { Authorization: `Bearer ${token()}` } : {},
+                          body: fd,
+                        })
+                        if (!res.ok) throw new Error(await res.text())
+                        const data = await res.json()
+                        setOcrPreview(data.parsed)
+                      } catch (e: any) { setError(e.message || 'OCR gagal') }
+                      setOcrLoading(false)
+                    }}
+                  />
+                </label>
+                {ocrLoading && <span className="text-sm text-muted-foreground">Memproses...</span>}
+              </div>
+
+              {ocrPreview && (
+                <div className="mt-4 p-3 bg-secondary rounded-lg text-sm space-y-1">
+                  <p><b>Platform:</b> {ocrPreview.platform || '?'}</p>
+                  <p><b>Jumlah:</b> {ocrPreview.amount ? `Rp${ocrPreview.amount.toLocaleString('id-ID')}` : '?'}</p>
+                  <p><b>Jatuh tempo:</b> {ocrPreview.due_date || '?'}</p>
+                  {ocrPreview.installment_current && ocrPreview.installment_total &&
+                    <p><b>Cicilan:</b> {ocrPreview.installment_current}/{ocrPreview.installment_total}</p>}
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" onClick={async () => {
+                      try {
+                        await api('/api/debts', {
+                          method: 'POST',
+                          body: JSON.stringify({
+                            platform: ocrPreview.platform || 'Tagihan',
+                            amount: ocrPreview.amount || 0,
+                            due_date: ocrPreview.due_date || new Date().toISOString().split('T')[0],
+                            category: ocrPreview.category || null,
+                            notes: ocrPreview.notes || null,
+                            installment_current: ocrPreview.installment_current || null,
+                            installment_total: ocrPreview.installment_total || null,
+                          }),
+                        })
+                        setOcrPreview(null)
+                        load()
+                      } catch (e: any) { setError(e.message || 'Gagal simpan') }
+                    }}>✅ Simpan</Button>
+                    <Button size="sm" variant="outline" onClick={() => setOcrPreview(null)}>❌ Batal</Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Add/Edit Form */}
           {showForm && (

@@ -1,7 +1,8 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from pathlib import Path
+from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File
 from pydantic import BaseModel
 
 from sqlalchemy import select as sa_select
@@ -16,6 +17,8 @@ from app.services.debt_service import (
     get_monthly_summary, get_upcoming_debts, delete_debt, get_user_debt_by_id, update_debt_status, update_user_wa,
 )
 from app.services.payment_service import get_payments_for_debt
+from app.services.ocr_service import ocr_image
+from app.services.ai_parser import parse_debt_from_text
 
 router = APIRouter(prefix="/api")
 
@@ -133,6 +136,38 @@ async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = D
             raise HTTPException(404, "Debt not found")
         debt = await update_debt_status(session, did, new_status)
         return DebtResponse.model_validate(debt)
+
+
+@router.post("/ocr")
+async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(400, "File must be an image")
+
+    import uuid as uuid_gen
+    media_dir = Path("media")
+    media_dir.mkdir(parents=True, exist_ok=True)
+    ext = Path(file.filename or "image.jpg").suffix or ".jpg"
+    image_path = media_dir / f"{uuid_gen.uuid4()}{ext}"
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(400, "Image too large (max 10MB)")
+
+    image_path.write_bytes(content)
+    raw_text = await ocr_image(str(image_path))
+
+    if not raw_text or len(raw_text) < 20:
+        image_path.unlink(missing_ok=True)
+        raise HTTPException(400, "Could not read text from image")
+
+    parsed = await parse_debt_from_text(raw_text)
+
+    image_path.unlink(missing_ok=True)
+
+    return {
+        "raw_text": raw_text,
+        "parsed": parsed,
+    }
 
 
 @router.post("/debts")
