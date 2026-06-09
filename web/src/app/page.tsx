@@ -21,7 +21,7 @@ function LandingPage() {
       <section className="gradient-hero text-white">
         <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="JatuhTempo" className="h-8 w-auto" />
+            <img src="/assets/logo.webp" alt="JatuhTempo" className="h-8 w-auto" />
           </div>
           <div className="flex items-center gap-4 sm:gap-6 text-sm text-white/70">
             <a href="#features" className="hover:text-white transition-colors py-2">Fitur</a>
@@ -59,7 +59,7 @@ function LandingPage() {
               </div>
             </div>
             <div className="flex-1 animate-fade-in">
-              <img src="/assets/hero.png" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
+              <img src="/assets/hero.webp" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
             </div>
           </div>
         </div>

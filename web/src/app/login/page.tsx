@@ -57,7 +57,7 @@ function LoginContent() {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
-          <img src="/assets/logo.png" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
+          <img src="/assets/logo.webp" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
           <p className="text-muted-foreground">{status}</p>
         </div>
       </div>
@@ -67,7 +67,7 @@ function LoginContent() {
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center">
       <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 animate-fade-in">
-        <img src="/assets/logo.png" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
+        <img src="/assets/logo.webp" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
 
         <h1 className="text-xl font-bold mb-1">{mode === 'login' ? 'Masuk' : 'Daftar'}</h1>
         <p className="text-sm text-muted-foreground mb-6">

@@ -22,7 +22,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex lg:flex-col w-64 border-r bg-card h-screen sticky top-0">
       <div className="p-6 border-b">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/assets/logo.png" alt="JatuhTempo" className="h-8 w-auto" />
+          <img src="/assets/logo.webp" alt="JatuhTempo" className="h-8 w-auto" />
         </Link>
       </div>
 
