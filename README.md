@@ -1,8 +1,34 @@
 # 🧠 JatuhTempo — AI-Powered Debt Management Assistant
 
-Asisten manajemen utang berbasis AI untuk pengguna Indonesia. Multi-platform — mulai dari Telegram bot hingga REST API.
+<p align="center">
+  <img src="https://jatuhtempo.up.railway.app/assets/logo.webp" width="200" alt="JatuhTempo Logo"/>
+</p>
 
-Kirim screenshot tagihan, biarkan AI yang mengekstrak jumlah, platform, dan jatuh tempo. Atau catat manual. Dapatkan pengingat otomatis sebelum telat bayar.
+<p align="center">
+  <b>Kelola utang paylater, pinjol, kartu kredit — dari Telegram atau Web.</b><br/>
+  OCR otomatis, AI parsing, pengingat cerdas, dan strategi pelunasan.
+</p>
+
+<p align="center">
+  <a href="https://jatuhtempo.up.railway.app"><img src="https://img.shields.io/badge/Live-Dashboard-0a0b1e?style=for-the-badge" alt="Live"/></a>
+  <a href="https://t.me/JatuhTempo_bot"><img src="https://img.shields.io/badge/Telegram-Bot-0088cc?style=for-the-badge&logo=telegram" alt="Telegram Bot"/></a>
+  <a href="https://github.com/FMATheNomad/jatuhtempo/issues"><img src="https://img.shields.io/github/issues/FMATheNomad/jatuhtempo?style=for-the-badge" alt="Issues"/></a>
+  <a href="https://github.com/FMATheNomad/jatuhtempo/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge" alt="License"/></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.14-blue?logo=python"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.136-009688?logo=fastapi"/>
+  <img src="https://img.shields.io/badge/Next.js-14-black?logo=next.js"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql"/>
+  <img src="https://img.shields.io/badge/Railway-deployed-0b0d0e?logo=railway"/>
+</p>
+
+---
+
+**JatuhTempo** adalah asisten manajemen utang berbasis AI untuk pengguna Indonesia dan global. Multi-platform — Telegram bot, Web dashboard, dan rencana WhatsApp.
+
+Kirim screenshot tagihan → AI baca otomatis (OCR + DeepSeek) → catat jumlah, platform, jatuh tempo. Dapatkan pengingat H-7, H-3, H-1, due, overdue langsung ke Telegram. Lengkap dengan strategi pelunasan (snowball) dan simulasi bebas utang.
 
 ---
 
@@ -34,6 +60,19 @@ Kirim screenshot tagihan, biarkan AI yang mengekstrak jumlah, platform, dan jatu
 - Migrasi database dengan Alembic
 
 ---
+
+## 📊 Status Proyek
+
+| Area | Status |
+|------|--------|
+| **Telegram Bot** | ✅ Production — /add, /debts, /edit, /delete, /history, /strategy, OCR, pengingat |
+| **Web Dashboard** | ✅ Live — CRUD utang, OCR upload, strategi snowball, simulasi bebas utang |
+| **OCR + AI Parsing** | ✅ Production — Tesseract + DeepSeek API + platform signature matching |
+| **Pengingat** | ✅ H-7, H-3, H-1, due, overdue via Telegram |
+| **Auth** | ✅ Email/password + Telegram linking + JWT |
+| **Mobile** | ✅ Responsive, 44px touch targets, card list |
+| **Payment** | 🚧 Polar.sh terintegrasi, belum aktif |
+| **WhatsApp** | 🚧 Rencana |
 
 ## 🏗️ Arsitektur
 
