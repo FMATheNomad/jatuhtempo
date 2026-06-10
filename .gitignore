@@ -8,3 +8,4 @@ media/
 .DS_Store
 .next/
 run.sh
+.internal/

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Menu, X } from 'lucide-react'
+import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Menu, X, LogOut } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,6 +47,14 @@ export function MobileNav() {
                 )
               })}
             </nav>
+            <hr className="my-2 border-border" />
+            <button
+              onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
+              className="flex items-center gap-3 px-4 min-h-[44px] w-full rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              Keluar
+            </button>
           </div>
         </>
       )}
