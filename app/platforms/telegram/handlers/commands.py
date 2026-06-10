@@ -74,7 +74,8 @@ async def cmd_help(message: Message):
         "Berikut perintah yang bisa kamu gunakan:\n\n"
         "📸 <b>Kirim foto screenshot</b> — otomatis dibaca AI\n\n"
         "➕ <b>/add</b> — Tambah utang\n"
-        "   Contoh: /add Kredivo 350000 2026-07-15\n\n"
+        "   Contoh: /add Kredivo 350000 2026-07-15\n"
+        "   Opsional: /add ... --bunga 2.5 --bunga-type monthly\n\n"
         "📋 <b>/debts</b> — Lihat semua utang\n"
         "   Filter: /debts --status active\n\n"
         "✏️ <b>/edit</b> — Edit utang\n"
@@ -107,7 +108,8 @@ async def cmd_add(message: Message):
             "/add <platform> <jumlah> <tanggal>\n\n"
             "Contoh: /add Kredivo 350000 2026-07-15\n\n"
             "Bisa juga tambah detail:\n"
-            "/add ShopeePayLater 250000 2026-08-10 --cicilan 2/6 --kategori paylater"
+            "/add ShopeePayLater 250000 2026-08-10 --cicilan 2/6 --kategori paylater\n"
+            "/add Kredivo 500000 2026-09-01 --bunga 2.5 --bunga-type monthly"
         )
         return
 
@@ -140,6 +142,8 @@ async def cmd_add(message: Message):
     installment_total = None
     category = None
     notes = None
+    interest_rate = None
+    interest_type = None
 
     i = 3
     while i < len(parts):
@@ -159,6 +163,20 @@ async def cmd_add(message: Message):
         elif parts[i] == "--notes" and i + 1 < len(parts):
             notes = parts[i + 1]
             i += 2
+        elif parts[i] == "--bunga" and i + 1 < len(parts):
+            try:
+                interest_rate = float(parts[i + 1])
+            except ValueError:
+                await message.reply("Bunga harus angka, contoh: --bunga 2.5")
+                return
+            i += 2
+        elif parts[i] == "--bunga-type" and i + 1 < len(parts):
+            val = parts[i + 1].lower()
+            if val not in ("daily", "monthly", "yearly", "flat"):
+                await message.reply("Tipe bunga: daily, monthly, yearly, atau flat.")
+                return
+            interest_type = val
+            i += 2
         else:
             i += 1
 
@@ -170,6 +188,8 @@ async def cmd_add(message: Message):
         installment_total=installment_total,
         category=category,
         notes=notes,
+        interest_rate=interest_rate,
+        interest_type=interest_type,
     )
 
     async with async_session_factory() as session:
@@ -184,6 +204,9 @@ async def cmd_add(message: Message):
     )
     if debt.installment_current and debt.installment_total:
         msg += f"\nCicilan: {debt.installment_current}/{debt.installment_total}"
+    if debt.interest_rate:
+        bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(debt.interest_type, "")
+        msg += f"\nBunga: {debt.interest_rate}%{bunga_type}"
     if debt.category:
         msg += f"\nKategori: {debt.category}"
     if debt.notes:
@@ -245,13 +268,17 @@ async def cmd_debts(message: Message):
         status_emoji = {"active": "🟡", "paid": "✅", "late": "🔴"}
         short_id = str(d.id)[:8]
         cicilan = f" ({d.installment_current}/{d.installment_total})" if d.installment_current and d.installment_total else ""
+        bunga = ""
+        if d.interest_rate:
+            bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(d.interest_type, "")
+            bunga = f" | {d.interest_rate}%{bunga_type}"
         extra = ""
         if d.category:
             extra += f" | {d.category}"
         if d.notes:
             extra += f"\n   📝 {d.notes}"
         lines.append(
-            f"{status_emoji.get(d.status.value, '⚪')} <b>{d.platform}</b>{cicilan}\n"
+            f"{status_emoji.get(d.status.value, '⚪')} <b>{d.platform}</b>{cicilan}{bunga}\n"
             f"   Rp{d.amount:,} | Jatuh tempo: {d.due_date}\n"
             f"   ID: <code>{short_id}</code> | {d.status.value}{extra}"
         )
@@ -276,7 +303,11 @@ async def cmd_monthly(message: Message):
     ]
     for d in summary.upcoming[:10]:
         cicilan = f" ({d.installment_current}/{d.installment_total})" if d.installment_current and d.installment_total else ""
-        lines.append(f"• {d.platform}{cicilan} Rp{d.amount:,} ({d.due_date})")
+        bunga = ""
+        if d.interest_rate:
+            bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(d.interest_type, "")
+            bunga = f" {d.interest_rate}%{bunga_type}"
+        lines.append(f"• {d.platform}{cicilan}{bunga} Rp{d.amount:,} ({d.due_date})")
 
     await message.reply("\n".join(lines))
 
@@ -297,7 +328,11 @@ async def cmd_upcoming(message: Message):
     lines = ["<b>Utang Mendatang (30 hari):</b>\n"]
     for d in debts:
         cicilan = f" ({d.installment_current}/{d.installment_total})" if d.installment_current and d.installment_total else ""
-        lines.append(f"• {d.platform}{cicilan} Rp{d.amount:,} — {d.due_date}")
+        bunga = ""
+        if d.interest_rate:
+            bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(d.interest_type, "")
+            bunga = f" {d.interest_rate}%{bunga_type}"
+        lines.append(f"• {d.platform}{cicilan}{bunga} Rp{d.amount:,} — {d.due_date}")
     await message.reply("\n".join(lines))
 
 
@@ -372,7 +407,8 @@ async def cmd_edit(message: Message):
             "Contoh: /edit a1b2c3d4 --amount 250000 --status paid\n\n"
             "Semua field bisa diedit:\n"
             "--amount, --due_date, --platform, --status\n"
-            "--cicilan, --kategori, --notes\n\n"
+            "--cicilan, --kategori, --notes\n"
+            "--bunga, --bunga-type\n\n"
             "ID bisa dilihat dari /debts (8 karakter)"
         )
         return
@@ -478,6 +514,31 @@ async def cmd_edit(message: Message):
                 else:
                     update_kwargs["notes"] = val
                     changed.append(f"catatan → {val}")
+                i += 2
+            elif rest[i] == "--bunga" and i + 1 < len(rest):
+                val = rest[i + 1]
+                if val.lower() == "hapus":
+                    update_kwargs["interest_rate"] = None
+                    changed.append("bunga dihapus")
+                else:
+                    try:
+                        update_kwargs["interest_rate"] = float(val)
+                        changed.append(f"bunga → {val}%")
+                    except ValueError:
+                        await message.reply("Bunga harus angka, contoh: --bunga 2.5")
+                        return
+                i += 2
+            elif rest[i] == "--bunga-type" and i + 1 < len(rest):
+                val = rest[i + 1]
+                if val.lower() == "hapus":
+                    update_kwargs["interest_type"] = None
+                    changed.append("tipe bunga dihapus")
+                elif val.lower() in ("daily", "monthly", "yearly", "flat"):
+                    update_kwargs["interest_type"] = val.lower()
+                    changed.append(f"tipe bunga → {val}")
+                else:
+                    await message.reply("Tipe bunga: daily, monthly, yearly, flat, atau 'hapus'.")
+                    return
                 i += 2
             else:
                 i += 1

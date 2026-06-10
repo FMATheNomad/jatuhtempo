@@ -8,6 +8,8 @@ class DebtCreate(BaseModel):
     platform: str = Field(..., max_length=100)
     amount: int = Field(..., ge=0)
     due_date: date
+    interest_rate: Optional[float] = None
+    interest_type: Optional[str] = None
     installment_current: Optional[int] = None
     installment_total: Optional[int] = None
     category: Optional[str] = None
@@ -20,6 +22,8 @@ class DebtResponse(BaseModel):
     platform: str
     amount: int
     due_date: date
+    interest_rate: Optional[float] = None
+    interest_type: Optional[str] = None
     installment_current: Optional[int] = None
     installment_total: Optional[int] = None
     category: Optional[str] = None
@@ -30,6 +34,14 @@ class DebtResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class PlatformRateResponse(BaseModel):
+    platform: str
+    avg_rate: float
+    common_type: str | None
+    sample_count: int
+    confidence: float
 
 
 class MonthlySummary(BaseModel):

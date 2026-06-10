@@ -123,6 +123,11 @@ export default function MonthlyPage() {
                                 Cicilan {d.installment_current}/{d.installment_total}
                               </p>
                             )}
+                            {d.interest_rate && (
+                              <p className="text-xs text-accent font-medium mt-1">
+                                Bunga {d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] || d.interest_type : ''}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -135,6 +140,7 @@ export default function MonthlyPage() {
                               <th className="pb-3 font-medium">Jumlah</th>
                               <th className="pb-3 font-medium">Jatuh Tempo</th>
                               <th className="pb-3 font-medium">Cicilan</th>
+                              <th className="pb-3 font-medium">Bunga</th>
                               <th className="pb-3 font-medium">Status</th>
                             </tr>
                           </thead>
@@ -146,6 +152,9 @@ export default function MonthlyPage() {
                                 <td className="py-3 text-sm text-muted-foreground">{d.due_date}</td>
                                 <td className="py-3 text-sm text-muted-foreground">
                                   {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
+                                </td>
+                                <td className="py-3 text-sm text-muted-foreground">
+                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
                                 </td>
                                 <td className="py-3">
                                   <Badge variant={d.status === 'late' ? 'late' : d.status === 'paid' ? 'paid' : 'active'}>

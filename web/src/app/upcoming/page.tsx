@@ -132,9 +132,14 @@ export default function UpcomingPage() {
                             <Calendar className="w-3 h-3" />
                             {d.due_date}
                           </span>
-                          {d.installment_current && d.installment_total && (
-                            <span>{d.installment_current}/{d.installment_total}</span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {d.installment_current && d.installment_total && (
+                              <span>{d.installment_current}/{d.installment_total}</span>
+                            )}
+                            {d.interest_rate && (
+                              <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span>
+                            )}
+                          </div>
                         </div>
                         {d.category && <p className="text-xs text-muted-foreground">{d.category}</p>}
                       </div>
@@ -150,6 +155,7 @@ export default function UpcomingPage() {
                           <th className="pb-3 font-medium">Jumlah</th>
                           <th className="pb-3 font-medium">Jatuh Tempo</th>
                           <th className="pb-3 font-medium">Cicilan</th>
+                          <th className="pb-3 font-medium">Bunga</th>
                           <th className="pb-3 font-medium">Kategori</th>
                         </tr>
                       </thead>
@@ -168,6 +174,9 @@ export default function UpcomingPage() {
                               <td className="py-3 text-sm text-muted-foreground">{d.due_date}</td>
                               <td className="py-3 text-sm text-muted-foreground">
                                 {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
+                              </td>
+                              <td className="py-3 text-sm text-muted-foreground">
+                                {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
                               </td>
                               <td className="py-3 text-sm text-muted-foreground">{d.category || '-'}</td>
                             </tr>

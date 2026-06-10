@@ -181,6 +181,11 @@ export default function StrategyPage() {
                             {d.installment_current && d.installment_total
                               ? `${d.installment_current}/${d.installment_total}`
                               : '-'}
+                            {d.interest_rate && (
+                              <span className="text-accent ml-1">
+                                {d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>

@@ -20,6 +20,8 @@ from app.services.ocr_service import ocr_image
 from app.services.ai_parser import parse_debt_from_text
 from app.services.audit_service import log_audit
 from app.services.platform_matcher import match_platform, learn_from_correction
+from app.services.platform_rate_service import get_all_platform_rates
+from app.schemas.debt import PlatformRateResponse
 
 router = APIRouter(prefix="/api")
 
@@ -69,6 +71,8 @@ class DebtCreateBody(BaseModel):
     platform: str
     amount: int
     due_date: str
+    interest_rate: Optional[float] = None
+    interest_type: Optional[str] = None
     installment_current: Optional[int] = None
     installment_total: Optional[int] = None
     category: Optional[str] = None
@@ -197,6 +201,14 @@ async def learn_platform(body: TrainPlatformRequest, user: User = Depends(get_cu
     return {"ok": True}
 
 
+@router.get("/platforms/rates")
+async def list_platform_rates():
+    """Public reference data: aggregated interest rates per platform."""
+    async with async_session_factory() as session:
+        rates = await get_all_platform_rates(session)
+        return [PlatformRateResponse.model_validate(r) for r in rates]
+
+
 @router.post("/debts")
 async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_current_user), request: Request = None):
     from datetime import date
@@ -209,6 +221,8 @@ async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_cu
         platform=body.platform,
         amount=body.amount,
         due_date=due,
+        interest_rate=body.interest_rate,
+        interest_type=body.interest_type,
         installment_current=body.installment_current,
         installment_total=body.installment_total,
         category=body.category,
@@ -232,6 +246,8 @@ async def patch_debt(debt_id_str: str, body: DebtCreateBody, user: User = Depend
         "amount": body.amount,
         "category": body.category,
         "notes": body.notes,
+        "interest_rate": body.interest_rate,
+        "interest_type": body.interest_type,
         "installment_current": body.installment_current,
         "installment_total": body.installment_total,
     }

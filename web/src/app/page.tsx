@@ -135,7 +135,7 @@ function DashboardPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
+  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' })
   const [adding, setAdding] = useState(false)
 
   async function load() {
@@ -160,8 +160,10 @@ function DashboardPage() {
         due_date: form.due_date, category: form.category || null, notes: form.notes || null,
         installment_current: form.installment_current ? parseInt(form.installment_current) : null,
         installment_total: form.installment_total ? parseInt(form.installment_total) : null,
+        interest_rate: form.interest_rate ? parseFloat(form.interest_rate) : null,
+        interest_type: form.interest_type || null,
       })
-      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
+      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' })
       load()
     } catch { setError('Gagal simpan utang') }
     setAdding(false)
@@ -212,6 +214,16 @@ function DashboardPage() {
                   <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke- (opsional)" type="number" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                   <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan (opsional)" type="number" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="Bunga (%), opsional" type="number" step="0.1" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                  <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="h-12 rounded-xl bg-white/10 border border-white/20 text-white px-4 text-sm">
+                    <option value="">Tipe Bunga (opsional)</option>
+                    <option value="daily">Harian</option>
+                    <option value="monthly">Bulanan</option>
+                    <option value="yearly">Tahunan</option>
+                    <option value="flat">Flat</option>
+                  </select>
+                </div>
                 <button type="submit" disabled={adding} className="w-full h-12 rounded-xl bg-white text-primary font-semibold hover:bg-white/90 transition-colors disabled:opacity-50">
                   {adding ? 'Menyimpan...' : 'Tambah Utang'}
                 </button>
@@ -233,6 +245,14 @@ function DashboardPage() {
                     <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="Bunga (%)" type="number" step="0.1" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                      <option value="">Tipe Bunga</option>
+                      <option value="daily">Harian</option>
+                      <option value="monthly">Bulanan</option>
+                      <option value="yearly">Tahunan</option>
+                      <option value="flat">Flat</option>
+                    </select>
                     <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
                   </form>
                 </CardContent>

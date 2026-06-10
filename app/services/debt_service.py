@@ -10,6 +10,8 @@ from app.models.payment import Payment
 from app.models.reminder import Reminder
 from app.models.user import User
 from app.schemas.debt import DebtCreate, MonthlySummary
+from app.core.platforms import PLATFORMS
+from app.services.platform_rate_service import update_platform_rate
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,8 @@ async def create_debt(session: AsyncSession, user_id: uuid.UUID, data: DebtCreat
         installment_total=data.installment_total,
         category=data.category,
         notes=data.notes,
+        interest_rate=data.interest_rate,
+        interest_type=data.interest_type,
         source=source,
     )
     session.add(debt)
@@ -42,6 +46,10 @@ async def create_debt(session: AsyncSession, user_id: uuid.UUID, data: DebtCreat
     await session.refresh(debt)
 
     await _create_reminders(session, debt)
+
+    # Learn from this debt if it has interest rate info and is a known platform
+    await _learn_from_debt(session, debt, data.interest_rate, data.interest_type)
+
     return debt
 
 
@@ -197,4 +205,19 @@ async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.U
         session.add(payment)
     await session.commit()
     await session.refresh(debt)
+
+    # Learn from this debt if interest rate was updated and platform is known
+    rate = kwargs.get("interest_rate")
+    rate_type = kwargs.get("interest_type")
+    await _learn_from_debt(session, debt, rate, rate_type)
+
     return debt
+
+
+async def _learn_from_debt(session: AsyncSession, debt: Debt, rate: float | None, rate_type: str | None) -> None:
+    """Update platform rate from a debt if it has interest info and a known platform."""
+    if rate is not None and debt.platform in PLATFORMS and debt.platform != "Lainnya":
+        try:
+            await update_platform_rate(session, debt.platform, rate, rate_type)
+        except Exception:
+            logger.exception("Failed to update platform rate for %s", debt.platform)

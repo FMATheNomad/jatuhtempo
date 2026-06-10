@@ -41,7 +41,7 @@ export default function DebtsPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
-  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
+  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' })
   const [ocrPreview, setOcrPreview] = useState<any>(null)
   const [ocrLoading, setOcrLoading] = useState(false)
   const [celebration, setCelebration] = useState<{ platform: string; count: number } | null>(null)
@@ -91,6 +91,8 @@ export default function DebtsPage() {
       notes: form.notes || null,
       installment_current: form.installment_current ? parseInt(form.installment_current) : null,
       installment_total: form.installment_total ? parseInt(form.installment_total) : null,
+      interest_rate: form.interest_rate ? parseFloat(form.interest_rate) : null,
+      interest_type: form.interest_type || null,
     }
     try {
       if (editId) {
@@ -100,14 +102,14 @@ export default function DebtsPage() {
       }
       setShowForm(false)
       setEditId(null)
-      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
+      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' })
       load()
     } catch (e: any) { setError(e.message || 'Gagal simpan.') }
   }
 
   function openEdit(d: DebtResponse) {
     setEditId(d.id)
-    setForm({ platform: d.platform, amount: String(d.amount), due_date: d.due_date, category: d.category || '', notes: d.notes || '', installment_current: d.installment_current ? String(d.installment_current) : '', installment_total: d.installment_total ? String(d.installment_total) : '' })
+    setForm({ platform: d.platform, amount: String(d.amount), due_date: d.due_date, category: d.category || '', notes: d.notes || '', installment_current: d.installment_current ? String(d.installment_current) : '', installment_total: d.installment_total ? String(d.installment_total) : '', interest_rate: d.interest_rate ? String(d.interest_rate) : '', interest_type: d.interest_type || '' })
     setShowForm(true)
   }
 
@@ -119,7 +121,7 @@ export default function DebtsPage() {
           <div className="flex items-center justify-between p-4 lg:px-8">
             <h1 className="text-xl font-semibold">Utang</h1>
             <div className="flex items-center gap-3">
-              <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' }); setShowForm(!showForm) }} size="sm">
+              <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' }); setShowForm(!showForm) }} size="sm">
                 <Plus className="w-4 h-4 mr-1" /> Tambah
               </Button>
               <MobileNav />
@@ -209,6 +211,8 @@ export default function DebtsPage() {
                             due_date: ocrPreview.due_date || new Date().toISOString().split('T')[0],
                             category: ocrPreview.category || null,
                             notes: ocrPreview.notes || null,
+                            interest_rate: ocrPreview.interest_rate || null,
+                            interest_type: ocrPreview.interest_type || null,
                             installment_current: ocrPreview.installment_current || null,
                             installment_total: ocrPreview.installment_total || null,
                           }),
@@ -251,6 +255,14 @@ export default function DebtsPage() {
                   <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Catatan" className="h-10 rounded-lg border border-input bg-background px-3 text-sm sm:col-span-2" />
+                  <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="Bunga (%), opsional" type="number" step="0.1" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                  <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                    <option value="">Tipe Bunga</option>
+                    <option value="daily">Harian</option>
+                    <option value="monthly">Bulanan</option>
+                    <option value="yearly">Tahunan</option>
+                    <option value="flat">Flat</option>
+                  </select>
                   <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                 </div>
@@ -304,7 +316,10 @@ export default function DebtsPage() {
                             </div>
                             <div className="flex items-center justify-between text-sm text-muted-foreground">
                               <span>Jatuh tempo {d.due_date}</span>
-                              {d.installment_current && d.installment_total && <span>{d.installment_current}/{d.installment_total}</span>}
+                              <div className="flex items-center gap-2">
+                                {d.installment_current && d.installment_total && <span>{d.installment_current}/{d.installment_total}</span>}
+                                {d.interest_rate && <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span>}
+                              </div>
                             </div>
                             {d.category && <p className="text-xs text-muted-foreground">{d.category}</p>}
                             <div className="flex items-center gap-2 pt-1 border-t">
@@ -325,6 +340,7 @@ export default function DebtsPage() {
                               <th className="pb-3 font-medium">Platform</th>
                               <th className="pb-3 font-medium">Jumlah</th>
                               <th className="pb-3 font-medium">Jatuh Tempo</th>
+                              <th className="pb-3 font-medium">Bunga</th>
                               <th className="pb-3 font-medium">Cicilan</th>
                               <th className="pb-3 font-medium">Kategori</th>
                               <th className="pb-3 font-medium">Aksi</th>
@@ -337,6 +353,9 @@ export default function DebtsPage() {
                                 <td className="py-3 font-medium">{d.platform}</td>
                                 <td className="py-3 font-semibold">Rp{d.amount.toLocaleString('id-ID')}</td>
                                 <td className="py-3 text-sm text-muted-foreground">{d.due_date}</td>
+                                <td className="py-3 text-sm text-muted-foreground">
+                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
+                                </td>
                                 <td className="py-3 text-sm text-muted-foreground">{d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}</td>
                                 <td className="py-3 text-sm text-muted-foreground">{d.category || '-'}</td>
                                 <td className="py-3">

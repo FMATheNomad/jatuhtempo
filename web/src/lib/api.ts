@@ -40,6 +40,8 @@ export interface DebtResponse {
   platform: string
   amount: number
   due_date: string
+  interest_rate: number | null
+  interest_type: string | null
   installment_current: number | null
   installment_total: number | null
   category: string | null
@@ -116,6 +118,7 @@ export async function getCheckoutUrl() {
 export async function createDebt(data: {
   platform: string; amount: number; due_date: string;
   category?: string | null; notes?: string | null;
+  interest_rate?: number | null; interest_type?: string | null;
   installment_current?: number | null; installment_total?: number | null;
 }) {
   return fetchAPI('/api/debts', { method: 'POST', body: JSON.stringify(data) }) as Promise<DebtResponse>

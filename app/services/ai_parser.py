@@ -17,6 +17,8 @@ Ekstrak data berikut sebagai JSON:
 - due_date (string): tanggal jatuh tempo dalam format YYYY-MM-DD.
 - installment_current (number atau null): cicilan ke-berapa (angka sebelum garis miring, contoh "3/3" → 3).
 - installment_total (number atau null): total cicilan (angka setelah garis miring, contoh "3/3" → 3).
+- interest_rate (number atau null): suku bunga dalam persen. Cari pola seperti "bunga 2.25%", "suku bunga 2.5% per bulan", "interest 12% per tahun", "flat 5%". Konversi ke angka desimal (2.25 berarti 2.25%).
+- interest_type (string atau null): tipe bunga — "daily" jika per hari, "monthly" jika per bulan, "yearly" jika per tahun, "flat" jika flat/flat rate. Deteksi dari konteks sekitar angka bunga.
 - category (string atau null): kategori pinjaman: "pinjol" (pinjaman online), "paylater", "kredit" (kredit bank/leasing), "gadai".
 - notes (string atau null): catatan tambahan relevan.
 
@@ -66,6 +68,8 @@ def _clean_parsed(parsed: dict[str, Any]) -> dict[str, Any]:
         "due_date": str(due_date),
         "installment_current": parsed.get("installment_current"),
         "installment_total": parsed.get("installment_total"),
+        "interest_rate": parsed.get("interest_rate"),
+        "interest_type": parsed.get("interest_type"),
         "category": parsed.get("category"),
         "notes": parsed.get("notes"),
     }

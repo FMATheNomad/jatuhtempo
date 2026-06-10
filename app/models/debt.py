@@ -2,7 +2,7 @@ import uuid
 import enum
 from datetime import date, datetime, timezone
 
-from sqlalchemy import String, Integer, Date, DateTime, Enum as SAEnum, ForeignKey
+from sqlalchemy import String, Integer, Float, Date, DateTime, Enum as SAEnum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,8 @@ class Debt(Base):
     platform: Mapped[str] = mapped_column(String(100), nullable=False)
     amount: Mapped[int] = mapped_column(Integer, nullable=False, comment="Amount in Rupiah")
     due_date: Mapped[date] = mapped_column(Date, nullable=False)
+    interest_rate: Mapped[float | None] = mapped_column(Float, nullable=True, comment="Interest rate percentage, e.g. 2.5 = 2.5%")
+    interest_type: Mapped[str | None] = mapped_column(String(10), nullable=True, comment="daily, monthly, yearly, flat")
     installment_current: Mapped[int] = mapped_column(Integer, nullable=True)
     installment_total: Mapped[int] = mapped_column(Integer, nullable=True)
     category: Mapped[str] = mapped_column(String(100), nullable=True)
