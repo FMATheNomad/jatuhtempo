@@ -609,3 +609,58 @@ async def cmd_wa(message: Message):
     async with async_session_factory() as session:
         await update_user_wa(session, message.from_user.id, phone_number=formatted)
     await message.reply(f"✅ Nomor WhatsApp tersimpan: {formatted}")
+
+
+@router.message(Command("strategy"))
+async def cmd_strategy(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
+        return
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+        debts = await get_user_debts(session, user.id, status=DebtStatus.active)
+
+    if not debts:
+        await message.reply("Tidak ada utang aktif. Tambah dulu dengan /add.")
+        return
+
+    # Snowball order: sort by amount ascending
+    sorted_debts = sorted(debts, key=lambda d: d.amount)
+
+    total_debt = sum(d.amount for d in sorted_debts)
+
+    # Estimate monthly payment per debt
+    total_monthly = 0
+    for d in sorted_debts:
+        if d.installment_total and d.installment_total > 0:
+            total_monthly += d.amount // d.installment_total
+        else:
+            total_monthly += d.amount
+
+    lines = [
+        "<b>📊 Strategi Snowball</b>\n",
+        "Urutan lunasi (dari terkecil ke terbesar):\n",
+    ]
+
+    for i, d in enumerate(sorted_debts, 1):
+        cicilan = f" ({d.installment_current}/{d.installment_total})" if d.installment_current and d.installment_total else ""
+        monthly_est = ""
+        if d.installment_total and d.installment_total > 0:
+            monthly_est = f" ~Rp{d.amount // d.installment_total:,}/bln"
+        lines.append(
+            f"{i}. <b>{d.platform}</b>{cicilan}\n"
+            f"   Rp{d.amount:,}{monthly_est} | Jatuh tempo: {d.due_date}"
+        )
+
+    lines.extend([
+        "",
+        f"<b>Total utang:</b> Rp{total_debt:,}",
+        f"<b>Estimasi total per bulan:</b> Rp{total_monthly:,}",
+        "",
+        "💡 <b>Tips:</b> Lunasi urutan 1 dulu sambil bayar minimum sisanya.",
+        "",
+        "🔗 Untuk simulasi lengkap (extra payment, income-based):",
+        "👉 https://jatuhtempo.app/strategy",
+    ])
+
+    await message.reply("\n".join(lines))

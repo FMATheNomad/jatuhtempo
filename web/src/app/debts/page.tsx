@@ -41,7 +41,7 @@ export default function DebtsPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
-  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
   const [ocrPreview, setOcrPreview] = useState<any>(null)
   const [ocrLoading, setOcrLoading] = useState(false)
   const [celebration, setCelebration] = useState<{ platform: string; count: number } | null>(null)
@@ -89,8 +89,8 @@ export default function DebtsPage() {
       due_date: form.due_date,
       category: form.category || null,
       notes: form.notes || null,
-      installment_current: null,
-      installment_total: null,
+      installment_current: form.installment_current ? parseInt(form.installment_current) : null,
+      installment_total: form.installment_total ? parseInt(form.installment_total) : null,
     }
     try {
       if (editId) {
@@ -100,14 +100,14 @@ export default function DebtsPage() {
       }
       setShowForm(false)
       setEditId(null)
-      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
       load()
     } catch (e: any) { setError(e.message || 'Gagal simpan.') }
   }
 
   function openEdit(d: DebtResponse) {
     setEditId(d.id)
-    setForm({ platform: d.platform, amount: String(d.amount), due_date: d.due_date, category: d.category || '', notes: d.notes || '' })
+    setForm({ platform: d.platform, amount: String(d.amount), due_date: d.due_date, category: d.category || '', notes: d.notes || '', installment_current: d.installment_current ? String(d.installment_current) : '', installment_total: d.installment_total ? String(d.installment_total) : '' })
     setShowForm(true)
   }
 
@@ -119,7 +119,7 @@ export default function DebtsPage() {
           <div className="flex items-center justify-between p-4 lg:px-8">
             <h1 className="text-xl font-semibold">Utang</h1>
             <div className="flex items-center gap-3">
-              <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '' }); setShowForm(!showForm) }} size="sm">
+              <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' }); setShowForm(!showForm) }} size="sm">
                 <Plus className="w-4 h-4 mr-1" /> Tambah
               </Button>
               <MobileNav />
@@ -251,6 +251,8 @@ export default function DebtsPage() {
                   <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Catatan" className="h-10 rounded-lg border border-input bg-background px-3 text-sm sm:col-span-2" />
+                  <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                  <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleSave} size="sm">{editId ? 'Simpan' : 'Tambah'}</Button>

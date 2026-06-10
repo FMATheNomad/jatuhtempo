@@ -135,7 +135,7 @@ function DashboardPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+  const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
   const [adding, setAdding] = useState(false)
 
   async function load() {
@@ -158,8 +158,10 @@ function DashboardPage() {
       await createDebt({
         platform: form.platform, amount: parseInt(form.amount) || 0,
         due_date: form.due_date, category: form.category || null, notes: form.notes || null,
+        installment_current: form.installment_current ? parseInt(form.installment_current) : null,
+        installment_total: form.installment_total ? parseInt(form.installment_total) : null,
       })
-      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '' })
+      setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '' })
       load()
     } catch { setError('Gagal simpan utang') }
     setAdding(false)
@@ -206,6 +208,10 @@ function DashboardPage() {
                   <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="Jatuh tempo (YYYY-MM-DD)" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                   <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="Kategori (opsional)" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke- (opsional)" type="number" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                  <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan (opsional)" type="number" className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                </div>
                 <button type="submit" disabled={adding} className="w-full h-12 rounded-xl bg-white text-primary font-semibold hover:bg-white/90 transition-colors disabled:opacity-50">
                   {adding ? 'Menyimpan...' : 'Tambah Utang'}
                 </button>
@@ -221,10 +227,12 @@ function DashboardPage() {
               <Card>
                 <CardHeader><CardTitle>Tambah Utang Cepat</CardTitle></CardHeader>
                 <CardContent>
-                  <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3">
-                    <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Platform" className="flex-1 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-36 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                  <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3 flex-wrap">
+                    <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Platform" className="flex-1 min-w-[120px] h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
                   </form>
                 </CardContent>

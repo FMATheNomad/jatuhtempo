@@ -4,11 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Menu, X, LogOut } from 'lucide-react'
+import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Calendar, Bell, Menu, X, LogOut } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/debts', label: 'Utang', icon: CreditCard },
+  { href: '/monthly', label: 'Bulanan', icon: Calendar },
+  { href: '/upcoming', label: 'Akan Datang', icon: Bell },
   { href: '/strategy', label: 'Strategi', icon: TrendingDown },
   { href: '/history', label: 'Riwayat', icon: History },
   { href: '/settings', label: 'Pengaturan', icon: Settings },
