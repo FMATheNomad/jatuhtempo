@@ -85,6 +85,11 @@ async def cmd_help(message: Message):
         "📄 <b>/summary</b> — Ringkasan singkat\n\n"
         "🔑 <b>/login</b> — Login ke web dashboard\n"
         "📱 <b>/wa</b> — Atur nomor WhatsApp\n\n"
+        "📖 <b>/faq</b> — Pertanyaan umum\n\n"
+        "🌐 Butuh info lebih lengkap? Kunjungi:\n"
+        "❓ FAQ: https://jatuhtempo.app/faq\n"
+        "📘 Dokumentasi: https://jatuhtempo.app/docs\n"
+        "⚖️ Syarat & Ketentuan: https://jatuhtempo.app/legal/terms\n\n"
         "ID utang (8 karakter) bisa dilihat dari /debts"
     )
 
