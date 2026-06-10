@@ -115,6 +115,16 @@ function LoginContent() {
         <p className="text-xs text-muted-foreground text-center mt-4">
           Setelah login, tautkan Telegram di menu Pengaturan.
         </p>
+
+        <div className="mt-6 pt-4 border-t border-border text-xs text-muted-foreground flex items-center justify-center gap-2">
+          <a href="/faq" className="hover:text-foreground transition-colors">FAQ</a>
+          <span>•</span>
+          <a href="/legal/terms" className="hover:text-foreground transition-colors">Terms</a>
+          <span>•</span>
+          <a href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+          <span>•</span>
+          <a href="/docs" className="hover:text-foreground transition-colors">Docs</a>
+        </div>
       </div>
     </div>
   )

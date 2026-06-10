@@ -114,6 +114,15 @@ function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t py-8 px-6 text-center text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <a href="/faq" className="hover:text-foreground transition-colors">FAQ</a>
+          <span className="text-border">•</span>
+          <a href="/legal/terms" className="hover:text-foreground transition-colors">Terms</a>
+          <span className="text-border">•</span>
+          <a href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+          <span className="text-border">•</span>
+          <a href="/docs" className="hover:text-foreground transition-colors">Docs</a>
+        </div>
         <p>© 2026 JatuhTempo. All rights reserved.</p>
       </footer>
     </div>
@@ -165,7 +174,12 @@ function DashboardPage() {
         <header className="sticky top-0 bg-background/80 backdrop-blur-sm border-b z-30">
           <div className="flex items-center justify-between p-4 lg:px-8">
             <h1 className="text-xl font-semibold">Dashboard</h1>
-            <MobileNav />
+            <div className="flex items-center gap-3">
+              <a href="/docs" className="text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex items-center gap-1">
+                Bantuan
+              </a>
+              <MobileNav />
+            </div>
           </div>
         </header>
 
