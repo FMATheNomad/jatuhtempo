@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column('common_type', sa.String(length=10), nullable=True),
         sa.Column('sample_count', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('confidence', sa.Float(), nullable=False, server_default='0.0'),
+        sa.Column('type_counts', sa.JSON(), nullable=True),
     )
 
 

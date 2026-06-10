@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, Search, Pencil, Trash2, Check, AlertTriangle, X, Upload } from 'lucide-react'
 import type { DebtResponse } from '@/lib/api'
+import { getPlatformRate } from '@/lib/api'
 
 const statusVariant: Record<string, 'active' | 'paid' | 'late'> = {
   active: 'active', paid: 'paid', late: 'late',
@@ -45,6 +46,7 @@ export default function DebtsPage() {
   const [ocrPreview, setOcrPreview] = useState<any>(null)
   const [ocrLoading, setOcrLoading] = useState(false)
   const [celebration, setCelebration] = useState<{ platform: string; count: number } | null>(null)
+  const [rateSuggestion, setRateSuggestion] = useState<{ rate: number; type: string } | null>(null)
 
   const activeDebts = debts.filter(d => d.status !== 'paid')
   const paidDebts = debts.filter(d => d.status === 'paid')
@@ -111,6 +113,17 @@ export default function DebtsPage() {
     setEditId(d.id)
     setForm({ platform: d.platform, amount: String(d.amount), due_date: d.due_date, category: d.category || '', notes: d.notes || '', installment_current: d.installment_current ? String(d.installment_current) : '', installment_total: d.installment_total ? String(d.installment_total) : '', interest_rate: d.interest_rate ? String(d.interest_rate) : '', interest_type: d.interest_type || '' })
     setShowForm(true)
+  }
+
+  async function handlePlatformChange(platform: string) {
+    setForm({...form, platform, interest_rate: '', interest_type: '' })
+    setRateSuggestion(null)
+    if (!platform) return
+    const rate = await getPlatformRate(platform)
+    if (rate && rate.confidence > 0.3) {
+      setRateSuggestion({ rate: rate.avg_rate, type: rate.common_type || 'monthly' })
+      setForm(prev => ({ ...prev, platform, interest_rate: String(rate.avg_rate), interest_type: rate.common_type || 'monthly' }))
+    }
   }
 
   return (
@@ -233,7 +246,7 @@ export default function DebtsPage() {
             <Card className="mb-6">
               <CardContent className="p-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  <select value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} className="h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                  <select value={form.platform} onChange={e => handlePlatformChange(e.target.value)} className="h-10 rounded-lg border border-input bg-background px-3 text-sm">
                     <option value="">Pilih platform</option>
                     <option value="Akulaku">Akulaku</option>
                     <option value="Kredivo">Kredivo</option>
@@ -263,6 +276,11 @@ export default function DebtsPage() {
                     <option value="yearly">Tahunan</option>
                     <option value="flat">Flat</option>
                   </select>
+                  {rateSuggestion && (
+                    <div className="sm:col-span-2 text-xs text-accent font-medium">
+                      💡 Saran: bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
+                    </div>
+                  )}
                   <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                   <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                 </div>

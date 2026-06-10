@@ -18,6 +18,7 @@ from app.services.debt_service import (
     get_monthly_summary, get_upcoming_debts, delete_debt,
 )
 from app.services.payment_service import get_payments_for_debt
+from app.services.platform_rate_service import get_platform_rate
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
 router = Router()
@@ -211,6 +212,14 @@ async def cmd_add(message: Message):
         msg += f"\nKategori: {debt.category}"
     if debt.notes:
         msg += f"\nCatatan: {debt.notes}"
+
+    # Auto-suggest: if user didn't specify interest, check platform rate
+    if not interest_rate and not interest_type:
+        async with async_session_factory() as session:
+            rate_record = await get_platform_rate(session, platform)
+        if rate_record and rate_record.confidence > 0.3:
+            bunga_type_label = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(rate_record.common_type, "")
+            msg += f"\n\n💡 Saran bunga: {rate_record.avg_rate}%{bunga_type_label} (dari {rate_record.sample_count} data). Gunakan --bunga {rate_record.avg_rate} --bunga-type {rate_record.common_type or 'monthly'}"
 
     await message.reply(msg, reply_markup=debt_keyboard(debt.id))
 

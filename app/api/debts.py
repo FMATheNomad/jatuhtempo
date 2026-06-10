@@ -20,8 +20,14 @@ from app.services.ocr_service import ocr_image
 from app.services.ai_parser import parse_debt_from_text
 from app.services.audit_service import log_audit
 from app.services.platform_matcher import match_platform, learn_from_correction
-from app.services.platform_rate_service import get_all_platform_rates
+from app.services.platform_rate_service import (
+    get_all_platform_rates,
+    get_platform_rate,
+    update_platform_rate,
+    reset_platform_rate,
+)
 from app.schemas.debt import PlatformRateResponse
+from app.models.platform_rate import PlatformRate
 
 router = APIRouter(prefix="/api")
 
@@ -207,6 +213,79 @@ async def list_platform_rates():
     async with async_session_factory() as session:
         rates = await get_all_platform_rates(session)
         return [PlatformRateResponse.model_validate(r) for r in rates]
+
+
+# --- Admin endpoints for platform rates ---
+
+
+class AdminRateUpdate(BaseModel):
+    avg_rate: float | None = None
+    common_type: str | None = None
+
+
+@router.get("/admin/platforms/rates")
+async def admin_list_platform_rates(user: User = Depends(get_current_user)):
+    """Return all platform rates sorted by sample_count descending (admin)."""
+    async with async_session_factory() as session:
+        rates = await get_all_platform_rates(session)
+        rates.sort(key=lambda r: r.sample_count, reverse=True)
+        return [PlatformRateResponse.model_validate(r) for r in rates]
+
+
+@router.put("/admin/platforms/rates/{platform}")
+async def admin_update_platform_rate(
+    platform: str, body: AdminRateUpdate, user: User = Depends(get_current_user)
+):
+    """Manually set/override a platform's rate data. Sets confidence to 1.0 (admin-verified)."""
+    async with async_session_factory() as session:
+        result = await session.execute(
+            sa_select(PlatformRate).where(PlatformRate.platform == platform)
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            if body.avg_rate is not None:
+                existing.avg_rate = body.avg_rate
+            if body.common_type is not None:
+                existing.common_type = body.common_type
+            existing.confidence = 1.0
+        else:
+            existing = PlatformRate(
+                platform=platform,
+                avg_rate=body.avg_rate or 0.0,
+                common_type=body.common_type,
+                sample_count=1,
+                confidence=1.0,
+                type_counts={},
+            )
+            session.add(existing)
+        await session.commit()
+        await session.refresh(existing)
+        return PlatformRateResponse.model_validate(existing)
+
+
+@router.delete("/admin/platforms/rates/{platform}")
+async def admin_delete_platform_rate(
+    platform: str, user: User = Depends(get_current_user)
+):
+    """Delete a platform rate entry (admin)."""
+    async with async_session_factory() as session:
+        ok = await reset_platform_rate(session, platform)
+        if not ok:
+            raise HTTPException(404, f"Platform rate '{platform}' not found")
+        return {"ok": True}
+
+
+# --- Suggest endpoint ---
+
+
+@router.get("/platforms/rates/suggest")
+async def suggest_platform_rate(platform: str):
+    """Return suggested rate for a platform if confidence > 0.3."""
+    async with async_session_factory() as session:
+        rate = await get_platform_rate(session, platform)
+        if not rate or rate.confidence <= 0.3:
+            raise HTTPException(404, f"No reliable rate data for '{platform}'")
+        return PlatformRateResponse.model_validate(rate)
 
 
 @router.post("/debts")

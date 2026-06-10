@@ -128,6 +128,11 @@ export default function MonthlyPage() {
                                 Bunga {d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] || d.interest_type : ''}
                               </p>
                             )}
+                            {d.interest_rate && d.status !== 'paid' && (
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {d.interest_rate < 1 ? '🔸' : d.interest_rate < 3 ? '🔹' : '🔺'} {d.interest_rate}%/{d.interest_type === 'monthly' ? 'bln' : d.interest_type === 'daily' ? 'hari' : d.interest_type === 'yearly' ? 'thn' : 'flat'}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -140,7 +145,7 @@ export default function MonthlyPage() {
                               <th className="pb-3 font-medium">Jumlah</th>
                               <th className="pb-3 font-medium">Jatuh Tempo</th>
                               <th className="pb-3 font-medium">Cicilan</th>
-                              <th className="pb-3 font-medium">Bunga</th>
+                              <th className="pb-3 font-medium">Bunga <span className="text-xs opacity-60">(confidence)</span></th>
                               <th className="pb-3 font-medium">Status</th>
                             </tr>
                           </thead>
@@ -154,7 +159,7 @@ export default function MonthlyPage() {
                                   {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
                                 </td>
                                 <td className="py-3 text-sm text-muted-foreground">
-                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
+                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''} <span className="text-xs opacity-50">{d.interest_rate < 1 ? '🟢' : d.interest_rate < 3 ? '🟡' : '🔴'}</span></span> : '-'}
                                 </td>
                                 <td className="py-3">
                                   <Badge variant={d.status === 'late' ? 'late' : d.status === 'paid' ? 'paid' : 'active'}>

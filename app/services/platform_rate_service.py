@@ -1,5 +1,4 @@
 import logging
-from collections import Counter
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,8 +10,25 @@ logger = logging.getLogger(__name__)
 
 async def update_platform_rate(
     session: AsyncSession, platform: str, rate: float, rate_type: str | None
-) -> PlatformRate:
-    """Upsert platform rate: recalculate avg_rate, increment sample_count, update confidence."""
+) -> PlatformRate | None:
+    """Upsert platform rate with EMA decay, outlier detection, and majority vote.
+
+    - Outlier detection: rejects rate > 50 or rate < 0.1
+    - EMA formula: new_avg = (1 - alpha) * old_avg + alpha * new_rate
+      alpha = min(0.3, 1.0 / (sample_count + 1))
+    - Majority vote for common_type tracked in type_counts JSON
+    - Confidence = min(1.0, sample_count / 20)
+
+    Returns None if the rate is rejected as an outlier.
+    """
+    # --- Outlier detection ---
+    if rate > 50 or rate < 0.1:
+        logger.warning(
+            "Outlier rate rejected for platform=%s: %.4f (must be 0.1–50)",
+            platform, rate,
+        )
+        return None
+
     # Fetch existing record
     result = await session.execute(
         select(PlatformRate).where(PlatformRate.platform == platform)
@@ -20,30 +36,25 @@ async def update_platform_rate(
     existing = result.scalar_one_or_none()
 
     if existing:
-        # Recalculate weighted average
-        old_total = existing.avg_rate * existing.sample_count
-        new_sample_count = existing.sample_count + 1
-        existing.avg_rate = (old_total + rate) / new_sample_count
-        existing.sample_count = new_sample_count
+        # --- EMA decay ---
+        sample_count = existing.sample_count
+        old_avg = existing.avg_rate
+        alpha = min(0.3, 1.0 / (sample_count + 1))
+        existing.avg_rate = (1 - alpha) * old_avg + alpha * rate
+        existing.sample_count = sample_count + 1
 
-        # Track type frequency — we store the latest type for simplicity
-        # but we need most common across all samples. We don't have a history
-        # table, so we approximate: if common_type matches new type, keep it;
-        # if different, set to None (uncertain) unless we have strong evidence.
-        # A better approach: always update common_type to the most recent if
-        # it's consistent, else None.
-        if existing.common_type == rate_type:
-            pass  # already matches
-        elif existing.common_type is None:
-            existing.common_type = rate_type
+        # --- Majority vote for common_type ---
+        type_counts = existing.type_counts or {}
+        if rate_type:
+            type_counts[rate_type] = type_counts.get(rate_type, 0) + 1
+        existing.type_counts = type_counts
+
+        # Determine majority type
+        if type_counts:
+            majority_type = max(type_counts, key=type_counts.get)
+            existing.common_type = majority_type
         else:
-            # Conflicting types — set to None unless the new one dominates
-            # We'll use a simple heuristic: if we only have 1-2 samples,
-            # trust the new one; if we have many and they conflict, mark None.
-            if existing.sample_count <= 3:
-                existing.common_type = rate_type
-            else:
-                existing.common_type = None
+            existing.common_type = None
     else:
         existing = PlatformRate(
             platform=platform,
@@ -51,10 +62,11 @@ async def update_platform_rate(
             common_type=rate_type,
             sample_count=1,
             confidence=0.0,
+            type_counts={rate_type: 1} if rate_type else {},
         )
         session.add(existing)
 
-    # Update confidence: min(1.0, sample_count / 20)
+    # Update confidence
     existing.confidence = min(1.0, existing.sample_count / 20)
 
     await session.commit()
@@ -78,3 +90,22 @@ async def get_all_platform_rates(
     """Get all platform rates."""
     result = await session.execute(select(PlatformRate))
     return list(result.scalars().all())
+
+
+async def reset_platform_rate(
+    session: AsyncSession, platform: str
+) -> bool:
+    """Reset all stats for a platform to zero (admin use).
+
+    Returns True if a record existed and was deleted, False otherwise.
+    """
+    result = await session.execute(
+        select(PlatformRate).where(PlatformRate.platform == platform)
+    )
+    existing = result.scalar_one_or_none()
+    if not existing:
+        return False
+    await session.delete(existing)
+    await session.commit()
+    logger.info("Platform rate reset for platform=%s", platform)
+    return True

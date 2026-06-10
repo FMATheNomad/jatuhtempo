@@ -5,3 +5,4 @@ from app.models.ocr_log import OcrLog
 from app.models.payment import Payment
 from app.models.audit_log import AuditLog
 from app.models.platform_signature import PlatformSignature
+from app.models.platform_rate import PlatformRate

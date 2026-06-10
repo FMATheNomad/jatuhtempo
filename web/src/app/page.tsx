@@ -137,6 +137,7 @@ function DashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' })
   const [adding, setAdding] = useState(false)
+  const [rateSuggestion, setRateSuggestion] = useState<{ rate: number; type: string } | null>(null)
 
   async function load() {
     try {
@@ -148,6 +149,18 @@ function DashboardPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  async function handlePlatformChange(platform: string) {
+    setForm({...form, platform, interest_rate: '', interest_type: '' })
+    setRateSuggestion(null)
+    if (!platform) return
+    const { getPlatformRate } = await import('@/lib/api')
+    const rate = await getPlatformRate(platform)
+    if (rate && rate.confidence > 0.3) {
+      setRateSuggestion({ rate: rate.avg_rate, type: rate.common_type || 'monthly' })
+      setForm(prev => ({ ...prev, platform, interest_rate: String(rate.avg_rate), interest_type: rate.common_type || 'monthly' }))
+    }
+  }
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -203,7 +216,7 @@ function DashboardPage() {
 
               <form onSubmit={handleAdd} className="max-w-lg mx-auto space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Nama platform" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
+                  <input value={form.platform} onChange={e => handlePlatformChange(e.target.value)} placeholder="Nama platform" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                   <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah (Rp)" type="number" required className="h-12 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 px-4 text-sm" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -224,6 +237,11 @@ function DashboardPage() {
                     <option value="flat">Flat</option>
                   </select>
                 </div>
+                {rateSuggestion && (
+                  <div className="text-xs text-emerald-300 font-medium">
+                    💡 Saran: bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
+                  </div>
+                )}
                 <button type="submit" disabled={adding} className="w-full h-12 rounded-xl bg-white text-primary font-semibold hover:bg-white/90 transition-colors disabled:opacity-50">
                   {adding ? 'Menyimpan...' : 'Tambah Utang'}
                 </button>
@@ -240,7 +258,7 @@ function DashboardPage() {
                 <CardHeader><CardTitle>Tambah Utang Cepat</CardTitle></CardHeader>
                 <CardContent>
                   <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                    <input value={form.platform} onChange={e => setForm({...form, platform: e.target.value})} placeholder="Platform" className="flex-1 min-w-[120px] h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.platform} onChange={e => handlePlatformChange(e.target.value)} placeholder="Platform" className="flex-1 min-w-[120px] h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
                     <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
@@ -253,6 +271,11 @@ function DashboardPage() {
                       <option value="yearly">Tahunan</option>
                       <option value="flat">Flat</option>
                     </select>
+                    {rateSuggestion && (
+                      <div className="w-full text-xs text-accent font-medium">
+                        💡 Saran: bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
+                      </div>
+                    )}
                     <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
                   </form>
                 </CardContent>

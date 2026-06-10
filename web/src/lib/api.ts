@@ -131,3 +131,23 @@ export async function updateDebt(id: string, data: any) {
 export async function deleteDebtApi(id: string) {
   return fetchAPI(`/api/debts/${id}`, { method: 'DELETE' }) as Promise<{ ok: boolean }>
 }
+
+export interface PlatformRateResponse {
+  platform: string
+  avg_rate: number
+  common_type: string | null
+  sample_count: number
+  confidence: number
+}
+
+export async function getPlatformRate(platform: string): Promise<PlatformRateResponse | null> {
+  try {
+    return await fetchAPI(`/api/platforms/rates/suggest?platform=${encodeURIComponent(platform)}`) as PlatformRateResponse
+  } catch {
+    return null
+  }
+}
+
+export async function getAllPlatformRates(): Promise<PlatformRateResponse[]> {
+  return fetchAPI('/api/platforms/rates') as Promise<PlatformRateResponse[]>
+}

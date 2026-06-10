@@ -1,4 +1,4 @@
-from sqlalchemy import String, Float, Integer
+from sqlalchemy import String, Float, Integer, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -13,3 +13,4 @@ class PlatformRate(Base):
     common_type: Mapped[str | None] = mapped_column(String(10), nullable=True)
     sample_count: Mapped[int] = mapped_column(Integer, default=0)
     confidence: Mapped[float] = mapped_column(Float, default=0.0)
+    type_counts: Mapped[dict | None] = mapped_column(JSON, nullable=True, default=dict)

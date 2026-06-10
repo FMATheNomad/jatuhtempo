@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, CreditCard, Settings, History, LogOut, TrendingDown,
-  Calendar, Bell,
+  Calendar, Bell, Shield,
 } from 'lucide-react'
 
 const links = [
@@ -15,6 +15,7 @@ const links = [
   { href: '/upcoming', label: 'Akan Datang', icon: Bell },
   { href: '/strategy', label: 'Strategi', icon: TrendingDown },
   { href: '/history', label: 'Riwayat', icon: History },
+  { href: '/admin/rates', label: 'Admin Rates', icon: Shield },
   { href: '/settings', label: 'Pengaturan', icon: Settings },
 ]
 
