@@ -107,7 +107,7 @@ function LandingPage() {
                 </Button>
               </a>
               <a href="#how">
-                <Button size="lg" variant="outline" className="rounded-full border-white/20 text-white/80 hover:bg-white/10 px-8">
+                <Button size="lg" variant="outline" className="rounded-full border-white/30 text-white/80 hover:bg-white/10 hover:text-white bg-transparent px-8">
                   Cara Kerja
                 </Button>
               </a>
