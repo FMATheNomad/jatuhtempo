@@ -109,7 +109,7 @@ function LoginContent() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <button type="submit" disabled={loading} className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full min-h-[44px] rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 disabled:opacity-50">
             {loading ? 'Memproses...' : mode === 'login' ? 'Masuk' : 'Daftar'}
           </button>
         </form>
@@ -125,7 +125,7 @@ function LoginContent() {
           <div className="relative flex justify-center text-xs text-muted-foreground"><span className="bg-white px-2">atau</span></div>
         </div>
 
-        <a href={`https://t.me/${BOT_USERNAME.replace('@', '')}`} target="_blank" className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary">
+        <a href={`https://t.me/${BOT_USERNAME.replace('@', '')}`} target="_blank" className="flex items-center justify-center gap-2 w-full min-h-[44px] rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary">
           Login dengan Telegram
         </a>
 

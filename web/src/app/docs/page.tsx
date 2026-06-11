@@ -70,7 +70,7 @@ export default function DocsPage() {
         </div>
 
         {/* Quick links */}
-        <div className="mt-12 border border-border rounded-2xl p-8 bg-card">
+        <div className="mt-12 border border-border rounded-2xl p-4 md:p-8 bg-card">
           <h2 className="font-semibold text-lg mb-4">Markdown Source Files</h2>
           <p className="text-sm text-muted-foreground mb-4">
             File dokumentasi juga tersedia dalam format markdown untuk referensi cepat:

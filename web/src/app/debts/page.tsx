@@ -168,7 +168,7 @@ export default function DebtsPage() {
                 </h2>
                 <p className="text-muted-foreground mb-1"><strong>{celebration.platform}</strong> — sudah lunas!</p>
                 <p className="text-sm text-muted-foreground">Total utang lunas: {celebration.count}</p>
-                <button onClick={() => setCelebration(null)} className="mt-4 px-6 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">Tutup</button>
+                <button onClick={() => setCelebration(null)} className="mt-4 px-6 min-h-[44px] rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">Tutup</button>
               </div>
             </div>
           )}
@@ -442,9 +442,9 @@ export default function DebtsPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <input placeholder="Cari platform..." value={filter} onChange={e => setFilter(e.target.value)} className="h-9 w-40 lg:w-56 rounded-lg border border-input bg-background pl-9 pr-3 text-sm" />
+                    <input placeholder="Cari platform..." value={filter} onChange={e => setFilter(e.target.value)} className="min-h-[44px] w-40 lg:w-56 rounded-lg border border-input bg-background pl-9 pr-3 text-sm" />
                   </div>
-                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="h-9 rounded-lg border border-input bg-background px-3 text-sm">
+                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="min-h-[44px] rounded-lg border border-input bg-background px-3 text-sm">
                     <option value="">Semua</option>
                     <option value="active">Aktif</option>
                     <option value="paid">Lunas</option>

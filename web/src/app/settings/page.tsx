@@ -91,7 +91,7 @@ export default function SettingsPage() {
                   href={`https://t.me/JatuhTempo_bot`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90"
+                  className="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90"
                 >
                   Buka Bot Telegram
                 </a>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="+628123456789"
-                  className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full min-h-[44px] rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <Button onClick={handleSave} className="w-full sm:w-auto">

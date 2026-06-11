@@ -76,7 +76,7 @@ export default function TermsPage() {
         ))}
 
         {/* Contact */}
-        <div className="border border-border rounded-2xl p-8 bg-card text-center">
+        <div className="border border-border rounded-2xl p-4 md:p-8 bg-card text-center">
           <h2 className="font-semibold text-lg mb-2">Kontak</h2>
           <p className="text-sm text-muted-foreground">
             Email:{' '}

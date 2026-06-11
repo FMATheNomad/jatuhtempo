@@ -131,7 +131,7 @@ export default function FAQPage() {
         ))}
 
         {/* Still have questions */}
-        <div className="border border-border rounded-2xl p-8 text-center bg-card">
+        <div className="border border-border rounded-2xl p-4 md:p-8 text-center bg-card">
           <h3 className="font-semibold text-lg mb-2">Masih ada pertanyaan?</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Tim kami siap membantu. Hubungi kami di email atau Telegram.
