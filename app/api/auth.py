@@ -2,7 +2,7 @@ import uuid
 import time
 from collections import defaultdict
 
-from fastapi import APIRouter, HTTPException, Header, Request
+from fastapi import APIRouter, HTTPException, Header, Request, Depends
 from pydantic import BaseModel
 from sqlalchemy import select
 from passlib.hash import bcrypt
@@ -173,10 +173,23 @@ class VerifyResponse(BaseModel):
 
 
 @router.get("/me")
-async def get_me(user=Depends(__import__("app.api.debts", fromlist=["get_current_user"]).get_current_user)):
+async def get_me(request: Request):
     """Return current user's info including subscription status and admin flag."""
+    from app.api.debts import get_current_user
+    auth = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not auth:
+        raise HTTPException(401, "Not authenticated")
+    from app.core.db import async_session_factory
+    from app.models.user import User
+    from sqlalchemy import select
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.session_token == auth))
+        user = result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(401, "Invalid token")
+    import os
     is_admin = user.subscription_status == "pro"
-    admin_emails = __import__("os").environ.get("ADMIN_EMAILS", "")
+    admin_emails = os.environ.get("ADMIN_EMAILS", "")
     if admin_emails and user.email and user.email in [e.strip() for e in admin_emails.split(",")]:
         is_admin = True
     return {
