@@ -47,6 +47,11 @@ export default function DebtsPage() {
   const [ocrLoading, setOcrLoading] = useState(false)
   const [celebration, setCelebration] = useState<{ platform: string; count: number } | null>(null)
   const [rateSuggestion, setRateSuggestion] = useState<{ rate: number; type: string } | null>(null)
+  const [smartMode, setSmartMode] = useState(false)
+  const [smartText, setSmartText] = useState('')
+  const [smartResult, setSmartResult] = useState<any>(null)
+  const [smartLoading, setSmartLoading] = useState(false)
+  const [smartError, setSmartError] = useState<string | null>(null)
 
   const activeDebts = debts.filter(d => d.status !== 'paid')
   const paidDebts = debts.filter(d => d.status === 'paid')
@@ -134,6 +139,9 @@ export default function DebtsPage() {
           <div className="flex items-center justify-between p-4 lg:px-8">
             <h1 className="text-xl font-semibold">Utang</h1>
             <div className="flex items-center gap-3">
+              <Button onClick={() => { setSmartMode(true); setSmartText(''); setSmartResult(null); setSmartError(null); setSmartLoading(false) }} size="sm" variant="secondary">
+                🧠 AI Cepat
+              </Button>
               <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' }); setShowForm(!showForm) }} size="sm">
                 <Plus className="w-4 h-4 mr-1" /> Tambah
               </Button>
@@ -240,6 +248,141 @@ export default function DebtsPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Smart Input AI Modal */}
+          {smartMode && (
+            <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 pb-8 px-4 overflow-y-auto" onClick={() => { if (!smartLoading) { setSmartMode(false); setSmartResult(null); setSmartError(null) } }}>
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { if (!smartLoading) { setSmartMode(false); setSmartResult(null); setSmartError(null) } }} />
+              <div className="relative w-full max-w-lg bg-card border border-border rounded-xl shadow-xl animate-fade-in p-6 space-y-4" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Input Cepat via AI</h2>
+                  {!smartLoading && (
+                    <button onClick={() => { setSmartMode(false); setSmartResult(null); setSmartError(null) }} className="text-muted-foreground hover:text-foreground transition-colors">
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-sm text-muted-foreground">Ceritakan utang kamu dengan bahasa sehari-hari, AI akan mengekstrak informasinya secara otomatis.</p>
+
+                <textarea
+                  value={smartText}
+                  onChange={e => setSmartText(e.target.value)}
+                  placeholder='Contoh: "gua utang 2000 ke bahlul bayar tanggal 2" atau "aku pinjam 5 juta di akulaku 3 bulan cicilan bunga 2%"'
+                  className="w-full h-28 rounded-xl border border-input bg-background p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  disabled={smartLoading}
+                />
+
+                {smartError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{smartError}</div>
+                )}
+
+                {!smartResult && !smartLoading && (
+                  <div className="flex gap-2 justify-end">
+                    <Button onClick={() => { setSmartMode(false); setSmartResult(null); setSmartError(null) }} variant="outline" size="sm">Tutup</Button>
+                    <Button onClick={async () => {
+                      if (!smartText.trim()) return
+                      setSmartLoading(true); setSmartError(null); setSmartResult(null)
+                      try {
+                        const res = await api('/api/debts/parse-natural', {
+                          method: 'POST',
+                          body: JSON.stringify({ text: smartText.trim() }),
+                        })
+                        if (!res.parsed) throw new Error('Gagal memproses teks.')
+                        setSmartResult(res.parsed)
+                      } catch (e: any) {
+                        setSmartError(e.message || 'Gagal menghubungi AI.')
+                      }
+                      setSmartLoading(false)
+                    }} size="sm">🔍 Analisis</Button>
+                  </div>
+                )}
+
+                {smartLoading && (
+                  <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground text-sm">
+                    <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                    Menganalisis...
+                  </div>
+                )}
+
+                {/* Confirmation Card */}
+                {smartResult && !smartLoading && (
+                  <div className="border border-border rounded-xl p-4 space-y-2 bg-secondary/20">
+                    <h3 className="text-sm font-semibold text-accent mb-2">📋 Hasil Analisis</h3>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                      {smartResult.platform !== null && smartResult.platform !== undefined && (
+                        <><span className="text-muted-foreground">Platform</span><span className="font-medium">{smartResult.platform || '-'}</span></>
+                      )}
+                      {smartResult.amount !== null && smartResult.amount !== undefined && (
+                        <><span className="text-muted-foreground">Jumlah</span><span className="font-medium">Rp{Number(smartResult.amount).toLocaleString('id-ID')}</span></>
+                      )}
+                      {smartResult.due_date !== null && smartResult.due_date !== undefined && (
+                        <><span className="text-muted-foreground">Jatuh Tempo</span><span className="font-medium">{smartResult.due_date || '-'}</span></>
+                      )}
+                      {smartResult.installment_current !== null && smartResult.installment_total !== null && (
+                        <><span className="text-muted-foreground">Cicilan</span><span className="font-medium">{smartResult.installment_current || '?'}/{smartResult.installment_total || '?'}</span></>
+                      )}
+                      {smartResult.interest_rate !== null && smartResult.interest_rate !== undefined && (
+                        <><span className="text-muted-foreground">Bunga</span><span className="font-medium">{smartResult.interest_rate}%{smartResult.interest_type ? '/' + ({daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[smartResult.interest_type as string] || smartResult.interest_type) : ''}</span></>
+                      )}
+                      {smartResult.category !== null && smartResult.category !== undefined && smartResult.category !== '' && (
+                        <><span className="text-muted-foreground">Kategori</span><span className="font-medium">{smartResult.category}</span></>
+                      )}
+                      {smartResult.notes !== null && smartResult.notes !== undefined && smartResult.notes !== '' && (
+                        <><span className="text-muted-foreground">Catatan</span><span className="font-medium">{smartResult.notes}</span></>
+                      )}
+                    </div>
+                    <div className="flex gap-2 pt-3 border-t border-border mt-3">
+                      <Button size="sm" onClick={async () => {
+                        try {
+                          await api('/api/debts', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                              platform: smartResult.platform || 'Tagihan',
+                              amount: Number(smartResult.amount) || 0,
+                              due_date: smartResult.due_date || new Date().toISOString().split('T')[0],
+                              category: smartResult.category || null,
+                              notes: smartResult.notes || null,
+                              interest_rate: smartResult.interest_rate != null ? Number(smartResult.interest_rate) : null,
+                              interest_type: smartResult.interest_type || null,
+                              installment_current: smartResult.installment_current != null ? Number(smartResult.installment_current) : null,
+                              installment_total: smartResult.installment_total != null ? Number(smartResult.installment_total) : null,
+                            }),
+                          })
+                          setSmartMode(false)
+                          setSmartResult(null)
+                          setSmartText('')
+                          load()
+                        } catch (e: any) { setError(e.message || 'Gagal simpan') }
+                      }}>✅ Simpan</Button>
+                      <Button size="sm" variant="outline" onClick={() => {
+                        setForm({
+                          platform: smartResult.platform || '',
+                          amount: smartResult.amount != null ? String(smartResult.amount) : '',
+                          due_date: smartResult.due_date || '',
+                          category: smartResult.category || '',
+                          notes: smartResult.notes || '',
+                          installment_current: smartResult.installment_current != null ? String(smartResult.installment_current) : '',
+                          installment_total: smartResult.installment_total != null ? String(smartResult.installment_total) : '',
+                          interest_rate: smartResult.interest_rate != null ? String(smartResult.interest_rate) : '',
+                          interest_type: smartResult.interest_type || '',
+                        })
+                        setShowForm(true)
+                        setSmartMode(false)
+                        setSmartResult(null)
+                        setSmartText('')
+                      }}>✏️ Edit Manual</Button>
+                      <Button size="sm" variant="ghost" onClick={() => {
+                        setSmartResult(null)
+                        setSmartText('')
+                        setSmartError(null)
+                      }}>❌ Batal</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Add/Edit Form */}
           {showForm && (

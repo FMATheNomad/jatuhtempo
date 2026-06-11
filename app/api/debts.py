@@ -194,6 +194,29 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
     }
 
 
+@router.post("/debts/parse-natural")
+async def parse_natural_debt(body: dict, user: User = Depends(get_current_user)):
+    """
+    Parse debt information from natural language text using AI.
+
+    Body: {"text": "gua utang 2000 ke bahlul bayar tanggal 2"}
+    Returns: {"parsed": {...}} or {"parsed": null, "error": "..."}
+    """
+    text = body.get("text", "").strip() if body else ""
+    if not text:
+        raise HTTPException(400, "text is required")
+
+    try:
+        parsed = await parse_debt_from_text(text)
+        return {"parsed": parsed}
+    except ValueError as e:
+        return {"parsed": None, "error": str(e)}
+    except Exception as e:
+        logger = __import__("logging").getLogger(__name__)
+        logger.exception("Failed to parse natural language debt")
+        return {"parsed": None, "error": f"Parsing failed: {str(e)}"}
+
+
 class TrainPlatformRequest(BaseModel):
     raw_text: str
     platform: str

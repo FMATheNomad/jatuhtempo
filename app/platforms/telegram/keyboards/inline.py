@@ -16,3 +16,12 @@ def confirm_keyboard() -> InlineKeyboardMarkup:
     builder.button(text="✅ Simpan", callback_data="ocr_confirm")
     builder.button(text="❌ Batal", callback_data="ocr_cancel")
     return builder.as_markup()
+
+
+def confirm_nl_keyboard(temp_key: str) -> InlineKeyboardMarkup:
+    """Inline keyboard for natural-language parsed debt: save or cancel."""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Simpan", callback_data=f"confirm_debt:save:{temp_key}")
+    builder.button(text="❌ Batal", callback_data=f"confirm_debt:cancel:{temp_key}")
+    builder.adjust(2)
+    return builder.as_markup()

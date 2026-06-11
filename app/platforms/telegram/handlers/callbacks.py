@@ -153,3 +153,66 @@ async def callback_wa_optout(callback: CallbackQuery):
             await update_user_wa(session, user.telegram_id, optout=True)
     await callback.message.edit_text("⏸ Notifikasi tautkan WA tidak akan muncul lagi.")
     await callback.answer("Dimatikan.")
+
+
+@router.callback_query(lambda c: c.data and c.data.startswith("confirm_debt:save:"))
+async def callback_confirm_debt_save(callback: CallbackQuery):
+    temp_key = callback.data.split(":", 2)[2]
+    from app.core.temp_store import pop_temp
+
+    data = pop_temp(temp_key)
+    if not data:
+        await callback.answer("Data sudah kadaluarsa. Kirim ulang teks.", show_alert=True)
+        return
+
+    parsed = data.get("parsed", {})
+    from datetime import date as _date
+    raw_due = parsed.get("due_date")
+    try:
+        due_date_val = _date.fromisoformat(raw_due) if raw_due else _date.today()
+    except (ValueError, TypeError):
+        due_date_val = _date.today()
+
+    debt_data = DebtCreate(
+        platform=parsed.get("platform") or "Unknown",
+        amount=parsed.get("amount") or 0,
+        due_date=due_date_val,
+        installment_current=parsed.get("installment_current"),
+        installment_total=parsed.get("installment_total"),
+        interest_rate=parsed.get("interest_rate"),
+        interest_type=parsed.get("interest_type"),
+        category=parsed.get("category"),
+        notes=parsed.get("notes"),
+    )
+
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, callback.from_user.id)
+        debt = await create_debt(session, user.id, debt_data, source=DebtSource.manual)
+
+    msg = (
+        f"✅ Disimpan!\n"
+        f"Platform: {debt.platform}\n"
+        f"Jumlah: Rp{debt.amount:,}\n"
+        f"Jatuh tempo: {debt.due_date}"
+    )
+    if debt.installment_current and debt.installment_total:
+        msg += f"\nCicilan: {debt.installment_current}/{debt.installment_total}"
+    if debt.interest_rate:
+        bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(debt.interest_type, "")
+        msg += f"\nBunga: {debt.interest_rate}%{bunga_type}"
+    if debt.category:
+        msg += f"\nKategori: {debt.category}"
+    if debt.notes:
+        msg += f"\nCatatan: {debt.notes}"
+
+    await callback.message.edit_text(msg, reply_markup=debt_keyboard(debt.id))
+    await callback.answer("Utang berhasil disimpan!")
+
+
+@router.callback_query(lambda c: c.data and c.data.startswith("confirm_debt:cancel:"))
+async def callback_confirm_debt_cancel(callback: CallbackQuery):
+    temp_key = callback.data.split(":", 2)[2]
+    from app.core.temp_store import pop_temp
+    pop_temp(temp_key)
+    await callback.message.edit_text("❌ Dibatalkan. Tidak ada data yang disimpan.")
+    await callback.answer("Dibatalkan.")

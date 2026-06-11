@@ -121,9 +121,43 @@ async def cmd_add(message: Message):
         return
 
     if len(parts) < 3:
-        await message.reply(
-            "Masih kurang. Contoh: /add Kredivo 350000 2026-07-15"
-        )
+        # Not enough structured parts — try natural language AI parsing
+        import uuid as _uuid
+        from app.services.ai_parser import parse_debt_from_text
+        from app.core.temp_store import store_temp
+        from app.platforms.telegram.keyboards.inline import confirm_nl_keyboard
+
+        try:
+            parsed = await parse_debt_from_text(text)
+            temp_key = str(_uuid.uuid4())
+            store_temp(temp_key, {"parsed": parsed, "user_id": message.from_user.id})
+
+            lines = ["📋 <b>Hasil parsing AI:</b>\n"]
+            if parsed.get("platform"):
+                lines.append(f"🏦 Platform: {parsed['platform']}")
+            if parsed.get("amount"):
+                lines.append(f"💰 Jumlah: Rp{parsed['amount']:,}")
+            if parsed.get("due_date"):
+                lines.append(f"📅 Jatuh tempo: {parsed['due_date']}")
+            if parsed.get("installment_current") and parsed.get("installment_total"):
+                lines.append(f"🔄 Cicilan: {parsed['installment_current']}/{parsed['installment_total']}")
+            if parsed.get("interest_rate"):
+                bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}
+                suffix = bunga_type.get(parsed.get("interest_type"), "")
+                lines.append(f"📊 Bunga: {parsed['interest_rate']}%{suffix}")
+            if parsed.get("category"):
+                lines.append(f"🏷️ Kategori: {parsed['category']}")
+            if parsed.get("notes"):
+                lines.append(f"📝 Catatan: {parsed['notes']}")
+            lines.append("\nSimpan data ini?")
+
+            await message.reply("\n".join(lines), reply_markup=confirm_nl_keyboard(temp_key))
+        except Exception as e:
+            await message.reply(
+                "Maaf, tidak bisa memahami teks. Coba format:\n"
+                "/add Kredivo 350000 2026-07-15\n\n"
+                "Atau kirim screenshot tagihan."
+            )
         return
 
     platform = parts[0]
