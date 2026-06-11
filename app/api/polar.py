@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
@@ -27,6 +28,21 @@ async def polar_checkout(user: User = Depends(get_current_user)):
     return CheckoutResponse(url=url)
 
 
+async def send_telegram_notification(telegram_id: int, text: str):
+    """
+    Отправляет уведомление пользователю в Телеграм бот, если бот активен.
+    """
+    from app.core.scheduler import _bot_instance
+    if _bot_instance:
+        try:
+            await _bot_instance.send_message(chat_id=telegram_id, text=text)
+            logger.info(f"Notification sent to Telegram ID {telegram_id}")
+        except Exception as e:
+            logger.error(f"Failed to send Telegram notification to {telegram_id}: {e}")
+    else:
+        logger.warning("Telegram bot instance is not available for notifications")
+
+
 @router.post("/webhook")
 async def polar_webhook(request: Request):
     body = await request.body()
@@ -43,11 +59,15 @@ async def polar_webhook(request: Request):
         except ImportError:
             logger.warning("polar_sdk.webhooks not available, skipping verification")
 
-    import json
     payload = json.loads(body)
     event = payload.get("type", "")
 
-    if event == "order.paid":
+    # Возможные события, влияющие на получение статуса PRO
+    active_events = ["order.paid", "subscription.active", "subscription.created"]
+    # События, отменяющие PRO или требующие его аннулирования
+    revoke_events = ["subscription.revoked", "subscription.canceled"]
+
+    if event in active_events:
         data = payload.get("data", {})
         metadata = data.get("metadata", {})
         telegram_id = metadata.get("telegram_id")
@@ -64,25 +84,32 @@ async def polar_webhook(request: Request):
                     if customer_id:
                         user.polar_customer_id = str(customer_id)
                     await session.commit()
-                    logger.info(f"User {telegram_id} upgraded to pro via order.paid")
+                    logger.info(f"User {telegram_id} upgraded to pro via {event}")
 
-    elif event == "subscription.active":
+    elif event in revoke_events or event == "subscription.updated":
         data = payload.get("data", {})
         metadata = data.get("metadata", {})
         telegram_id = metadata.get("telegram_id")
-        customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
+        
+        # Если статус подписки в subscription.updated изменился на canceled или expired
+        sub_status = data.get("status")
+        is_revoked = event in revoke_events or sub_status in ["canceled", "expired"]
 
-        if telegram_id:
+        if is_revoked and telegram_id:
             async with async_session_factory() as session:
                 result = await session.execute(
                     select(User).where(User.telegram_id == int(telegram_id))
                 )
                 user = result.scalar_one_or_none()
-                if user:
-                    user.subscription_status = "pro"
-                    if customer_id:
-                        user.polar_customer_id = str(customer_id)
+                if user and user.subscription_status == "pro":
+                    user.subscription_status = "free"
                     await session.commit()
-                    logger.info(f"User {telegram_id} subscription activated")
+                    logger.info(f"User {telegram_id} downgraded to free tier")
+                    
+                    # Отправляем уведомление
+                    await send_telegram_notification(
+                        telegram_id=int(telegram_id),
+                        text="<b>Langgananmu telah berakhir</b>\n\nPaket pro Anda telah habis masa berlakunya. Anda telah dikembalikan ke fiktur standar (Free)."
+                    )
 
     return {"ok": True}
