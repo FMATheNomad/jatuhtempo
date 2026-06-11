@@ -53,4 +53,4 @@ Kami dapat memperbarui syarat ini kapan saja. Perubahan signifikan akan diberita
 
 ## Kontak
 
-Email: support@jatuhtempo.app
+Email: fmasoftwarelabs@gmail.com

@@ -80,8 +80,8 @@ export default function TermsPage() {
           <h2 className="font-semibold text-lg mb-2">Kontak</h2>
           <p className="text-sm text-muted-foreground">
             Email:{' '}
-            <a href="mailto:support@jatuhtempo.app" className="text-accent hover:underline">
-              support@jatuhtempo.app
+            <a href="mailto:fmasoftwarelabs@gmail.com" className="text-accent hover:underline">
+              fmasoftwarelabs@gmail.com
             </a>
           </p>
         </div>

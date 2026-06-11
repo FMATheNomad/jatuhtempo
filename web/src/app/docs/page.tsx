@@ -102,7 +102,7 @@ export default function DocsPage() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Masih butuh bantuan?{' '}
-            <a href="mailto:support@jatuhtempo.app" className="text-accent hover:underline">
+            <a href="mailto:fmasoftwarelabs@gmail.com" className="text-accent hover:underline">
               Hubungi support
             </a>
           </p>

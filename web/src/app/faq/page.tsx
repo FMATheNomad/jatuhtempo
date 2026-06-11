@@ -27,7 +27,7 @@ const categories: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: 'Bisakah saya menghapus akun?',
-        a: 'Saat ini belum ada fitur hapus akun mandiri. Hubungi kami melalui email support@jatuhtempo.app untuk bantuan.',
+        a: 'Saat ini belum ada fitur hapus akun mandiri. Hubungi kami melalui email fmasoftwarelabs@gmail.com untuk bantuan.',
       },
     ],
   },
@@ -137,7 +137,7 @@ export default function FAQPage() {
             Tim kami siap membantu. Hubungi kami di email atau Telegram.
           </p>
           <a
-            href="mailto:support@jatuhtempo.app"
+            href="mailto:fmasoftwarelabs@gmail.com"
             className="inline-flex items-center justify-center h-10 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Hubungi Support

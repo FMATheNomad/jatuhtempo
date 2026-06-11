@@ -12,7 +12,7 @@ Ya! Kamu bisa menggunakan JatuhTempo secara gratis untuk mencatat hingga 10 utan
 Masuk ke menu Pengaturan → Langganan, lalu klik "Upgrade ke Pro". Kamu akan diarahkan ke halaman pembayaran.
 
 ### Bisakah saya menghapus akun?
-Saat ini belum ada fitur hapus akun mandiri. Hubungi kami melalui email support@jatuhtempo.app untuk bantuan.
+Saat ini belum ada fitur hapus akun mandiri. Hubungi kami melalui email fmasoftwarelabs@gmail.com untuk bantuan.
 
 ## Teknis
 

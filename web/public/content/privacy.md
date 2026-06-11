@@ -59,4 +59,4 @@ Perubahan pada kebijakan privasi akan diberitahukan melalui email atau notifikas
 
 ## Kontak
 
-Untuk pertanyaan tentang privasi: privacy@jatuhtempo.app
+Untuk pertanyaan tentang privasi: fmasoftwarelabs@gmail.com

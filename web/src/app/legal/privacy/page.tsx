@@ -119,8 +119,8 @@ export default function PrivacyPage() {
           <h2 className="font-semibold text-lg mb-2">Kontak Privasi</h2>
           <p className="text-sm text-muted-foreground">
             Email:{' '}
-            <a href="mailto:privacy@jatuhtempo.app" className="text-accent hover:underline">
-              privacy@jatuhtempo.app
+            <a href="mailto:fmasoftwarelabs@gmail.com" className="text-accent hover:underline">
+              fmasoftwarelabs@gmail.com
             </a>
           </p>
         </div>
