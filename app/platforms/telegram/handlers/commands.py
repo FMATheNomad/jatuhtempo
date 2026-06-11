@@ -89,9 +89,9 @@ async def cmd_help(message: Message):
         "📱 <b>/wa</b> — Atur nomor WhatsApp\n\n"
         "📖 <b>/faq</b> — Pertanyaan umum\n\n"
         "🌐 Butuh info lebih lengkap? Kunjungi:\n"
-        "❓ FAQ: https://jatuhtempo.app/faq\n"
-        "📘 Dokumentasi: https://jatuhtempo.app/docs\n"
-        "⚖️ Syarat & Ketentuan: https://jatuhtempo.app/legal/terms\n\n"
+        "❓ FAQ: https://jatuhtempo.up.railway.app/faq\n"
+        "📘 Dokumentasi: https://jatuhtempo.up.railway.app/docs\n"
+        "⚖️ Syarat & Ketentuan: https://jatuhtempo.up.railway.app/legal/terms\n\n"
         "ID utang (8 karakter) bisa dilihat dari /debts"
     )
 
@@ -605,7 +605,7 @@ async def cmd_strategy(message: Message):
         "💡 <b>Tips:</b> Lunasi urutan 1 dulu sambil bayar minimum sisanya.",
         "",
         "🔗 Untuk simulasi lengkap (extra payment, income-based):",
-        "👉 https://jatuhtempo.app/strategy",
+        "👉 https://jatuhtempo.up.railway.app/strategy",
     ])
 
     await message.reply("\n".join(lines))
