@@ -44,7 +44,7 @@ async def update_platform_rate(
         existing.sample_count = sample_count + 1
 
         # --- Majority vote for common_type ---
-        type_counts = existing.type_counts or {}
+        type_counts = dict(existing.type_counts or {})
         if rate_type:
             type_counts[rate_type] = type_counts.get(rate_type, 0) + 1
         existing.type_counts = type_counts

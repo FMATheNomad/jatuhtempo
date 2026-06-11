@@ -175,15 +175,31 @@ class VerifyResponse(BaseModel):
 @router.get("/me")
 async def get_me(request: Request):
     """Return current user's info including subscription status and admin flag."""
-    from app.api.debts import get_current_user
     auth = request.headers.get("Authorization", "").replace("Bearer ", "")
     if not auth:
         raise HTTPException(401, "Not authenticated")
+    
+    payload = verify_token(auth)
+    if not payload or payload.get("type") != "session":
+        raise HTTPException(401, "Invalid token")
+    
+    telegram_id = payload.get("telegram_id")
+    user_id = payload.get("user_id")
+    
     from app.core.db import async_session_factory
     from app.models.user import User
     from sqlalchemy import select
     async with async_session_factory() as session:
-        result = await session.execute(select(User).where(User.session_token == auth))
+        if telegram_id is not None:
+            result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+        elif user_id:
+            try:
+                import uuid as _uuid
+                result = await session.execute(select(User).where(User.id == _uuid.UUID(user_id)))
+            except ValueError:
+                raise HTTPException(401, "Invalid token")
+        else:
+            raise HTTPException(401, "Invalid token")
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(401, "Invalid token")

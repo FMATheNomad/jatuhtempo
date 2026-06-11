@@ -37,6 +37,7 @@ class DebtResponse(BaseModel):
 
 
 class PlatformRateResponse(BaseModel):
+    model_config = {"from_attributes": True}
     platform: str
     avg_rate: float
     common_type: str | None

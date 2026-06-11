@@ -8,7 +8,7 @@ from sqlalchemy import select as sa_select
 
 from app.core.auth import verify_token
 from app.core.db import async_session_factory
-from app.models.debt import Debt, DebtStatus
+from app.models.debt import Debt, DebtStatus, DebtSource
 from app.models.user import User
 from app.schemas.debt import DebtResponse
 from app.services.debt_service import (

@@ -1,3 +1,4 @@
+import os
 import time
 from collections import defaultdict
 from fastapi import Request, HTTPException
@@ -10,6 +11,8 @@ WINDOW = 60
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        if os.environ.get("TESTING") == "true":
+            return await call_next(request)
         if request.url.path.startswith("/api/"):
             key = request.client.host if request.client else "unknown"
             now = time.time()
