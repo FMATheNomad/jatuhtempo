@@ -182,12 +182,8 @@ function LandingPage() {
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((s, i) => (
-              <div key={i} className="relative text-center">
-                {i < steps.length - 1 && (
-                  <div className="absolute right-0 top-12 hidden h-px w-full border-t-2 border-dashed border-teal-500/30 md:block" />
-                )}
+              <div key={i} className="text-center">
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/10 text-teal-400">
-                  <span className="absolute -mt-10 text-2xl font-bold text-teal-500/30">{i + 1}</span>
                   <s.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 font-semibold text-white">{s.title}</h3>
