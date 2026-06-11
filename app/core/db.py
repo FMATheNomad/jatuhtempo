@@ -127,24 +127,25 @@ async def init_db():
         demo_email = "demo@jatuhtempo.app"
         result = await session.execute(select(User).where(User.email == demo_email))
         existing = result.scalar_one_or_none()
-        if not existing:
-            demo_user = User(
-                email=demo_email,
-                nama="Demo User",
-                password_hash=bcrypt.hash("demo123"),
-            )
-            session.add(demo_user)
-            # We need the user ID; use flush instead of commit
-            await session.flush()
-            today = date.today()
-            demo_debts = [
+    if not existing:
+        import bcrypt as _bcrypt_demo
+        demo_user = User(
+            email=demo_email,
+            nama="Demo User",
+            password_hash=_bcrypt_demo.hashpw("demo123".encode('utf-8'), _bcrypt_demo.gensalt()).decode('utf-8'),
+        )
+        session.add(demo_user)
+        # We need the user ID; use flush instead of commit
+        await session.flush()
+        today = date.today()
+        demo_debts = [
                 Debt(user_id=demo_user.id, platform="Kredivo", amount=350000, due_date=today + timedelta(days=5), installment_current=3, installment_total=12, status=DebtStatus.active, interest_rate=2.5, interest_type="monthly"),
                 Debt(user_id=demo_user.id, platform="Shopee PayLater", amount=150000, due_date=today + timedelta(days=12), status=DebtStatus.active),
                 Debt(user_id=demo_user.id, platform="Akulaku", amount=500000, due_date=today + timedelta(days=3), installment_current=1, installment_total=6, status=DebtStatus.active, interest_rate=3.0, interest_type="monthly"),
                 Debt(user_id=demo_user.id, platform="BCA Kartu Kredit", amount=1250000, due_date=today + timedelta(days=20), status=DebtStatus.active),
                 Debt(user_id=demo_user.id, platform="GoPay Later", amount=75000, due_date=today + timedelta(days=2), status=DebtStatus.active),
             ]
-            for d in demo_debts:
-                session.add(d)
-            await session.commit()
-            logger.info("Seeded demo user: demo@jatuhtempo.app / demo123 with 5 debts")
+        for d in demo_debts:
+            session.add(d)
+        await session.commit()
+        logger.info("Seeded demo user: demo@jatuhtempo.app / demo123 with 5 debts")
