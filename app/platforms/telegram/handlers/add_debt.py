@@ -24,6 +24,7 @@ class AddDebt(StatesGroup):
     due_date = State()
     installment = State()
     category = State()
+    interest_rate = State()
     confirm = State()
 
 
@@ -80,6 +81,17 @@ def back_keyboard() -> InlineKeyboardMarkup:
     ])
 
 
+def interest_type_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📊 Per bulan (monthly)", callback_data="adb_int_type:monthly")],
+        [InlineKeyboardButton(text="📊 Per hari (daily)", callback_data="adb_int_type:daily")],
+        [InlineKeyboardButton(text="📊 Per tahun (yearly)", callback_data="adb_int_type:yearly")],
+        [InlineKeyboardButton(text="📊 Flat", callback_data="adb_int_type:flat")],
+        [InlineKeyboardButton(text="⏭ Tidak ada bunga", callback_data="adb_int_type:none")],
+        [InlineKeyboardButton(text="❌ Batal", callback_data="adb_cancel")],
+    ])
+
+
 @router.message(Command("add"))
 async def cmd_add(message: Message, state: FSMContext):
     if not check_rate_limit(message.from_user.id):
@@ -104,7 +116,38 @@ async def cmd_add(message: Message, state: FSMContext):
                 await message.reply(msg, reply_markup=debt_keyboard(debt.id))
                 return
         except (ValueError, IndexError):
-            pass
+            # Structured parse failed — try NL AI parsing
+            try:
+                import uuid as _uuid
+                from app.services.ai_parser import parse_debt_from_text
+                from app.core.temp_store import store_temp
+                from app.platforms.telegram.keyboards.inline import confirm_nl_keyboard
+
+                parsed = await parse_debt_from_text(text)
+                temp_key = str(_uuid.uuid4())
+                store_temp(temp_key, {"parsed": parsed, "user_id": message.from_user.id})
+
+                lines = ["📋 <b>Hasil parsing AI:</b>\n"]
+                if parsed.get("platform"):
+                    lines.append(f"🏦 Platform: {parsed['platform']}")
+                if parsed.get("amount"):
+                    lines.append(f"💰 Jumlah: Rp{parsed['amount']:,}")
+                if parsed.get("due_date"):
+                    lines.append(f"📅 Jatuh tempo: {parsed['due_date']}")
+                if parsed.get("installment_current") and parsed.get("installment_total"):
+                    lines.append(f"🔄 Cicilan: {parsed['installment_current']}/{parsed['installment_total']}")
+                if parsed.get("interest_rate"):
+                    bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}
+                    suffix = bunga_type.get(parsed.get("interest_type"), "")
+                    lines.append(f"📊 Bunga: {parsed['interest_rate']}%{suffix}")
+                if parsed.get("category"):
+                    lines.append(f"🏷️ Kategori: {parsed['category']}")
+                lines.append("\nSimpan data ini?")
+
+                await message.reply("\n".join(lines), reply_markup=confirm_nl_keyboard(temp_key))
+                return
+            except Exception:
+                pass  # Fall through to FSM wizard
 
     await state.set_state(AddDebt.platform)
     await message.reply(
@@ -174,20 +217,82 @@ async def select_category(callback: CallbackQuery, state: FSMContext):
     else:
         category = callback.data.split(":", 1)[1]
     await state.update_data(category=category)
-    data = await state.get_data()
-    summary = (
-        f"📋 <b>Ringkasan:</b>\n"
-        f"🏷 Platform: {data['platform']}\n"
-        f"💰 Jumlah: Rp{data['amount']:,}\n"
-        f"📅 Jatuh tempo: {data['due_date']}"
+    await state.set_state(AddDebt.interest_rate)
+    await callback.message.edit_text(
+        f"Kategori: {category or '−'}\n\n"
+        "Berapa bunganya? Ketik angka persen, atau ketik 'tidak ada'.",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="⏭ Tidak ada bunga", callback_data="adb_int_rate:none")],
+            [InlineKeyboardButton(text="❌ Batal", callback_data="adb_cancel")],
+        ])
     )
-    if data.get('installment_total'):
-        summary += f"\n📊 Cicilan: {data['installment_current']}/{data['installment_total']}"
-    if category:
-        summary += f"\n📂 Kategori: {category}"
-    summary += "\n\nSimpan?"
+    await callback.answer()
+
+
+def _build_summary(data: dict) -> str:
+    lines = ["📋 <b>Ringkasan:</b>"]
+    lines.append(f"🏷 Platform: {data.get('platform', '−')}")
+    if data.get("amount"):
+        lines.append(f"💰 Jumlah: Rp{data['amount']:,}")
+    lines.append(f"📅 Jatuh tempo: {data.get('due_date', '−')}")
+    if data.get("installment_total"):
+        lines.append(f"📊 Cicilan: {data['installment_current']}/{data['installment_total']}")
+    if data.get("category"):
+        lines.append(f"📂 Kategori: {data['category']}")
+    if data.get("interest_rate") is not None:
+        bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}
+        suffix = bunga_type.get(data.get("interest_type"), "")
+        lines.append(f"📊 Bunga: {data['interest_rate']}%{suffix}")
+    elif data.get("interest_skipped"):
+        lines.append(f"📊 Bunga: Tidak ada")
+    lines.append("\nSimpan?")
+    return "\n".join(lines)
+
+
+@router.message(AddDebt.interest_rate)
+async def input_interest_rate(message: Message, state: FSMContext):
+    text = message.text.strip().lower()
+    if text in ("tidak ada", "0", "0.0", "none", "no", "n"):
+        await state.update_data(interest_rate=None, interest_type=None, interest_skipped=True)
+        data = await state.get_data()
+        await state.set_state(AddDebt.confirm)
+        await message.reply(_build_summary(data), reply_markup=confirm_keyboard())
+        return
+    try:
+        rate = float(text.replace(",", "."))
+        if rate < 0:
+            raise ValueError
+    except ValueError:
+        await message.reply("Masukkan angka persen yang valid, atau ketik 'tidak ada'.")
+        return
+    await state.update_data(interest_rate=rate)
+    await state.set_state(AddDebt.interest_rate)
+    await message.reply(
+        f"Bunga: {rate}%\n\n"
+        "Jenis bunga?",
+        reply_markup=interest_type_keyboard(),
+    )
+
+
+@router.callback_query(lambda c: c.data == "adb_int_rate:none")
+async def skip_interest_rate(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(interest_rate=None, interest_type=None, interest_skipped=True)
+    data = await state.get_data()
     await state.set_state(AddDebt.confirm)
-    await callback.message.edit_text(summary, reply_markup=confirm_keyboard())
+    await callback.message.edit_text(_build_summary(data), reply_markup=confirm_keyboard())
+    await callback.answer()
+
+
+@router.callback_query(lambda c: c.data.startswith("adb_int_type:"))
+async def select_interest_type(callback: CallbackQuery, state: FSMContext):
+    int_type = callback.data.split(":", 1)[1]
+    if int_type == "none":
+        await state.update_data(interest_rate=None, interest_type=None, interest_skipped=True)
+    else:
+        await state.update_data(interest_type=int_type, interest_skipped=False)
+    data = await state.get_data()
+    await state.set_state(AddDebt.confirm)
+    await callback.message.edit_text(_build_summary(data), reply_markup=confirm_keyboard())
     await callback.answer()
 
 
@@ -202,11 +307,20 @@ async def save_debt(callback: CallbackQuery, state: FSMContext):
             installment_current=data.get("installment_current"),
             installment_total=data.get("installment_total"),
             category=data.get("category"),
+            interest_rate=data.get("interest_rate"),
+            interest_type=data.get("interest_type"),
         )
         async with async_session_factory() as session:
             user = await get_or_create_user(session, callback.from_user.id)
             debt = await create_debt(session, user.id, debt_data, source=DebtSource.manual)
         msg = f"✅ Utang tercatat!\n{debt.platform} — Rp{debt.amount:,}\nJatuh tempo: {debt.due_date}"
+        if debt.installment_current and debt.installment_total:
+            msg += f"\nCicilan: {debt.installment_current}/{debt.installment_total}"
+        if debt.interest_rate:
+            bunga_type = {"daily": "/hari", "monthly": "/bln", "yearly": "/thn", "flat": "/flat"}.get(debt.interest_type, "")
+            msg += f"\nBunga: {debt.interest_rate}%{bunga_type}"
+        if debt.category:
+            msg += f"\nKategori: {debt.category}"
         await callback.message.edit_text(msg, reply_markup=debt_keyboard(debt.id))
         await callback.answer("Utang berhasil disimpan!")
     except Exception as e:

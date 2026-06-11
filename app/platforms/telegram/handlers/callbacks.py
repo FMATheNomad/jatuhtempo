@@ -14,7 +14,7 @@ from app.models.debt import DebtSource, DebtStatus
 from app.models.ocr_log import OcrLog
 from app.schemas.debt import DebtCreate
 from sqlalchemy import select
-from app.services.debt_service import update_debt_status, get_or_create_user, create_debt, update_user_wa
+from app.services.debt_service import update_debt_status, get_or_create_user, create_debt, update_user_wa, delete_debt
 from app.models.user import User
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
@@ -71,6 +71,26 @@ async def callback_late(callback: CallbackQuery):
         await callback.answer("Utang ditandai terlambat!")
     else:
         await callback.answer("Utang tidak ditemukan.", show_alert=True)
+
+
+@router.callback_query(lambda c: c.data and c.data.startswith("delete:"))
+async def callback_delete(callback: CallbackQuery):
+    debt_id_str = callback.data.split(":", 1)[1]
+    try:
+        debt_id = uuid.UUID(debt_id_str)
+    except ValueError:
+        await callback.answer("ID utang tidak valid.")
+        return
+
+    async with async_session_factory() as session:
+        user = await get_or_create_user(session, callback.from_user.id)
+        deleted = await delete_debt(session, debt_id, user.id)
+
+    if deleted:
+        await callback.message.edit_text("🗑 Utang berhasil dihapus.")
+        await callback.answer("✅ Dihapus!")
+    else:
+        await callback.answer("Utang tidak ditemukan atau bukan milik Anda.", show_alert=True)
 
 
 @router.callback_query(lambda c: c.data == "ocr_confirm")
