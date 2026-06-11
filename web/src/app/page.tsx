@@ -47,7 +47,7 @@ function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0b1e] via-[#0f1535] to-background">
+    <div className="min-h-screen bg-gradient-to-b from-[#0a0b1e] via-[#0f1535] to-[#0f1535]">
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0b1e]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -259,7 +259,7 @@ function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-white/40 md:flex-row md:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-white/60 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
             <img src="/assets/logo.webp" alt="" className="h-5 w-auto" />
             JatuhTempo
