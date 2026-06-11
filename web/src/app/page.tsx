@@ -8,122 +8,270 @@ import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CreditCard, ArrowUpRight, BarChart3, Bell, Shield, ChevronRight } from 'lucide-react'
+import {
+  CreditCard, ArrowUpRight, BarChart3, Bell, Shield,
+  ChevronRight, ChevronDown, Menu, X, Camera, Brain,
+  CheckCircle2, Smartphone, ScanLine, Sparkles
+} from 'lucide-react'
 
 const statusVariant: Record<string, 'active' | 'paid' | 'late'> = {
   active: 'active', paid: 'paid', late: 'late',
 }
 
-function LandingPage() {
-  return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="gradient-hero text-white">
-        <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logo.webp" alt="JatuhTempo" className="h-8 w-auto" />
-          </div>
-          <div className="flex items-center gap-4 sm:gap-6 text-sm text-white/70">
-            <a href="#features" className="hover:text-white transition-colors py-2">Fitur</a>
-            <a href="/login" className="hover:text-white transition-colors py-2">Masuk</a>
-          </div>
-        </nav>
+const features = [
+  { icon: Camera, title: 'OCR Otomatis', desc: 'Foto tagihan, AI baca otomatis. Ekstrak jumlah, tanggal, dan platform dalam detik.' },
+  { icon: Bell, title: 'Pengingat Cerdas', desc: 'Notifikasi H-7, H-3, H-1, dan hari H langsung ke Telegram. Tidak ada lagi telat bayar.' },
+  { icon: BarChart3, title: 'Dashboard Real-time', desc: 'Pantau semua utang, riwayat pembayaran, dan rekap bulanan dari web atau bot.' },
+  { icon: Shield, title: 'Multi-Platform', desc: 'Akses via Telegram, Web, dan segera WhatsApp. Data tetap sinkron di mana pun.' },
+  { icon: Brain, title: 'AI Learning', desc: 'Sistem belajar bunga dan pola dari setiap input user. Makin sering dipake, makin pinter.' },
+  { icon: Smartphone, title: 'Bot Telegram', desc: 'Tambah utang pake bahasa sehari-hari. "Gua utang 2000 ke bahlul" — AI langsung paham.' },
+]
 
-        <div className="max-w-7xl mx-auto px-6 py-16 md:py-24">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            <div className="flex-1 animate-fade-in">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm mb-8">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                AI-Powered Debt Management
+const steps = [
+  { icon: ScanLine, title: 'Foto atau Ketik', desc: 'Screenshot tagihan langsung terdeteksi. Atau cukup ketik pake bahasa sehari-hari di Telegram.' },
+  { icon: Brain, title: 'AI Parsing Otomatis', desc: 'AI membaca platform, jumlah, tanggal jatuh tempo, bunga, dan cicilan — semua otomatis.' },
+  { icon: CheckCircle2, title: 'Track & Bebas Utang', desc: 'Dapat pengingat otomatis, lihat progress, dan simulasi kapan kamu bakal bebas utang.' },
+]
+
+const faqs = [
+  { q: 'Apa itu JatuhTempo?', a: 'JatuhTempo adalah asisten manajemen utang berbasis AI. Kamu bisa foto tagihan, AI baca otomatis, dapet pengingat, dan pantau semua utang dari Telegram atau Web.' },
+  { q: 'Apakah data saya aman?', a: 'Ya. Semua data terenkripsi dan disimpan aman di database. Kami tidak punya akses ke rekening atau data finansial sensitif lainnya.' },
+  { q: 'Bagaimana cara mulai?', a: 'Cukup buka @JatuhTempo_bot di Telegram, ketik /start, dan kirim screenshot tagihan pertama kamu. Atau langsung daftar di web.' },
+  { q: 'Berapa biayanya?', a: 'Saat ini masih gratis untuk semua pengguna. Fitur premium akan datang untuk mendukung pengembangan.' },
+  { q: 'Platform apa saja yang didukung?', a: 'Semua platform pinjaman dan paylater Indonesia: Kredivo, Akulaku, Shopee PayLater, GoPay Later, Bank, koperasi, dan lainnya.' },
+  { q: 'Ada komunitasnya?', a: 'JatuhTempo mendukung Komunitas Bebas Utang (KOMBAT) by Guru Gembul — komunitas yang saling membantu bebas dari utang.' },
+]
+
+function LandingPage() {
+  const [mobileMenu, setMobileMenu] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#0a0b1e] via-[#0f1535] to-background">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0b1e]/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src="/assets/logo.webp" alt="JatuhTempo" className="h-7 w-auto" />
+            <span className="text-lg font-bold text-white">JatuhTempo</span>
+          </div>
+          <div className="hidden items-center gap-6 md:flex">
+            <a href="#features" className="text-sm text-white/60 hover:text-white transition-colors">Fitur</a>
+            <a href="#how" className="text-sm text-white/60 hover:text-white transition-colors">Cara Kerja</a>
+            <a href="#faq" className="text-sm text-white/60 hover:text-white transition-colors">FAQ</a>
+          </div>
+          <div className="hidden gap-2 md:flex">
+            <a href="/login" className="rounded-full border border-white/20 px-4 py-1.5 text-sm font-medium text-white/80 hover:bg-white/10 transition-colors">
+              Masuk
+            </a>
+            <a href="/login" className="rounded-full bg-teal-500 px-4 py-1.5 text-sm font-medium text-white hover:bg-teal-600 transition-colors">
+              Mulai Gratis
+            </a>
+          </div>
+          <button className="md:hidden text-white" onClick={() => setMobileMenu(!mobileMenu)}>
+            {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+        {mobileMenu && (
+          <div className="flex flex-col gap-2 border-t border-white/10 px-4 py-3 md:hidden bg-[#0a0b1e]">
+            <a href="#features" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>Fitur</a>
+            <a href="#how" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>Cara Kerja</a>
+            <a href="#faq" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
+            <div className="flex gap-2 pt-2">
+              <a href="/login" className="flex-1 rounded-full border border-white/20 py-2 text-sm font-medium text-white/80 text-center">Masuk</a>
+              <a href="/login" className="flex-1 rounded-full bg-teal-500 py-2 text-sm font-medium text-white text-center">Mulai Gratis</a>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero */}
+      <section className="mx-auto max-w-6xl px-4 pt-16 pb-12 md:pt-24 md:pb-16">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 border border-teal-500/20 px-3 py-1 text-xs font-medium text-teal-400">
+              <Sparkles className="h-3 w-3" /> AI-Powered Debt Management
+            </div>
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-5xl lg:text-6xl">
+              Kelola Utang dengan{' '}
+              <span className="bg-gradient-to-r from-teal-300 to-cyan-300 bg-clip-text text-transparent">Cerdas</span>
+            </h1>
+            <p className="text-lg text-white/50 max-w-xl leading-relaxed">
+              OCR otomatis, pengingat cerdas, dan dashboard real-time. 
+              Pantau semua tagihan dari Telegram atau Web — cukup foto atau ketik.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <a href="/login">
+                <Button size="lg" className="rounded-full bg-teal-500 hover:bg-teal-600 text-white px-8">
+                  Mulai Sekarang <ArrowUpRight className="w-4 h-4 ml-1" />
+                </Button>
+              </a>
+              <a href="#how">
+                <Button size="lg" variant="outline" className="rounded-full border-white/20 text-white/80 hover:bg-white/10 px-8">
+                  Cara Kerja
+                </Button>
+              </a>
+            </div>
+            <div className="flex items-center gap-6 pt-2">
+              <div className="flex items-center gap-2 text-sm text-white/40">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                Gratis
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                Kelola Utang dengan{' '}
-                <span className="bg-gradient-to-r from-emerald-300 to-cyan-300 text-transparent bg-clip-text">Cerdas</span>
-              </h1>
-              <p className="text-lg md:text-xl text-white/60 mb-10 max-w-xl leading-relaxed">
-                OCR otomatis, pengingat cerdas, dan dashboard real-time. 
-                Pantau semua tagihan dari Telegram atau Web.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="/login">
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto">
-                    Mulai Sekarang
-                    <ArrowUpRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </a>
-                <a href="#features">
-                  <Button size="lg" variant="outline" className="border-white/20 text-white bg-white/10 hover:bg-white/20 w-full sm:w-auto">
-                    Pelajari Fitur
-                  </Button>
-                </a>
+              <div className="flex items-center gap-2 text-sm text-white/40">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                Telegram & Web
+              </div>
+              <div className="flex items-center gap-2 text-sm text-white/40">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                No card required
               </div>
             </div>
-            <div className="flex-1 animate-fade-in">
-              <img src="/assets/hero.webp" alt="Dashboard Preview" className="w-full rounded-2xl shadow-2xl" />
-            </div>
+          </div>
+          <div className="flex justify-center">
+            <img src="/assets/hero.webp" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/30" />
           </div>
         </div>
+      </section>
 
-        <div className="max-w-7xl mx-auto px-6 pb-20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            {[
-              ['💰', 'Rp1.2M+', 'Total utang terkelola'],
-              ['📱', '1K+', 'Pengguna aktif'],
-              ['🤖', '95%', 'Akurasi OCR'],
-            ].map(([emoji, val, desc]) => (
-              <div key={desc} className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 flex items-center gap-4">
-                <span className="text-2xl">{emoji}</span>
-                <div>
-                  <p className="font-semibold text-white">{val}</p>
-                  <p className="text-white/50 text-xs">{desc}</p>
+      {/* Stats */}
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            ['💰', 'Rp1.2M+', 'Total utang terkelola'],
+            ['📱', '1K+', 'Pengguna aktif'],
+            ['🤖', '95%', 'Akurasi OCR'],
+          ].map(([emoji, val, desc]) => (
+            <div key={desc} className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 flex items-center gap-4">
+              <span className="text-2xl">{emoji}</span>
+              <div>
+                <p className="font-semibold text-white">{val}</p>
+                <p className="text-white/50 text-xs">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="border-t border-white/10 bg-[#0f1535]/50 py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white">Fitur Unggulan</h2>
+            <p className="mt-2 text-white/50">Semua yang kamu butuh buat keluar dari utang</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {features.map((f, i) => (
+              <div key={i} className="group rounded-xl border border-white/10 bg-white/5 p-6 transition-all hover:bg-white/10 hover:border-teal-500/30">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/10 text-teal-400">
+                  <f.icon className="h-5 w-5" />
                 </div>
+                <h3 className="mb-2 font-semibold text-white">{f.title}</h3>
+                <p className="text-sm text-white/50">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Semua yang Anda Butuhkan</h2>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Dari screenshot hingga pelunasan — satu platform untuk semua tagihan Anda.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { icon: CreditCard, title: 'OCR Otomatis', desc: 'Foto tagihan, AI baca otomatis. Ekstrak jumlah, tanggal, dan platform dalam detik.' },
-            { icon: Bell, title: 'Pengingat Cerdas', desc: 'Notifikasi H-7, H-3, H-1, dan hari H langsung ke Telegram. Tidak ada lagi telat bayar.' },
-            { icon: BarChart3, title: 'Dashboard Real-time', desc: 'Pantau semua utang, riwayat pembayaran, dan rekap bulanan dari web atau bot.' },
-            { icon: Shield, title: 'Multi-Platform', desc: 'Akses via Telegram, Web, dan segera WhatsApp. Data tetap sinkron di mana pun.' },
-          ].map(({ icon: Icon, title, desc }) => (
-            <Card key={title} className="card-hover">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-[#1a1a4e] flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-white" />
+      {/* How it Works */}
+      <section id="how" className="py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white">Cara Kerja</h2>
+            <p className="mt-2 text-white/50">Tiga langkah aja</p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {steps.map((s, i) => (
+              <div key={i} className="relative text-center">
+                {i < steps.length - 1 && (
+                  <div className="absolute right-0 top-12 hidden h-px w-full border-t-2 border-dashed border-teal-500/30 md:block" />
+                )}
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/10 text-teal-400">
+                  <span className="absolute -mt-10 text-2xl font-bold text-teal-500/30">{i + 1}</span>
+                  <s.icon className="h-6 w-6" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </CardContent>
-            </Card>
-          ))}
+                <h3 className="mb-2 font-semibold text-white">{s.title}</h3>
+                <p className="text-sm text-white/50">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="border-t border-white/10 bg-[#0f1535]/50 py-20">
+        <div className="mx-auto max-w-2xl px-4">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white">Pertanyaan Umum</h2>
+          </div>
+          <div className="space-y-2">
+            {faqs.map((faq, i) => (
+              <div key={i} className="rounded-xl border border-white/10 bg-white/5">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-white"
+                >
+                  {faq.q}
+                  <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="border-t border-white/10 px-5 py-4 text-sm text-white/60">{faq.a}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust */}
+      <section className="py-16">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h2 className="text-2xl font-bold text-white mb-8">Data Kamu, Hak Kamu</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { icon: Shield, title: 'Enkripsi Penuh', desc: 'Semua data terenkripsi. Kami tidak bisa membaca data kamu.' },
+              { icon: CheckCircle2, title: 'No Bank Access', desc: 'Kami tidak terhubung ke rekening atau dompet digital kamu.' },
+              { icon: Brain, title: 'AI, Tapi Aman', desc: 'AI hanya baca teks dari screenshot. Tidak ada data yang bocor.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-6">
+                <Icon className="h-8 w-8 mx-auto mb-3 text-teal-400" />
+                <h3 className="font-semibold text-white mb-1">{title}</h3>
+                <p className="text-sm text-white/50">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="border-t border-white/10 py-20">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <h2 className="mb-4 text-3xl font-bold text-white">Siap Bebas Utang?</h2>
+          <p className="mb-8 text-white/50">Gratis. 1 klik. Langsung jalan.</p>
+          <a href="/login">
+            <Button size="lg" className="rounded-full bg-teal-500 hover:bg-teal-600 text-white px-10 py-6 text-base">
+              Mulai Sekarang <ArrowUpRight className="w-4 h-4 ml-2" />
+            </Button>
+          </a>
+          <p className="mt-4 text-xs text-white/30">Didukung oleh FMA Software Labs & Komunitas Bebas Utang (KOMBAT)</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8 px-6 text-center text-sm text-muted-foreground">
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <a href="/faq" className="hover:text-foreground transition-colors">FAQ</a>
-          <span className="text-border">•</span>
-          <a href="/legal/terms" className="hover:text-foreground transition-colors">Terms</a>
-          <span className="text-border">•</span>
-          <a href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy</a>
-          <span className="text-border">•</span>
-          <a href="/docs" className="hover:text-foreground transition-colors">Docs</a>
+      <footer className="border-t border-white/10 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-white/40 md:flex-row md:justify-between">
+          <div className="flex items-center gap-2">
+            <img src="/assets/logo.webp" alt="" className="h-5 w-auto" />
+            JatuhTempo
+          </div>
+          <div className="flex items-center gap-4">
+            <a href="/faq" className="hover:text-white/70 transition-colors">FAQ</a>
+            <a href="/legal/terms" className="hover:text-white/70 transition-colors">Terms</a>
+            <a href="/legal/privacy" className="hover:text-white/70 transition-colors">Privacy</a>
+            <a href="/docs" className="hover:text-white/70 transition-colors">Docs</a>
+          </div>
+          <p>© 2026 FMA Software Labs. All rights reserved.</p>
         </div>
-        <p>© 2026 JatuhTempo. All rights reserved.</p>
       </footer>
     </div>
   )
