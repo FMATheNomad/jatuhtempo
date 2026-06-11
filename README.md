@@ -49,3 +49,4 @@ Multi-platform: Telegram bot & Web dashboard.
 
 **PROPRIETARY SOFTWARE** — See [LICENSE](LICENSE) for full terms.  
 © 2026 FMATheNomad. All rights reserved.
+# trigger redeploy
