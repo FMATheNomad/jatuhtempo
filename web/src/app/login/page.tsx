@@ -17,6 +17,23 @@ function LoginContent() {
   const [nama, setNama] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
+
+  async function handleDemoLogin() {
+    setDemoLoading(true)
+    try {
+      const res = await fetch('/api/auth/login-web', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'demo@jatuhtempo.app', password: 'demo123' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.detail || 'Gagal login demo')
+      localStorage.setItem('session_token', data.session_token)
+      router.push('/')
+    } catch (e: any) { setError(e.message) }
+    setDemoLoading(false)
+  }
 
   useEffect(() => {
     if (!token) return
@@ -111,6 +128,16 @@ function LoginContent() {
         <a href={`https://t.me/${BOT_USERNAME.replace('@', '')}`} target="_blank" className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary">
           Login dengan Telegram
         </a>
+
+        <div className="mt-3">
+          <button
+            onClick={handleDemoLogin}
+            disabled={demoLoading}
+            className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border border-dashed border-accent/40 bg-accent/5 text-sm font-medium hover:bg-accent/10 transition-all disabled:opacity-50"
+          >
+            {demoLoading ? 'Memproses...' : '🔑 Login Demo (User Biasa)'}
+          </button>
+        </div>
 
         <p className="text-xs text-muted-foreground text-center mt-4">
           Setelah login, tautkan Telegram di menu Pengaturan.

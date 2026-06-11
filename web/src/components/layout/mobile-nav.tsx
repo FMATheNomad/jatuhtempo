@@ -3,10 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
-import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Calendar, Bell, Menu, X, LogOut } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { LayoutDashboard, CreditCard, History, Settings, TrendingDown, Calendar, Bell, Shield, Menu, X, LogOut } from 'lucide-react'
 
-const links = [
+const commonLinks = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/debts', label: 'Utang', icon: CreditCard },
   { href: '/monthly', label: 'Bulanan', icon: Calendar },
@@ -16,9 +16,25 @@ const links = [
   { href: '/settings', label: 'Pengaturan', icon: Settings },
 ]
 
+const adminLink = { href: '/admin/rates', label: 'Admin Rates', icon: Shield }
+
 export function MobileNav() {
   const [open, setOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const pathname = usePathname()
+
+  useEffect(() => {
+    const token = localStorage.getItem('session_token')
+    if (!token) { setIsAdmin(false); return }
+    fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setIsAdmin(data?.is_admin === true))
+      .catch(() => setIsAdmin(false))
+  }, [])
+
+  const links = isAdmin ? [...commonLinks, adminLink] : commonLinks
 
   return (
     <div className="lg:hidden">

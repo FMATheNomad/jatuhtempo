@@ -3,24 +3,40 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, CreditCard, Settings, History, LogOut, TrendingDown,
   Calendar, Bell, Shield,
 } from 'lucide-react'
 
-const links = [
+const commonLinks = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/debts', label: 'Utang', icon: CreditCard },
   { href: '/monthly', label: 'Bulanan', icon: Calendar },
   { href: '/upcoming', label: 'Akan Datang', icon: Bell },
   { href: '/strategy', label: 'Strategi', icon: TrendingDown },
   { href: '/history', label: 'Riwayat', icon: History },
-  { href: '/admin/rates', label: 'Admin Rates', icon: Shield },
   { href: '/settings', label: 'Pengaturan', icon: Settings },
 ]
 
+const adminLink = { href: '/admin/rates', label: 'Admin Rates', icon: Shield }
+
 export function Sidebar() {
   const pathname = usePathname()
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('session_token')
+    if (!token) { setIsAdmin(false); return }
+    fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setIsAdmin(data?.is_admin === true))
+      .catch(() => setIsAdmin(false))
+  }, [])
+
+  const links = isAdmin ? [...commonLinks, adminLink] : commonLinks
 
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 border-r bg-card h-screen sticky top-0">

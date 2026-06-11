@@ -172,6 +172,23 @@ class VerifyResponse(BaseModel):
     user_id: str | None = None
 
 
+@router.get("/me")
+async def get_me(user=Depends(__import__("app.api.debts", fromlist=["get_current_user"]).get_current_user)):
+    """Return current user's info including subscription status and admin flag."""
+    is_admin = user.subscription_status == "pro"
+    admin_emails = __import__("os").environ.get("ADMIN_EMAILS", "")
+    if admin_emails and user.email and user.email in [e.strip() for e in admin_emails.split(",")]:
+        is_admin = True
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "nama": user.nama,
+        "subscription_status": user.subscription_status or "free",
+        "telegram_id": user.telegram_id,
+        "is_admin": is_admin,
+    }
+
+
 @router.get("/verify")
 async def verify(token: str) -> VerifyResponse:
     payload = verify_token(token)
