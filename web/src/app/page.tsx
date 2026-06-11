@@ -166,7 +166,7 @@ function LandingPage() {
                   <f.icon className="h-5 w-5" />
                 </div>
                 <h3 className="mb-2 font-semibold text-white">{f.title}</h3>
-                <p className="text-sm text-white/50">{f.desc}</p>
+                <p className="text-sm text-white/60">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -191,7 +191,7 @@ function LandingPage() {
                   <s.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 font-semibold text-white">{s.title}</h3>
-                <p className="text-sm text-white/50">{s.desc}</p>
+                <p className="text-sm text-white/60">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -212,7 +212,7 @@ function LandingPage() {
                   className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-white"
                 >
                   {faq.q}
-                  <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-white/60 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
                   <div className="border-t border-white/10 px-5 py-4 text-sm text-white/60">{faq.a}</div>
@@ -253,7 +253,7 @@ function LandingPage() {
               Mulai Sekarang <ArrowUpRight className="w-4 h-4 ml-2" />
             </Button>
           </a>
-          <p className="mt-4 text-xs text-white/30">Didukung oleh FMA Software Labs & Komunitas Bebas Utang (KOMBAT)</p>
+          <p className="mt-4 text-xs text-white/50">Didukung oleh FMA Software Labs & Komunitas Bebas Utang (KOMBAT)</p>
         </div>
       </section>
 
