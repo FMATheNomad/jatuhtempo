@@ -71,6 +71,8 @@ MIGRATIONS = [
         confidence FLOAT NOT NULL DEFAULT 0.0,
         type_counts JSONB
     )""",
+    # Fix type_counts for platform_rates on existing databases
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS type_counts JSONB",
     # FIX A: Additional migrations from production audit
     "ALTER TABLE debts ADD COLUMN IF NOT EXISTS installment_current INTEGER",
     "ALTER TABLE debts ADD COLUMN IF NOT EXISTS installment_total INTEGER",
