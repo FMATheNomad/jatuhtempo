@@ -61,6 +61,16 @@ MIGRATIONS = [
         paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         notes VARCHAR(500)
     )""",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS interest_rate FLOAT",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS interest_type VARCHAR(10)",
+    """CREATE TABLE IF NOT EXISTS platform_rates (
+        platform VARCHAR(100) PRIMARY KEY,
+        avg_rate FLOAT NOT NULL DEFAULT 0.0,
+        common_type VARCHAR(10),
+        sample_count INTEGER NOT NULL DEFAULT 0,
+        confidence FLOAT NOT NULL DEFAULT 0.0,
+        type_counts JSONB
+    )""",
 ]
 
 

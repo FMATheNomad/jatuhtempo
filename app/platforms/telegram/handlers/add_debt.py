@@ -324,6 +324,7 @@ async def save_debt(callback: CallbackQuery, state: FSMContext):
         await callback.message.edit_text(msg, reply_markup=debt_keyboard(debt.id))
         await callback.answer("Utang berhasil disimpan!")
     except Exception as e:
-        await callback.message.edit_text(f"Gagal menyimpan: {e}")
+        safe_error = str(e).replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
+        await callback.message.edit_text(f"Gagal menyimpan: {safe_error}")
         await callback.answer("Terjadi kesalahan.", show_alert=True)
     await state.clear()
