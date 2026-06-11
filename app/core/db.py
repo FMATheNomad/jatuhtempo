@@ -122,7 +122,6 @@ async def init_db():
         from app.models.debt import Debt, DebtStatus
         from sqlalchemy import select
         from datetime import date, timedelta
-        from passlib.hash import bcrypt
 
         demo_email = "demo@jatuhtempo.app"
         result = await session.execute(select(User).where(User.email == demo_email))
