@@ -141,16 +141,19 @@ async def get_upcoming_debts(session: AsyncSession, user_id: uuid.UUID, days: in
     return list(result.scalars().all())
 
 
-async def update_debt_status(session: AsyncSession, debt_id: uuid.UUID, status: DebtStatus):
+async def update_debt_status(session: AsyncSession, debt_id: uuid.UUID, status: DebtStatus, user_id: uuid.UUID | None = None):
     debt = await session.get(Debt, debt_id)
-    if debt:
-        debt.status = status
-        if status == DebtStatus.paid:
-            debt.paid_at = datetime.now(timezone.utc)
-            payment = Payment(debt_id=debt.id, user_id=debt.user_id, amount_paid=debt.amount)
-            session.add(payment)
-        await session.commit()
-        await session.refresh(debt)
+    if not debt:
+        return None
+    if user_id and debt.user_id != user_id:
+        return None
+    debt.status = status
+    if status == DebtStatus.paid:
+        debt.paid_at = datetime.now(timezone.utc)
+        payment = Payment(debt_id=debt.id, user_id=debt.user_id, amount_paid=debt.amount)
+        session.add(payment)
+    await session.commit()
+    await session.refresh(debt)
     return debt
 
 

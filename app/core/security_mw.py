@@ -21,4 +21,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["X-XSS-Protection"] = "0"
 
+        # FIX D: CSP + HSTS headers
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
         return response

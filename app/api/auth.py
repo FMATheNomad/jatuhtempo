@@ -1,6 +1,8 @@
 import uuid
+import time
+from collections import defaultdict
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from passlib.hash import bcrypt
@@ -10,6 +12,20 @@ from app.core.db import async_session_factory
 from app.models.user import User
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+# FIX E: IP-based rate limiting for auth endpoints
+_auth_rates: dict[str, list[float]] = defaultdict(list)
+AUTH_RATE_LIMIT = 10  # requests
+AUTH_RATE_WINDOW = 60  # seconds
+
+
+def _check_auth_rate_limit(ip: str) -> bool:
+    now = time.time()
+    _auth_rates[ip] = [t for t in _auth_rates[ip] if now - t < AUTH_RATE_WINDOW]
+    if len(_auth_rates[ip]) >= AUTH_RATE_LIMIT:
+        return False
+    _auth_rates[ip].append(now)
+    return True
 
 
 class LoginRequest(BaseModel):
@@ -40,7 +56,9 @@ class LoginResponse(BaseModel):
 
 
 @router.post("/register")
-async def register(req: RegisterRequest) -> LoginResponse:
+async def register(req: RegisterRequest, request: Request = None) -> LoginResponse:
+    if not _check_auth_rate_limit(request.client.host if request else "unknown"):
+        raise HTTPException(429, "Too many requests. Please wait.")
     if not req.email or "@" not in req.email:
         raise HTTPException(400, "Email tidak valid")
     if len(req.password) < 6:
@@ -64,7 +82,9 @@ async def register(req: RegisterRequest) -> LoginResponse:
 
 
 @router.post("/login-web")
-async def login_web(req: LoginWebRequest) -> LoginResponse:
+async def login_web(req: LoginWebRequest, request: Request = None) -> LoginResponse:
+    if not _check_auth_rate_limit(request.client.host if request else "unknown"):
+        raise HTTPException(429, "Too many requests. Please wait.")
     if not req.email or not req.password:
         raise HTTPException(400, "Email dan password wajib diisi")
 

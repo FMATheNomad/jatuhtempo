@@ -71,6 +71,33 @@ MIGRATIONS = [
         confidence FLOAT NOT NULL DEFAULT 0.0,
         type_counts JSONB
     )""",
+    # FIX A: Additional migrations from production audit
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS installment_current INTEGER",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS installment_total INTEGER",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS category VARCHAR(100)",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS notes VARCHAR(500)",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'manual'",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+    "ALTER TABLE debts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS nama VARCHAR(255)",
+    "ALTER TABLE payments ADD COLUMN IF NOT EXISTS notes VARCHAR(500)",
+    """CREATE TABLE IF NOT EXISTS reminders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        debt_id UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        remind_at TIMESTAMPTZ NOT NULL,
+        type VARCHAR(20) NOT NULL,
+        sent BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS ocr_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id),
+        image_path TEXT,
+        raw_text TEXT,
+        parsed_json JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )""",
 ]
 
 

@@ -33,7 +33,8 @@ async def callback_paid(callback: CallbackQuery):
         return
 
     async with async_session_factory() as session:
-        debt = await update_debt_status(session, debt_id, DebtStatus.paid)
+        user = await get_or_create_user(session, callback.from_user.id)
+        debt = await update_debt_status(session, debt_id, DebtStatus.paid, user.id)
 
     if debt:
         party = random.choice(["🎉", "🥳", "🏆", "⭐", "🚀", "💪", "✨"])
@@ -62,7 +63,8 @@ async def callback_late(callback: CallbackQuery):
         return
 
     async with async_session_factory() as session:
-        debt = await update_debt_status(session, debt_id, DebtStatus.late)
+        user = await get_or_create_user(session, callback.from_user.id)
+        debt = await update_debt_status(session, debt_id, DebtStatus.late, user.id)
 
     if debt:
         await callback.message.edit_text(

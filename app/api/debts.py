@@ -31,6 +31,18 @@ from app.models.platform_rate import PlatformRate
 
 router = APIRouter(prefix="/api")
 
+logger = __import__("logging").getLogger(__name__)
+
+
+def _check_admin(user: User) -> bool:
+    """Simple admin check: subscription 'pro' or email in ADMIN_EMAILS env var."""
+    if user.subscription_status == "pro":
+        return True
+    admin_emails = __import__("os").environ.get("ADMIN_EMAILS", "")
+    if admin_emails and user.email and user.email in [e.strip() for e in admin_emails.split(",")]:
+        return True
+    return False
+
 
 def get_client_ip(request: Request = None) -> str | None:
     if request and request.client:
@@ -92,24 +104,36 @@ async def list_debts(
     user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    async with async_session_factory() as session:
-        status_enum = DebtStatus(status) if status else None
-        debts = await get_user_debts(session, user.id, status=status_enum, platform=platform)
-        return [DebtResponse.model_validate(d) for d in debts]
+    try:
+        async with async_session_factory() as session:
+            status_enum = DebtStatus(status) if status else None
+            debts = await get_user_debts(session, user.id, status=status_enum, platform=platform)
+            return [DebtResponse.model_validate(d) for d in debts]
+    except Exception:
+        logger.exception("Failed to list debts")
+        raise HTTPException(500, "Internal server error")
 
 
 @router.get("/debts/summary")
 async def get_summary(user: User = Depends(get_current_user)):
-    async with async_session_factory() as session:
-        summary = await get_monthly_summary(session, user.id)
-        return summary
+    try:
+        async with async_session_factory() as session:
+            summary = await get_monthly_summary(session, user.id)
+            return summary
+    except Exception:
+        logger.exception("Failed to get summary")
+        raise HTTPException(500, "Internal server error")
 
 
 @router.get("/debts/upcoming")
 async def get_upcoming_endpoint(days: int = 30, user: User = Depends(get_current_user)):
-    async with async_session_factory() as session:
-        debts = await get_upcoming_debts(session, user.id, days)
-        return [DebtResponse.model_validate(d) for d in debts]
+    try:
+        async with async_session_factory() as session:
+            debts = await get_upcoming_debts(session, user.id, days)
+            return [DebtResponse.model_validate(d) for d in debts]
+    except Exception:
+        logger.exception("Failed to get upcoming debts")
+        raise HTTPException(500, "Internal server error")
 
 
 @router.get("/debts/{debt_id_str}/payments")
@@ -149,12 +173,18 @@ async def patch_debt_status(debt_id_str: str, body: StatusUpdate, user: User = D
         raise HTTPException(400, "Invalid status")
 
     async with async_session_factory() as session:
-        debt = await get_user_debt_by_id(session, did, user.id)
-        if not debt:
-            raise HTTPException(404, "Debt not found")
-        debt = await update_debt_status(session, did, new_status)
-        await log_audit(session, user.id, "update_status", "debt", str(did), f"→ {body.status}", ip_address=get_client_ip(request))
-        return DebtResponse.model_validate(debt)
+        try:
+            debt = await get_user_debt_by_id(session, did, user.id)
+            if not debt:
+                raise HTTPException(404, "Debt not found")
+            debt = await update_debt_status(session, did, new_status, user.id)
+            await log_audit(session, user.id, "update_status", "debt", str(did), f"→ {body.status}", ip_address=get_client_ip(request))
+            return DebtResponse.model_validate(debt)
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Failed to update debt status")
+            raise HTTPException(500, "Internal server error")
 
 
 @router.post("/ocr")
@@ -249,6 +279,8 @@ class AdminRateUpdate(BaseModel):
 @router.get("/admin/platforms/rates")
 async def admin_list_platform_rates(user: User = Depends(get_current_user)):
     """Return all platform rates sorted by sample_count descending (admin)."""
+    if not _check_admin(user):
+        logger.warning("Non-admin user %s accessed admin platform rates list", user.id)
     async with async_session_factory() as session:
         rates = await get_all_platform_rates(session)
         rates.sort(key=lambda r: r.sample_count, reverse=True)
@@ -260,6 +292,9 @@ async def admin_update_platform_rate(
     platform: str, body: AdminRateUpdate, user: User = Depends(get_current_user)
 ):
     """Manually set/override a platform's rate data. Sets confidence to 1.0 (admin-verified)."""
+    if not _check_admin(user):
+        logger.warning("Non-admin user %s attempted admin rate update for %s", user.id, platform)
+        raise HTTPException(403, "Admin access required")
     async with async_session_factory() as session:
         result = await session.execute(
             sa_select(PlatformRate).where(PlatformRate.platform == platform)
@@ -291,6 +326,9 @@ async def admin_delete_platform_rate(
     platform: str, user: User = Depends(get_current_user)
 ):
     """Delete a platform rate entry (admin)."""
+    if not _check_admin(user):
+        logger.warning("Non-admin user %s attempted admin rate delete for %s", user.id, platform)
+        raise HTTPException(403, "Admin access required")
     async with async_session_factory() as session:
         ok = await reset_platform_rate(session, platform)
         if not ok:
@@ -331,9 +369,13 @@ async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_cu
         notes=body.notes,
     )
     async with async_session_factory() as session:
-        debt = await create_debt(session, user.id, data, source=DebtSource.manual)
-        await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
-        return DebtResponse.model_validate(debt)
+        try:
+            debt = await create_debt(session, user.id, data, source=DebtSource.manual)
+            await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
+            return DebtResponse.model_validate(debt)
+        except Exception:
+            logger.exception("Failed to create debt")
+            raise HTTPException(500, "Internal server error")
 
 
 @router.patch("/debts/{debt_id_str}")
@@ -358,10 +400,16 @@ async def patch_debt(debt_id_str: str, body: DebtCreateBody, user: User = Depend
     except (ValueError, TypeError):
         raise HTTPException(400, "Invalid due_date")
     async with async_session_factory() as session:
-        debt = await update_debt(session, did, user.id, **kwargs)
-        if not debt:
-            raise HTTPException(404, "Debt not found")
-        return DebtResponse.model_validate(debt)
+        try:
+            debt = await update_debt(session, did, user.id, **kwargs)
+            if not debt:
+                raise HTTPException(404, "Debt not found")
+            return DebtResponse.model_validate(debt)
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Failed to update debt")
+            raise HTTPException(500, "Internal server error")
 
 
 @router.delete("/debts/{debt_id_str}")
@@ -371,11 +419,17 @@ async def delete_debt_endpoint(debt_id_str: str, user: User = Depends(get_curren
     except ValueError:
         raise HTTPException(404, "Invalid debt id")
     async with async_session_factory() as session:
-        ok = await delete_debt(session, did, user.id)
-        if not ok:
-            raise HTTPException(404, "Debt not found")
-        await log_audit(session, user.id, "delete", "debt", str(did), ip_address=get_client_ip(request))
-        return {"ok": True}
+        try:
+            ok = await delete_debt(session, did, user.id)
+            if not ok:
+                raise HTTPException(404, "Debt not found")
+            await log_audit(session, user.id, "delete", "debt", str(did), ip_address=get_client_ip(request))
+            return {"ok": True}
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Failed to delete debt")
+            raise HTTPException(500, "Internal server error")
 
 
 @router.get("/user/me")
