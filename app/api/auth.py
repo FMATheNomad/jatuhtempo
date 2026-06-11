@@ -5,7 +5,7 @@ from collections import defaultdict
 from fastapi import APIRouter, HTTPException, Header, Request, Depends
 from pydantic import BaseModel
 from sqlalchemy import select
-from passlib.hash import bcrypt
+import bcrypt as _bcrypt
 
 from app.core.auth import verify_token, create_session_token, create_login_token
 from app.core.db import async_session_factory
@@ -69,7 +69,7 @@ async def register(req: RegisterRequest, request: Request = None) -> LoginRespon
         if existing.scalar_one_or_none():
             raise HTTPException(409, "Email sudah terdaftar")
 
-        user = User(email=req.email, password_hash=bcrypt.hash(req.password), nama=req.nama or "User")
+        user = User(email=req.email, password_hash=_bcrypt.hashpw(req.password.encode('utf-8'), _bcrypt.gensalt()).decode('utf-8'), nama=req.nama or "User")
         session.add(user)
         await session.commit()
         await session.refresh(user)
@@ -93,7 +93,7 @@ async def login_web(req: LoginWebRequest, request: Request = None) -> LoginRespo
         user = result.scalar_one_or_none()
         if not user or not user.password_hash:
             raise HTTPException(401, "Email atau password salah")
-        if not bcrypt.verify(req.password, user.password_hash):
+        if not _bcrypt.checkpw(req.password.encode('utf-8'), user.password_hash.encode('utf-8')):
             raise HTTPException(401, "Email atau password salah")
 
         session_token = create_session_token(user.telegram_id, user.id)
