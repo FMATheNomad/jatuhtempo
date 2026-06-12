@@ -258,7 +258,11 @@ async def forgot_password(req: ForgotPasswordRequest, request: Request = None):
             await session.commit()
 
     reset_url = f"{settings.web_url}/reset-password?token={reset_token}"
-    logger.info("Password reset URL: %s", reset_url)
+
+    from app.services.email_service import send_reset_email
+    sent = await send_reset_email(req.email, reset_url)
+    if not sent and settings.smtp_user:
+        logger.warning("SMTP configured but send failed for %s", req.email)
 
     return {"message": "Jika email terdaftar, link reset password akan dikirim."}
 

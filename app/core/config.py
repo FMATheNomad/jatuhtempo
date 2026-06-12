@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     polar_product_id: str = ""
     polar_success_url: str = ""
     polar_webhook_secret: str = ""
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    smtp_from: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
