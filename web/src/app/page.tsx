@@ -413,26 +413,59 @@ function DashboardPage() {
               <Card>
                 <CardHeader><CardTitle>Tambah Utang Cepat</CardTitle></CardHeader>
                 <CardContent>
-                  <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3 flex-wrap">
-                    <input value={form.platform} onChange={e => handlePlatformChange(e.target.value)} placeholder="Platform" className="flex-1 min-w-[120px] h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="Bunga (%)" type="number" step="0.1" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
-                    <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm">
-                      <option value="">Tipe Bunga</option>
-                      <option value="daily">Harian</option>
-                      <option value="monthly">Bulanan</option>
-                      <option value="yearly">Tahunan</option>
-                      <option value="flat">Flat</option>
-                    </select>
+                  <form onSubmit={handleAdd} className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Platform</label>
+                        <input value={form.platform} onChange={e => handlePlatformChange(e.target.value)} placeholder="Kredivo, Akulaku..." required className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Jumlah (Rp)</label>
+                        <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="350000" type="number" required className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Jatuh Tempo</label>
+                        <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="2026-07-15" required className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Kategori</label>
+                        <input value={form.category} onChange={e => setForm({...form, category: e.target.value})} placeholder="paylater, pinjol, kredit..." className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Cicilan ke-</label>
+                        <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="3" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Total Cicilan</label>
+                        <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="12" type="number" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Bunga (%)</label>
+                        <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="2.5" type="number" step="0.1" className="h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-muted-foreground">Tipe Bunga</label>
+                        <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                          <option value="">—</option>
+                          <option value="monthly">Bulanan</option>
+                          <option value="daily">Harian</option>
+                          <option value="yearly">Tahunan</option>
+                          <option value="flat">Flat</option>
+                        </select>
+                      </div>
+                    </div>
                     {rateSuggestion && (
-                      <div className="w-full text-xs text-accent font-medium">
-                        💡 Saran: bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
+                      <div className="text-xs text-accent font-medium bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+                        💡 Saran bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
                       </div>
                     )}
-                    <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
+                    <Button type="submit" disabled={adding} className="w-full">Tambah Utang</Button>
                   </form>
                 </CardContent>
               </Card>
