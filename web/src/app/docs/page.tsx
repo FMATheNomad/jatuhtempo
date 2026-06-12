@@ -12,21 +12,21 @@ const docCards = [
     icon: BookOpen,
     title: 'Panduan Memulai',
     desc: 'Buat akun, tambah utang pertama, hubungkan Telegram, dan atur pengingat.',
-    link: '/content/docs/getting-started.md',
+    link: '/docs/getting-started',
     gradient: 'from-primary to-[#1a1a4e]',
   },
   {
     icon: MessageCircle,
     title: 'Bot Telegram',
     desc: 'Kelola utang langsung dari Telegram. Semua perintah dan cara pakai.',
-    link: '/content/docs/telegram-bot.md',
+    link: '/docs/telegram-bot',
     gradient: 'from-blue-600 to-blue-800',
   },
   {
     icon: Camera,
     title: 'Panduan OCR',
     desc: 'Cara upload screenshot tagihan dan optimasi hasil bacaan AI.',
-    link: '/content/docs/ocr-guide.md',
+    link: '/docs/ocr-guide',
     gradient: 'from-emerald-600 to-teal-700',
   },
 ]
@@ -78,22 +78,22 @@ export default function DocsPage() {
           </p>
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="/content/docs/getting-started.md" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline inline-flex items-center gap-1">
+              <Link href="/docs/getting-started" className="text-accent hover:underline inline-flex items-center gap-1">
                 Panduan Memulai
                 <ArrowUpRight className="w-3 h-3" />
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/content/docs/telegram-bot.md" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline inline-flex items-center gap-1">
+              <Link href="/docs/telegram-bot" className="text-accent hover:underline inline-flex items-center gap-1">
                 Bot Telegram
                 <ArrowUpRight className="w-3 h-3" />
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/content/docs/ocr-guide.md" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline inline-flex items-center gap-1">
+              <Link href="/docs/ocr-guide" className="text-accent hover:underline inline-flex items-center gap-1">
                 Panduan OCR
                 <ArrowUpRight className="w-3 h-3" />
-              </a>
+              </Link>
             </li>
             <li>
               <Link href="/faq" className="text-accent hover:underline inline-flex items-center gap-1">
