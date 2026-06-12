@@ -49,38 +49,38 @@ function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0b1e] via-[#0f1535] to-[#0f1535]">
+    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0b1e]/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#0a0b1e]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <img src="/assets/logo.webp" alt="JatuhTempo" className="h-7 w-auto" />
-            <span className="text-lg font-bold text-white">JatuhTempo</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-white">JatuhTempo</span>
           </div>
           <div className="hidden items-center gap-6 md:flex">
-            <a href="#features" className="text-sm text-white/60 hover:text-white transition-colors">Fitur</a>
-            <a href="#how" className="text-sm text-white/60 hover:text-white transition-colors">Cara Kerja</a>
-            <a href="#faq" className="text-sm text-white/60 hover:text-white transition-colors">FAQ</a>
+            <a href="#features" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Fitur</a>
+            <a href="#how" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Cara Kerja</a>
+            <a href="#faq" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
           </div>
-          <div className="hidden gap-2 md:flex">
-            <a href="/login" className="rounded-full border border-white/20 px-4 py-1.5 text-sm font-medium text-white/80 hover:bg-white/10 transition-colors">
+          <div className="hidden items-center gap-2 md:flex">
+            <a href="/login" className="rounded-full border border-slate-300 dark:border-white/20 px-4 py-1.5 text-sm font-medium text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
               Masuk
             </a>
             <a href="/login?mode=register" className="rounded-full bg-teal-500 px-4 py-1.5 text-sm font-medium text-white hover:bg-teal-600 transition-colors">
               Mulai Gratis
             </a>
           </div>
-          <button className="md:hidden text-white" onClick={() => setMobileMenu(!mobileMenu)}>
+          <button className="md:hidden text-slate-900 dark:text-white" onClick={() => setMobileMenu(!mobileMenu)}>
             {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
         {mobileMenu && (
-          <div className="flex flex-col gap-2 border-t border-white/10 px-4 py-3 md:hidden bg-[#0a0b1e]">
-            <a href="#features" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>Fitur</a>
-            <a href="#how" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>Cara Kerja</a>
-            <a href="#faq" className="text-sm py-1 text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
+          <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-white/10 px-4 py-3 md:hidden bg-white dark:bg-[#0a0b1e]">
+            <a href="#features" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>Fitur</a>
+            <a href="#how" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>Cara Kerja</a>
+            <a href="#faq" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
             <div className="flex gap-2 pt-2">
-              <a href="/login" className="flex-1 rounded-full border border-white/20 py-2 text-sm font-medium text-white/80 text-center">Masuk</a>
+              <a href="/login" className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">Masuk</a>
               <a href="/login?mode=register" className="flex-1 rounded-full bg-teal-500 py-2 text-sm font-medium text-white text-center">Mulai Gratis</a>
             </div>
           </div>
@@ -91,14 +91,14 @@ function LandingPage() {
       <section className="mx-auto max-w-6xl px-4 pt-16 pb-12 md:pt-24 md:pb-16">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 border border-teal-500/20 px-3 py-1 text-xs font-medium text-teal-400">
+            <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 border border-teal-500/20 px-3 py-1 text-xs font-medium text-teal-600 dark:text-teal-400">
               <Sparkles className="h-3 w-3" /> AI-Powered Debt Management
             </div>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white md:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white md:text-5xl lg:text-6xl">
               Kelola Utang dengan{' '}
-              <span className="bg-gradient-to-r from-teal-300 to-cyan-300 bg-clip-text text-transparent">Cerdas</span>
+              <span className="bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-300 dark:to-cyan-300 bg-clip-text text-transparent">Cerdas</span>
             </h1>
-            <p className="text-lg text-white/50 max-w-xl leading-relaxed">
+            <p className="text-lg text-slate-500 dark:text-white/50 max-w-xl leading-relaxed">
               OCR otomatis, pengingat cerdas, dan dashboard real-time. 
               Pantau semua tagihan dari Telegram atau Web — cukup foto atau ketik.
             </p>
@@ -109,28 +109,28 @@ function LandingPage() {
                 </Button>
               </a>
               <a href="#how">
-                <Button size="lg" variant="outline" className="rounded-full border-white/30 text-white/80 hover:bg-white/10 hover:text-white bg-transparent px-8">
+                <Button size="lg" variant="outline" className="rounded-full border-slate-300 dark:border-white/30 text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/10 bg-transparent px-8">
                   Cara Kerja
                 </Button>
               </a>
             </div>
             <div className="flex items-center gap-6 pt-2">
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-white/60">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                 Gratis
               </div>
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-white/60">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                 Telegram & Web
               </div>
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-white/60">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                 No card required
               </div>
             </div>
           </div>
           <div className="flex justify-center">
-            <img src="/assets/hero-image.png" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/30" />
+            <img src="/assets/hero-image.png" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/30" />
           </div>
         </div>
       </section>
@@ -143,11 +143,11 @@ function LandingPage() {
             ['📱', '1K+', 'Pengguna aktif'],
             ['🤖', '95%', 'Akurasi OCR'],
           ].map(([emoji, val, desc]) => (
-            <div key={desc} className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 flex items-center gap-4">
+            <div key={desc} className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-slate-200 dark:border-white/10 flex items-center gap-4">
               <span className="text-2xl">{emoji}</span>
               <div>
-                <p className="font-semibold text-white">{val}</p>
-                <p className="text-white/60 text-xs">{desc}</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{val}</p>
+                <p className="text-slate-500 dark:text-white/60 text-xs">{desc}</p>
               </div>
             </div>
           ))}
@@ -155,20 +155,20 @@ function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="border-t border-white/10 bg-[#0f1535]/50 py-20">
+      <section id="features" className="border-t border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#0f1535]/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-white">Fitur Unggulan</h2>
-            <p className="mt-2 text-white/60">Semua yang kamu butuh buat keluar dari utang</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Fitur Unggulan</h2>
+            <p className="mt-2 text-slate-500 dark:text-white/60">Semua yang kamu butuh buat keluar dari utang</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
-              <div key={i} className="group rounded-xl border border-white/10 bg-white/5 p-6 transition-all hover:bg-white/10 hover:border-teal-500/30">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/10 text-teal-400">
+              <div key={i} className="group rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-6 transition-all hover:bg-slate-50 dark:hover:bg-white/10 hover:border-teal-500/30">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
                   <f.icon className="h-5 w-5" />
                 </div>
-                <h3 className="mb-2 font-semibold text-white">{f.title}</h3>
-                <p className="text-sm text-white/60">{f.desc}</p>
+                <h3 className="mb-2 font-semibold text-slate-900 dark:text-white">{f.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-white/60">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -179,17 +179,17 @@ function LandingPage() {
       <section id="how" className="py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-white">Cara Kerja</h2>
-            <p className="mt-2 text-white/60">Tiga langkah aja</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Cara Kerja</h2>
+            <p className="mt-2 text-slate-500 dark:text-white/60">Tiga langkah aja</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((s, i) => (
               <div key={i} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/10 text-teal-400">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
                   <s.icon className="h-6 w-6" />
                 </div>
-                <h3 className="mb-2 font-semibold text-white">{s.title}</h3>
-                <p className="text-sm text-white/60">{s.desc}</p>
+                <h3 className="mb-2 font-semibold text-slate-900 dark:text-white">{s.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-white/60">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -197,23 +197,23 @@ function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="border-t border-white/10 bg-[#0f1535]/50 py-20">
+      <section id="faq" className="border-t border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#0f1535]/50 py-20">
         <div className="mx-auto max-w-2xl px-4">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-white">Pertanyaan Umum</h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Pertanyaan Umum</h2>
           </div>
           <div className="space-y-2">
             {faqs.map((faq, i) => (
-              <div key={i} className="rounded-xl border border-white/10 bg-white/5">
+              <div key={i} className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-white"
+                  className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-slate-900 dark:text-white"
                 >
                   {faq.q}
-                  <ChevronDown className={`h-4 w-4 text-white/60 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-slate-400 dark:text-white/60 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="border-t border-white/10 px-5 py-4 text-sm text-white/60">{faq.a}</div>
+                  <div className="border-t border-slate-200 dark:border-white/10 px-5 py-4 text-sm text-slate-500 dark:text-white/60">{faq.a}</div>
                 )}
               </div>
             ))}
@@ -224,17 +224,17 @@ function LandingPage() {
       {/* Trust */}
       <section className="py-16">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-white mb-8">Data Kamu, Hak Kamu</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">Data Kamu, Hak Kamu</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { icon: Shield, title: 'Enkripsi Penuh', desc: 'Semua data terenkripsi. Kami tidak bisa membaca data kamu.' },
               { icon: CheckCircle2, title: 'No Bank Access', desc: 'Kami tidak terhubung ke rekening atau dompet digital kamu.' },
               { icon: Brain, title: 'AI, Tapi Aman', desc: 'AI hanya baca teks dari screenshot. Tidak ada data yang bocor.' },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-6">
-                <Icon className="h-8 w-8 mx-auto mb-3 text-teal-400" />
-                <h3 className="font-semibold text-white mb-1">{title}</h3>
-                <p className="text-sm text-white/60">{desc}</p>
+              <div key={title} className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-6">
+                <Icon className="h-8 w-8 mx-auto mb-3 text-teal-600 dark:text-teal-400" />
+                <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{title}</h3>
+                <p className="text-sm text-slate-500 dark:text-white/60">{desc}</p>
               </div>
             ))}
           </div>
@@ -242,31 +242,31 @@ function LandingPage() {
       </section>
 
       {/* CTA Final */}
-      <section className="border-t border-white/10 py-20">
+      <section className="border-t border-slate-200 dark:border-white/10 py-20">
         <div className="mx-auto max-w-2xl px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-white">Siap Bebas Utang?</h2>
-          <p className="mb-8 text-white/60">Gratis. 1 klik. Langsung jalan.</p>
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 dark:text-white">Siap Bebas Utang?</h2>
+          <p className="mb-8 text-slate-500 dark:text-white/60">Gratis. 1 klik. Langsung jalan.</p>
           <a href="/login?mode=register">
             <Button size="lg" className="rounded-full bg-teal-500 hover:bg-teal-600 text-white px-10 py-6 text-base">
               Mulai Sekarang <ArrowUpRight className="w-4 h-4 ml-2" />
             </Button>
           </a>
-          <p className="mt-4 text-xs text-white/50">Didukung oleh FMA Software Labs & Komunitas Bebas Utang (KOMBAT)</p>
+          <p className="mt-4 text-xs text-slate-400 dark:text-white/50">Didukung oleh FMA Software Labs & Komunitas Bebas Utang (KOMBAT)</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-white/60 md:flex-row md:justify-between">
+      <footer className="border-t border-slate-200 dark:border-white/10 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-slate-500 dark:text-white/60 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
             <img src="/assets/logo.webp" alt="" className="h-5 w-auto" />
             JatuhTempo
           </div>
           <div className="flex items-center gap-4">
-            <a href="/faq" className="hover:text-white/70 transition-colors">FAQ</a>
-            <a href="/legal/terms" className="hover:text-white/70 transition-colors">Terms</a>
-            <a href="/legal/privacy" className="hover:text-white/70 transition-colors">Privacy</a>
-            <a href="/docs" className="hover:text-white/70 transition-colors">Docs</a>
+            <a href="/faq" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">FAQ</a>
+            <a href="/legal/terms" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Terms</a>
+            <a href="/legal/privacy" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Privacy</a>
+            <a href="/docs" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Docs</a>
           </div>
           <p>© {new Date().getFullYear()} FMA Software Labs. All rights reserved.</p>
         </div>

@@ -6,8 +6,9 @@ import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, CreditCard, Settings, History, LogOut, TrendingDown,
-  Calendar, Bell, Shield,
+  Calendar, Bell, Shield, Sun, Moon,
 } from 'lucide-react'
+import { useTheme } from '@/components/theme-provider'
 
 const commonLinks = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -23,6 +24,7 @@ const adminLink = { href: '/admin/rates', label: 'Admin Rates', icon: Shield }
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -68,7 +70,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-1">
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all w-full"
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        </button>
         <button
           onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all w-full"

@@ -5,9 +5,11 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut, Sparkles, MessageCircle } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor } from 'lucide-react'
+import { useTheme } from '@/components/theme-provider'
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme()
   const [phone, setPhone] = useState('')
   const [saved, setSaved] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -150,6 +152,36 @@ export default function SettingsPage() {
               <Button onClick={handleSave} className="w-full sm:w-auto">
                 {saved ? '✓ Tersimpan' : 'Simpan'}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Theme */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                {theme === 'light' ? <Sun className="w-5 h-5 text-amber-500" /> : theme === 'dark' ? <Moon className="w-5 h-5 text-indigo-400" /> : <Monitor className="w-5 h-5 text-accent" />}
+                <div>
+                  <CardTitle>Tampilan</CardTitle>
+                  <CardDescription>Atur tema sesuai preferensi</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                {(['light', 'dark', 'system'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={`flex-1 min-h-[44px] rounded-lg border text-sm font-medium transition-all ${
+                      theme === t
+                        ? 'border-accent bg-accent/10 text-accent shadow-sm'
+                        : 'border-input bg-background text-muted-foreground hover:bg-secondary'
+                    }`}
+                  >
+                    {t === 'light' ? <><Sun className="w-4 h-4 mx-auto mb-1" /> Terang</> : t === 'dark' ? <><Moon className="w-4 h-4 mx-auto mb-1" /> Gelap</> : <><Monitor className="w-4 h-4 mx-auto mb-1" /> Sistem</>}
+                  </button>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
