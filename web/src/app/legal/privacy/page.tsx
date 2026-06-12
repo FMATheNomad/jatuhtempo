@@ -71,9 +71,13 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Kembali ke Beranda
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground/60 hover:text-accent transition-all duration-200 group">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border bg-card hover:bg-accent/5 hover:border-accent/30 transition-all duration-200 group-hover:-translate-x-0.5">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </span>
+          <span className="hidden sm:inline">Kembali</span>
         </Link>
       </div>
       {/* Hero */}
