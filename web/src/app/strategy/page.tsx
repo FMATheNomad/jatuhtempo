@@ -5,22 +5,8 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TrendingDown, Sparkles, Calculator, Calendar } from 'lucide-react'
-
-const API = process.env.NEXT_PUBLIC_API_URL || ''
-
-function token() {
-  if (typeof window === 'undefined') return ''
-  return localStorage.getItem('session_token') || ''
-}
-
-async function api(path: string) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { Authorization: `Bearer ${token()}` },
-  })
-  if (!res.ok) throw new Error()
-  return res.json()
-}
+import { TrendingDown, Sparkles, Calculator, Calendar, AlertTriangle } from 'lucide-react'
+import { fetchAPI, getToken } from '@/lib/api'
 
 function calcMonthly(debt: any): number {
   if (debt.installment_total && debt.installment_total > 0) {
@@ -43,22 +29,26 @@ export default function StrategyPage() {
   const [extra, setExtra] = useState(0)
   const [income, setIncome] = useState(0)
   const [expense, setExpense] = useState(0)
+  const [strategy, setStrategy] = useState<'snowball' | 'avalanche'>('snowball')
 
   useEffect(() => {
-    api('/api/debts').then(d => { setDebts(d); setLoading(false) }).catch(() => setLoading(false))
+    fetchAPI('/api/debts').then(d => { setDebts(d); setLoading(false) }).catch(() => setLoading(false))
   }, [])
 
   const active = debts.filter(d => d.status === 'active')
   const totalDebt = active.reduce((s, d) => s + d.amount, 0)
   const totalMonthly = active.reduce((s, d) => s + calcMonthly(d), 0)
 
-  const snowball = useMemo(() => {
+  const sorted = useMemo(() => {
+    if (strategy === 'avalanche') {
+      return [...active].sort((a, b) => (b.interest_rate || 0) - (a.interest_rate || 0))
+    }
     return [...active].sort((a, b) => a.amount - b.amount)
-  }, [active])
+  }, [active, strategy])
 
   const simulation = useMemo(() => {
     if (extra <= 0) return null
-    let remaining = snowball.map(d => ({ ...d, left: d.amount }))
+    let remaining = sorted.map(d => ({ ...d, left: d.amount }))
     let monthly = extra
     let months = 0
     let totalPaid = 0
@@ -81,18 +71,18 @@ export default function StrategyPage() {
       remaining = remaining.filter(d => d.left > 0)
     }
 
-    if (months >= 600) return null
+    if (months >= 600) return { tooLong: true }
     const payoffDate = new Date()
     payoffDate.setMonth(payoffDate.getMonth() + months)
 
-    return { months, payoffDate, totalPaid, interestSaved: Math.max(0, totalDebt - totalPaid + totalPaid) }
-  }, [snowball, extra, totalDebt])
+    return { months, payoffDate, totalPaid, interestSaved: Math.max(0, totalPaid - totalDebt) }
+  }, [sorted, extra, totalDebt])
 
   const incomeSim = useMemo(() => {
     if (income <= 0 || expense <= 0) return null
     const disposable = income - expense
     if (disposable <= 0) return { error: 'Pengeluaran lebih besar dari pendapatan' }
-    let remaining = snowball.map(d => ({ ...d, left: d.amount }))
+    let remaining = sorted.map(d => ({ ...d, left: d.amount }))
     let months = 0
 
     while (remaining.length > 0 && months < 600) {
@@ -105,10 +95,10 @@ export default function StrategyPage() {
       if (budget > 0 && remaining.length > 0) remaining[0].left -= budget
       remaining = remaining.filter(d => d.left > 0)
     }
-    if (months >= 600) return null
+    if (months >= 600) return { tooLong: true }
     const date = new Date(); date.setMonth(date.getMonth() + months)
     return { months, date, percent: Math.round((1 - months / 600) * 100) }
-  }, [snowball, income, expense])
+  }, [sorted, income, expense])
 
   return (
     <div className="flex">
@@ -155,18 +145,42 @@ export default function StrategyPage() {
                 </Card>
               </div>
 
-              {/* Payoff Order (Snowball) */}
+              {/* Payoff Order (Snowball/Avalanche) */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingDown className="w-5 h-5" />
-                    Urutan Pelunasan — Snowball
+                    Urutan Pelunasan — {strategy === 'snowball' ? 'Snowball' : 'Avalanche'}
                   </CardTitle>
-                  <CardDescription>Lunasi dari yang terkecil dulu untuk membangun momentum</CardDescription>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      onClick={() => setStrategy('snowball')}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                        strategy === 'snowball'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      Snowball
+                    </button>
+                    <button
+                      onClick={() => setStrategy('avalanche')}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                        strategy === 'avalanche'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      Avalanche
+                    </button>
+                    <span className="text-xs text-muted-foreground ml-1">
+                      {strategy === 'snowball' ? 'Urut dari jumlah terkecil' : 'Urut dari bunga tertinggi'}
+                    </span>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {snowball.map((d, i) => (
+                    {sorted.map((d, i) => (
                       <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                         <div className="flex items-center gap-3">
                           <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">{i + 1}</span>
@@ -222,17 +236,29 @@ export default function StrategyPage() {
                     </div>
                   </div>
 
-                  {simulation && (
+                  {simulation && 'tooLong' in simulation && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                        <h3 className="font-semibold text-amber-800">Proyeksi Tidak Tersedia</h3>
+                      </div>
+                      <p className="text-sm text-amber-700">
+                        Proyeksi tidak tersedia untuk jangka waktu lebih dari 600 bulan (50 tahun).
+                        Coba tingkatkan jumlah tambahan bayaran per bulan.
+                      </p>
+                    </div>
+                  )}
+                  {simulation && !('tooLong' in simulation) && (
                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
                       <div className="flex items-center gap-2 mb-3">
                         <Calendar className="w-5 h-5 text-emerald-600" />
                         <h3 className="font-semibold text-emerald-800">Proyeksi Bebas Utang</h3>
                       </div>
                       <p className="text-3xl font-bold text-emerald-700 mb-1">
-                        {simulation.payoffDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                        {(simulation as any).payoffDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
                       </p>
                       <p className="text-sm text-emerald-600">
-                        {simulation.months} bulan lagi • Total dibayar Rp{simulation.totalPaid.toLocaleString('id-ID')}
+                        {(simulation as any).months} bulan lagi • Total dibayar Rp{(simulation as any).totalPaid.toLocaleString('id-ID')}
                       </p>
                     </div>
                   )}
@@ -272,11 +298,17 @@ export default function StrategyPage() {
                     {incomeSim && 'error' in incomeSim && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{incomeSim.error}</div>
                     )}
-                    {incomeSim && !('error' in incomeSim) && (
+                    {incomeSim && 'tooLong' in incomeSim && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
+                        Proyeksi tidak tersedia untuk jangka waktu lebih dari 600 bulan (50 tahun).
+                        Coba tingkatkan pendapatan atau kurangi pengeluaran.
+                      </div>
+                    )}
+                    {incomeSim && !('error' in incomeSim) && !('tooLong' in incomeSim) && (
                       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                         <p className="text-sm font-medium text-blue-800">Dengan pendapatan saat ini, kamu bisa bebas utang:</p>
-                        <p className="text-2xl font-bold text-blue-700">{incomeSim.date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</p>
-                        <p className="text-sm text-blue-600">{incomeSim.months} bulan lagi</p>
+                        <p className="text-2xl font-bold text-blue-700">{(incomeSim as any).date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</p>
+                        <p className="text-sm text-blue-600">{(incomeSim as any).months} bulan lagi</p>
                       </div>
                     )}
                   </div>

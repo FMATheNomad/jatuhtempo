@@ -1,9 +1,9 @@
-function getToken(): string | null {
+export function getToken(): string | null {
   if (typeof window === 'undefined') return null
   return localStorage.getItem('session_token')
 }
 
-async function fetchAPI(path: string, options?: RequestInit) {
+export async function fetchAPI(path: string, options?: RequestInit) {
   const token = getToken()
   const res = await fetch(path, {
     ...options,

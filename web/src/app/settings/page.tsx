@@ -132,7 +132,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2">
                 <Smartphone className="w-5 h-5 text-accent" />
                 <div>
-                  <CardTitle>WhatsApp</CardTitle>
+                  <CardTitle>WhatsApp <span className="text-xs font-normal text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Segera hadir</span></CardTitle>
                   <CardDescription>Hubungkan nomor WhatsApp untuk pengingat via WA</CardDescription>
                 </div>
               </div>
@@ -154,13 +154,16 @@ export default function SettingsPage() {
           </Card>
 
           {/* Logout */}
-          <button
-            onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Keluar dari semua perangkat
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Keluar (browser ini saja)
+            </button>
+            <p className="text-xs text-muted-foreground/60 pl-6">Token akan tetap valid di perangkat lain sampai kedaluwarsa.</p>
+          </div>
         </div>
       </main>
     </div>

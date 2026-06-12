@@ -10,14 +10,15 @@ export default function HistoryPage() {
   const [selected, setSelected] = useState<string | null>(null)
   const [payments, setPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [expandingId, setExpandingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
         const { getDebts } = await import('@/lib/api')
-        const d = await getDebts()
-        setDebts(d.filter((x: any) => x.status === 'paid'))
+        const d = await getDebts('paid')
+        setDebts(d)
       } catch { setError('Gagal memuat data.') }
       setLoading(false)
     }
@@ -26,11 +27,14 @@ export default function HistoryPage() {
 
   async function showPayments(debtId: string) {
     setSelected(debtId)
+    setExpandingId(debtId)
+    setPayments([])
     try {
       const { getPayments } = await import('@/lib/api')
       const p = await getPayments(debtId)
       setPayments(p)
     } catch { /* ignore */ }
+    setExpandingId(null)
   }
 
   return (
@@ -73,7 +77,15 @@ export default function HistoryPage() {
                         </div>
                         <p className="font-semibold">Rp{d.amount.toLocaleString('id-ID')}</p>
                       </button>
-                      {selected === d.id && payments.length > 0 && (
+                      {selected === d.id && expandingId === d.id && (
+                        <div className="ml-4 pl-4 border-l mb-2 py-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                            Memuat...
+                          </div>
+                        </div>
+                      )}
+                      {selected === d.id && expandingId !== d.id && payments.length > 0 && (
                         <div className="ml-4 pl-4 border-l space-y-1 mb-2">
                           {payments.map((p: any) => (
                             <div key={p.id} className="text-sm text-muted-foreground py-1">
@@ -81,6 +93,11 @@ export default function HistoryPage() {
                               {p.notes && <span> — {p.notes}</span>}
                             </div>
                           ))}
+                        </div>
+                      )}
+                      {selected === d.id && expandingId !== d.id && payments.length === 0 && (
+                        <div className="ml-4 pl-4 border-l mb-2 py-2 text-sm text-muted-foreground">
+                          Tidak ada pembayaran tercatat.
                         </div>
                       )}
                     </div>

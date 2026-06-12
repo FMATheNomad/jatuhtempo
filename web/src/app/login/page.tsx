@@ -10,8 +10,9 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const token = searchParams.get('token')
+  const modeParam = searchParams.get('mode')
   const [status, setStatus] = useState(token ? 'Memproses...' : '')
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<'login' | 'register'>(modeParam === 'register' ? 'register' : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nama, setNama] = useState('')
@@ -105,6 +106,14 @@ function LoginContent() {
           <div>
             <label className="text-sm font-medium mb-1 block">Password</label>
             <input value={password} onChange={e => setPassword(e.target.value)} type="password" required minLength={6} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+            {mode === 'login' && (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Lupa password?{' '}
+                <a href="mailto:fmasoftwarelabs@gmail.com" className="text-accent hover:underline">
+                  Hubungi kami untuk reset
+                </a>
+              </p>
+            )}
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}

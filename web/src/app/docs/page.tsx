@@ -129,7 +129,7 @@ export default function DocsPage() {
           <span className="text-border">•</span>
           <Link href="/docs" className="hover:text-foreground transition-colors">Docs</Link>
         </div>
-        <p>© 2026 JatuhTempo. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} JatuhTempo. All rights reserved.</p>
       </footer>
     </div>
   )

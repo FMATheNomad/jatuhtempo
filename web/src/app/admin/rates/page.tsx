@@ -6,27 +6,7 @@ import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Pencil, X, Check, Shield, ShieldOff } from 'lucide-react'
-import { getAllPlatformRates, type PlatformRateResponse } from '@/lib/api'
-
-const API = process.env.NEXT_PUBLIC_API_URL || ''
-
-function token() {
-  if (typeof window === 'undefined') return ''
-  return localStorage.getItem('session_token') || ''
-}
-
-async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
-      ...options?.headers,
-    },
-  })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
-}
+import { getAllPlatformRates, type PlatformRateResponse, getToken, fetchAPI } from '@/lib/api'
 
 function confidenceLabel(c: number): string {
   if (c >= 0.7) return '🟢 Tinggi'
@@ -52,10 +32,15 @@ export default function AdminRatesPage() {
   useEffect(() => {
     async function checkAdmin() {
       try {
-        const user = await api('/api/user/me')
-        // Simple admin check: admin users have subscription_status "admin" or email contains "admin"
-        // Fallback: let the API handle authorization
-        setIsAdmin(true)
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setIsAdmin(data.is_admin === true)
+        } else {
+          setIsAdmin(false)
+        }
       } catch {
         setIsAdmin(false)
       }
@@ -86,7 +71,7 @@ export default function AdminRatesPage() {
   async function saveEdit(platform: string) {
     setSaving(true)
     try {
-      await api(`/api/admin/platforms/rates/${encodeURIComponent(platform)}`, {
+      await fetchAPI(`/api/admin/platforms/rates/${encodeURIComponent(platform)}`, {
         method: 'PUT',
         body: JSON.stringify({
           avg_rate: parseFloat(editForm.avg_rate) || 0,

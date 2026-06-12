@@ -79,7 +79,7 @@ export default function MonthlyPage() {
                       <p className="text-sm text-muted-foreground">Dibayar Bulan Ini</p>
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     </div>
-                    <p className="text-2xl font-bold text-emerald-600">{data.paid_this_month}</p>
+                    <p className="text-2xl font-bold text-emerald-600">{data.paid_this_month} kali</p>
                   </CardContent>
                 </Card>
                 <Card>

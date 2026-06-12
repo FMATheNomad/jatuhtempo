@@ -34,6 +34,7 @@ export function Sidebar() {
       .then(res => res.ok ? res.json() : null)
       .then(data => setIsAdmin(data?.is_admin === true))
       .catch(() => setIsAdmin(false))
+    // TODO: Share admin state with MobileNav via React Context to avoid double API call
   }, [])
 
   const links = isAdmin ? [...commonLinks, adminLink] : commonLinks

@@ -116,7 +116,7 @@ export default function UpcomingPage() {
                 <>
                   {/* Mobile: Card list */}
                   <div className="space-y-3 lg:hidden">
-                    {debts.sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()).map(d => (
+                    {[...debts].sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()).map(d => (
                       <div key={d.id} className="border rounded-xl p-4 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">

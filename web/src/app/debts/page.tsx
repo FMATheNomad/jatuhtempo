@@ -8,30 +8,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, Search, Pencil, Trash2, Check, AlertTriangle, X, Upload } from 'lucide-react'
 import type { DebtResponse } from '@/lib/api'
-import { getPlatformRate } from '@/lib/api'
+import { getPlatformRate, getToken, fetchAPI } from '@/lib/api'
 
 const statusVariant: Record<string, 'active' | 'paid' | 'late'> = {
   active: 'active', paid: 'paid', late: 'late',
-}
-
-const API = process.env.NEXT_PUBLIC_API_URL || ''
-
-function token() {
-  if (typeof window === 'undefined') return ''
-  return localStorage.getItem('session_token') || ''
-}
-
-async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
-      ...options?.headers,
-    },
-  })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
 }
 
 export default function DebtsPage() {
@@ -52,6 +32,8 @@ export default function DebtsPage() {
   const [smartResult, setSmartResult] = useState<any>(null)
   const [smartLoading, setSmartLoading] = useState(false)
   const [smartError, setSmartError] = useState<string | null>(null)
+  const [showOcr, setShowOcr] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const activeDebts = debts.filter(d => d.status !== 'paid')
   const paidDebts = debts.filter(d => d.status === 'paid')
@@ -61,7 +43,7 @@ export default function DebtsPage() {
       const params = new URLSearchParams()
       if (statusFilter) params.set('status', statusFilter)
       if (filter) params.set('platform', filter)
-      const d = await api(`/api/debts?${params}`)
+      const d = await fetchAPI(`/api/debts?${params}`)
       setDebts(d)
     } catch { setError('Gagal memuat data.') }
     setLoading(false)
@@ -71,7 +53,7 @@ export default function DebtsPage() {
 
   async function handleStatus(id: string, status: string, platform: string) {
     try {
-      await api(`/api/debts/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
+      await fetchAPI(`/api/debts/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
       if (status === 'paid') {
         const paid = debts.filter(d => d.status === 'paid').length + 1
         setCelebration({ platform, count: paid })
@@ -81,10 +63,10 @@ export default function DebtsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Hapus utang ini?')) return
+    setConfirmDelete(id)
     try {
       setLoading(true)
-      await api(`/api/debts/${id}`, { method: 'DELETE' })
+      await fetchAPI(`/api/debts/${id}`, { method: 'DELETE' })
       load()
     } catch { setError('Gagal hapus.') }
   }
@@ -103,9 +85,9 @@ export default function DebtsPage() {
     }
     try {
       if (editId) {
-        await api(`/api/debts/${editId}`, { method: 'PATCH', body: JSON.stringify(data) })
+        await fetchAPI(`/api/debts/${editId}`, { method: 'PATCH', body: JSON.stringify(data) })
       } else {
-        await api('/api/debts', { method: 'POST', body: JSON.stringify(data) })
+        await fetchAPI('/api/debts', { method: 'POST', body: JSON.stringify(data) })
       }
       setShowForm(false)
       setEditId(null)
@@ -173,10 +155,53 @@ export default function DebtsPage() {
             </div>
           )}
 
+          {/* Delete confirmation modal */}
+          {confirmDelete && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setConfirmDelete(null)}>
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+              <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in border" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold mb-2">Hapus utang ini?</h3>
+                <p className="text-sm text-muted-foreground mb-6">Data yang sudah dihapus tidak dapat dikembalikan.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={async () => {
+                      const id = confirmDelete
+                      setConfirmDelete(null)
+                      try {
+                        setLoading(true)
+                        await fetchAPI(`/api/debts/${id}`, { method: 'DELETE' })
+                        load()
+                      } catch { setError('Gagal hapus.') }
+                    }}
+                    className="flex-1 min-h-[44px] rounded-lg bg-destructive text-destructive-foreground font-medium text-sm hover:opacity-90 transition-opacity"
+                  >
+                    Ya, Hapus
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(null)}
+                    className="flex-1 min-h-[44px] rounded-lg border border-input bg-background font-medium text-sm hover:bg-secondary transition-colors"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>}
 
-          {/* OCR Upload */}
-          <Card className="mb-6">
+          {/* OCR Upload — collapsible */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowOcr(!showOcr)}
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              {showOcr ? 'Sembunyikan' : '📸 Upload Screenshot'}
+            </button>
+          </div>
+          {showOcr && (
+            <Card className="mb-6">
             <CardContent className="p-4">
               <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors hover:border-accent hover:bg-accent/5"
                 onDragOver={(e) => e.preventDefault()}
@@ -187,7 +212,7 @@ export default function DebtsPage() {
                   setOcrLoading(true); setError(null)
                   try {
                     const fd = new FormData(); fd.append('file', file)
-                    const res = await fetch(API + '/api/ocr', { method: 'POST', headers: token() ? { Authorization: 'Bearer ' + token() } : {}, body: fd })
+                    const res = await fetch('/api/ocr', { method: 'POST', headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {}, body: fd })
                     if (!res.ok) throw new Error(await res.text())
                     setOcrPreview((await res.json()).parsed)
                   } catch (e) { setError('OCR gagal') }
@@ -206,7 +231,7 @@ export default function DebtsPage() {
                   setOcrLoading(true); setError(null)
                   try {
                     const fd = new FormData(); fd.append('file', file)
-                    const res = await fetch(API + '/api/ocr', { method: 'POST', headers: token() ? { Authorization: 'Bearer ' + token() } : {}, body: fd })
+                    const res = await fetch('/api/ocr', { method: 'POST', headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {}, body: fd })
                     if (!res.ok) throw new Error(await res.text())
                     setOcrPreview((await res.json()).parsed)
                   } catch { setError('OCR gagal') }
@@ -224,7 +249,7 @@ export default function DebtsPage() {
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" onClick={async () => {
                       try {
-                        await api('/api/debts', {
+                        await fetchAPI('/api/debts', {
                           method: 'POST',
                           body: JSON.stringify({
                             platform: ocrPreview.platform || 'Tagihan',
@@ -248,6 +273,7 @@ export default function DebtsPage() {
               )}
             </CardContent>
           </Card>
+          )}
 
           {/* Smart Input AI Modal */}
           {smartMode && (
@@ -284,7 +310,7 @@ export default function DebtsPage() {
                       if (!smartText.trim()) return
                       setSmartLoading(true); setSmartError(null); setSmartResult(null)
                       try {
-                        const res = await api('/api/debts/parse-natural', {
+                        const res = await fetchAPI('/api/debts/parse-natural', {
                           method: 'POST',
                           body: JSON.stringify({ text: smartText.trim() }),
                         })
@@ -335,7 +361,7 @@ export default function DebtsPage() {
                     <div className="flex gap-2 pt-3 border-t border-border mt-3">
                       <Button size="sm" onClick={async () => {
                         try {
-                          await api('/api/debts', {
+                          await fetchAPI('/api/debts', {
                             method: 'POST',
                             body: JSON.stringify({
                               platform: smartResult.platform || 'Tagihan',
@@ -483,7 +509,7 @@ export default function DebtsPage() {
                               </div>
                             </div>
                             {d.category && <p className="text-xs text-muted-foreground">{d.category}</p>}
-                            <div className="flex items-center gap-2 pt-1 border-t">
+                            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-1 border-t">
                               <button onClick={() => handleStatus(d.id, 'paid', d.platform)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-emerald-100 text-emerald-600" title="Lunas"><Check className="w-5 h-5" /></button>
                               <button onClick={() => handleStatus(d.id, 'late', d.platform)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-red-100 text-red-600" title="Terlambat"><AlertTriangle className="w-5 h-5" /></button>
                               <button onClick={() => openEdit(d)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-blue-100 text-blue-600" title="Edit"><Pencil className="w-5 h-5" /></button>
