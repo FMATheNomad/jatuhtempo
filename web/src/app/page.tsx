@@ -413,8 +413,28 @@ function DashboardPage() {
               <Card>
                 <CardHeader><CardTitle>Tambah Utang Cepat</CardTitle></CardHeader>
                 <CardContent>
-                    <AddDebtForm variant="card" />
-                  </CardContent>
+                  <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3 flex-wrap">
+                    <input value={form.platform} onChange={e => handlePlatformChange(e.target.value)} placeholder="Platform" className="flex-1 min-w-[120px] h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="Jumlah" type="number" className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} placeholder="YYYY-MM-DD" className="w-full sm:w-32 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.installment_current} onChange={e => setForm({...form, installment_current: e.target.value})} placeholder="Cicilan ke-" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.installment_total} onChange={e => setForm({...form, installment_total: e.target.value})} placeholder="Total cicilan" type="number" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <input value={form.interest_rate} onChange={e => setForm({...form, interest_rate: e.target.value})} placeholder="Bunga (%)" type="number" step="0.1" className="w-full sm:w-24 h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+                    <select value={form.interest_type} onChange={e => setForm({...form, interest_type: e.target.value})} className="w-full sm:w-28 h-10 rounded-lg border border-input bg-background px-3 text-sm">
+                      <option value="">Tipe Bunga</option>
+                      <option value="daily">Harian</option>
+                      <option value="monthly">Bulanan</option>
+                      <option value="yearly">Tahunan</option>
+                      <option value="flat">Flat</option>
+                    </select>
+                    {rateSuggestion && (
+                      <div className="w-full text-xs text-accent font-medium">
+                        💡 Saran: bunga {rateSuggestion.rate}%/{rateSuggestion.type === 'monthly' ? 'bln' : rateSuggestion.type === 'daily' ? 'hari' : rateSuggestion.type === 'yearly' ? 'thn' : rateSuggestion.type}
+                      </div>
+                    )}
+                    <Button type="submit" disabled={adding} size="sm" className="sm:w-auto">Tambah</Button>
+                  </form>
+                </CardContent>
               </Card>
 
               {/* Recent debts */}
