@@ -11,6 +11,7 @@ from app.core.db import async_session_factory
 from app.models.debt import Debt, DebtStatus, DebtSource
 from app.models.user import User
 from app.schemas.debt import DebtResponse, DebtCreate as DebtCreateSchema
+from app.services.platform_matcher import reinforce_match
 from app.services.debt_service import (
     get_or_create_user, get_user_debts, create_debt, update_debt,
     get_monthly_summary, get_upcoming_debts, delete_debt, get_user_debt_by_id, update_debt_status, update_user_wa,
@@ -353,9 +354,13 @@ async def patch_debt(debt_id_str: str, body: DebtCreateSchema, user: User = Depe
     kwargs["due_date"] = body.due_date
     async with async_session_factory() as session:
         try:
+            old_debt = await get_user_debt_by_id(session, did, user.id)
             debt = await update_debt(session, did, user.id, **kwargs)
             if not debt:
                 raise HTTPException(404, "Debt not found")
+            if old_debt and body.platform and body.platform != old_debt.platform:
+                from app.services.platform_matcher import penalize_mistake
+                await penalize_mistake(session, "", old_debt.platform, body.platform)
             return DebtResponse.model_validate(debt)
         except HTTPException:
             raise
@@ -393,6 +398,19 @@ async def get_current_user_endpoint(user: User = Depends(get_current_user)):
         "nama": user.nama,
         "phone_number": user.phone_number,
     }
+
+
+class ReinforceRequest(BaseModel):
+    raw_text: str
+    platform: str
+
+
+@router.post("/learn/reinforce")
+async def reinforce_platform(body: ReinforceRequest, user: User = Depends(get_current_user)):
+    """Positive reinforcement signal after user confirms a debt from OCR preview."""
+    async with async_session_factory() as session:
+        await reinforce_match(session, body.raw_text, body.platform)
+    return {"ok": True}
 
 
 @router.put("/user/phone")

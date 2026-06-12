@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     platform_rate_outlier_min: float = 0.1
     platform_rate_outlier_max: float = 50.0
     platform_rate_ema_alpha_max: float = 0.3
+    platform_rate_time_decay_max: float = 2.0
+    platform_rate_time_decay_period_days: int = 90
+
+    platform_matcher_tiebreaker_min: int = 3
+    platform_matcher_tiebreaker_ratio: float = 0.25
+    platform_matcher_confidence_reinforce_weight: float = 0.5
+    platform_matcher_min_keyword_length: int = 3
 
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"

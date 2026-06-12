@@ -100,6 +100,11 @@ MIGRATIONS = [
         parsed_json JSONB,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )""",
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS rate_std FLOAT NOT NULL DEFAULT 0.0",
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS min_rate FLOAT",
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS max_rate FLOAT",
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS last_rate_update TIMESTAMPTZ",
+    "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS outlier_count INTEGER NOT NULL DEFAULT 0",
 ]
 
 

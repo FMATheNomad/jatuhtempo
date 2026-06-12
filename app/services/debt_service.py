@@ -217,10 +217,18 @@ async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.U
     return debt
 
 
-async def _learn_from_debt(session: AsyncSession, debt: Debt, rate: float | None, rate_type: str | None) -> None:
-    """Update platform rate from a debt if it has interest info and a known platform."""
+async def _learn_from_debt(session: AsyncSession, debt: Debt, rate: float | None, rate_type: str | None) -> bool | None:
+    """Update platform rate from a debt if it has interest info and a known platform.
+
+    Returns:
+        True if rate was accepted and learned,
+        False if it was rejected as outlier,
+        None if no learning was attempted (no rate or unknown platform).
+    """
     if rate is not None and debt.platform in PLATFORMS and debt.platform != "Lainnya":
-        try:
-            await update_platform_rate(session, debt.platform, rate, rate_type)
-        except Exception:
-            logger.exception("Failed to update platform rate for %s", debt.platform)
+        result = await update_platform_rate(session, debt.platform, rate, rate_type)
+        if result is None:
+            logger.info("Rate rejected as outlier for platform=%s rate=%.4f", debt.platform, rate)
+            return False
+        return True
+    return None

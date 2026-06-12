@@ -15,6 +15,7 @@ from app.models.ocr_log import OcrLog
 from app.schemas.debt import DebtCreate
 from sqlalchemy import select
 from app.services.debt_service import update_debt_status, get_or_create_user, create_debt, update_user_wa, delete_debt
+from app.services.platform_matcher import reinforce_match
 from app.models.user import User
 from app.platforms.telegram.keyboards.inline import debt_keyboard
 
@@ -141,6 +142,8 @@ async def callback_ocr_confirm(callback: CallbackQuery):
 
         debt = await create_debt(session, user.id, debt_data, source=DebtSource.screenshot)
 
+        await _learn_from_confirm(session, raw_text, debt.platform)
+
     msg = (
         f"✅ Disimpan!\n"
         f"Platform: {debt.platform}\n"
@@ -222,6 +225,9 @@ async def callback_confirm_debt_save(callback: CallbackQuery):
         user = await get_or_create_user(session, callback.from_user.id)
         debt = await create_debt(session, user.id, debt_data, source=DebtSource.manual)
 
+        raw = data.get("raw_text") or data.get("user_input") or ""
+        await _learn_from_confirm(session, raw, debt.platform)
+
     msg = (
         f"✅ Disimpan!\n"
         f"Platform: {debt.platform}\n"
@@ -249,3 +255,13 @@ async def callback_confirm_debt_cancel(callback: CallbackQuery):
     pop_temp(temp_key)
     await callback.message.edit_text("❌ Dibatalkan. Tidak ada data yang disimpan.")
     await callback.answer("Dibatalkan.")
+
+
+async def _learn_from_confirm(session, raw_text: str, confirmed_platform: str) -> None:
+    """Trigger positive reinforcement after user confirms a debt."""
+    if not raw_text or not confirmed_platform:
+        return
+    from app.services.platform_matcher import match_platform
+    suggested = await match_platform(raw_text, session)
+    if suggested and suggested == confirmed_platform:
+        await reinforce_match(session, raw_text, confirmed_platform)
