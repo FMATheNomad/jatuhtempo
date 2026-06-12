@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { BookOpen, MessageCircle, Camera, ArrowUpRight } from 'lucide-react'
+import { BookOpen, MessageCircle, Camera, ArrowUpRight, ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Dokumentasi — JatuhTempo',
@@ -34,6 +34,12 @@ const docCards = [
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <Link href="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Kembali ke Beranda
+        </Link>
+      </div>
       {/* Hero */}
       <section className="gradient-hero text-white">
         <div className="max-w-3xl mx-auto px-6 py-16 md:py-24 text-center">
