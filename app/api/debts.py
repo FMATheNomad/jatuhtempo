@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from datetime import date as date_type
 
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile, File, Request
@@ -10,7 +10,7 @@ from app.core.auth import verify_token
 from app.core.db import async_session_factory
 from app.models.debt import Debt, DebtStatus, DebtSource
 from app.models.user import User
-from app.schemas.debt import DebtResponse
+from app.schemas.debt import DebtResponse, DebtCreate as DebtCreateSchema
 from app.services.debt_service import (
     get_or_create_user, get_user_debts, create_debt, update_debt,
     get_monthly_summary, get_upcoming_debts, delete_debt, get_user_debt_by_id, update_debt_status, update_user_wa,
@@ -28,20 +28,14 @@ from app.services.platform_rate_service import (
 )
 from app.schemas.debt import PlatformRateResponse
 from app.models.platform_rate import PlatformRate
+import logging
+import os
 
 router = APIRouter(prefix="/api")
 
-logger = __import__("logging").getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-
-def _check_admin(user: User) -> bool:
-    """Simple admin check: subscription 'pro' or email in ADMIN_EMAILS env var."""
-    if user.subscription_status == "pro":
-        return True
-    admin_emails = __import__("os").environ.get("ADMIN_EMAILS", "")
-    if admin_emails and user.email and user.email in [e.strip() for e in admin_emails.split(",")]:
-        return True
-    return False
+from app.core.admin import is_admin as _check_admin
 
 
 def get_client_ip(request: Request = None) -> str | None:
@@ -83,18 +77,6 @@ class StatusUpdate(BaseModel):
 
 class PhoneUpdate(BaseModel):
     phone_number: str
-
-
-class DebtCreateBody(BaseModel):
-    platform: str
-    amount: int
-    due_date: str
-    interest_rate: Optional[float] = None
-    interest_type: Optional[str] = None
-    installment_current: Optional[int] = None
-    installment_total: Optional[int] = None
-    category: Optional[str] = None
-    notes: Optional[str] = None
 
 
 @router.get("/debts")
@@ -242,7 +224,6 @@ async def parse_natural_debt(body: dict, user: User = Depends(get_current_user))
     except ValueError as e:
         return {"parsed": None, "error": str(e)}
     except Exception as e:
-        logger = __import__("logging").getLogger(__name__)
         logger.exception("Failed to parse natural language debt")
         return {"parsed": None, "error": f"Parsing failed: {str(e)}"}
 
@@ -350,27 +331,10 @@ async def suggest_platform_rate(platform: str):
 
 
 @router.post("/debts")
-async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_current_user), request: Request = None):
-    from datetime import date
-    try:
-        due = date.fromisoformat(body.due_date) if isinstance(body.due_date, str) else body.due_date
-    except (ValueError, TypeError):
-        raise HTTPException(400, "Invalid due_date format (use YYYY-MM-DD)")
-    from app.schemas.debt import DebtCreate as DebtCreateSchema
-    data = DebtCreateSchema(
-        platform=body.platform,
-        amount=body.amount,
-        due_date=due,
-        interest_rate=body.interest_rate,
-        interest_type=body.interest_type,
-        installment_current=body.installment_current,
-        installment_total=body.installment_total,
-        category=body.category,
-        notes=body.notes,
-    )
+async def create_debt_endpoint(body: DebtCreateSchema, user: User = Depends(get_current_user), request: Request = None):
     async with async_session_factory() as session:
         try:
-            debt = await create_debt(session, user.id, data, source=DebtSource.manual)
+            debt = await create_debt(session, user.id, body, source=DebtSource.manual)
             await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
             return DebtResponse.model_validate(debt)
         except Exception:
@@ -379,26 +343,14 @@ async def create_debt_endpoint(body: DebtCreateBody, user: User = Depends(get_cu
 
 
 @router.patch("/debts/{debt_id_str}")
-async def patch_debt(debt_id_str: str, body: DebtCreateBody, user: User = Depends(get_current_user)):
+async def patch_debt(debt_id_str: str, body: DebtCreateSchema, user: User = Depends(get_current_user)):
     try:
         did = uuid.UUID(debt_id_str)
     except ValueError:
         raise HTTPException(404, "Invalid debt id")
-    from datetime import date
-    kwargs = {
-        "platform": body.platform,
-        "amount": body.amount,
-        "category": body.category,
-        "notes": body.notes,
-        "interest_rate": body.interest_rate,
-        "interest_type": body.interest_type,
-        "installment_current": body.installment_current,
-        "installment_total": body.installment_total,
-    }
-    try:
-        kwargs["due_date"] = date.fromisoformat(body.due_date) if isinstance(body.due_date, str) else body.due_date
-    except (ValueError, TypeError):
-        raise HTTPException(400, "Invalid due_date")
+    kwargs = {k: v for k, v in body.__dict__.items() if v is not None}
+    kwargs.pop("due_date", None)
+    kwargs["due_date"] = body.due_date
     async with async_session_factory() as session:
         try:
             debt = await update_debt(session, did, user.id, **kwargs)

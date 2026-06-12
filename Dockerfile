@@ -17,12 +17,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN adduser --disabled-password --gecos "" appuser
 COPY . .
-
 COPY --from=next-builder /web/out /app/web-out
 
+RUN mkdir -p /app/media && chown -R appuser:appuser /app/media /app/web-out
 ENV PYTHONPATH=/app
 
+USER appuser
 EXPOSE 8080
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--timeout-keep-alive", "30"]

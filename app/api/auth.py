@@ -8,21 +8,21 @@ from sqlalchemy import select
 import bcrypt as _bcrypt
 
 from app.core.auth import verify_token, create_session_token, create_login_token
+from app.core.config import settings
 from app.core.db import async_session_factory
 from app.models.user import User
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-# FIX E: IP-based rate limiting for auth endpoints
 _auth_rates: dict[str, list[float]] = defaultdict(list)
-AUTH_RATE_LIMIT = 10  # requests
-AUTH_RATE_WINDOW = 60  # seconds
 
 
 def _check_auth_rate_limit(ip: str) -> bool:
     now = time.time()
-    _auth_rates[ip] = [t for t in _auth_rates[ip] if now - t < AUTH_RATE_WINDOW]
-    if len(_auth_rates[ip]) >= AUTH_RATE_LIMIT:
+    window = settings.auth_rate_window_seconds
+    limit = settings.auth_rate_limit
+    _auth_rates[ip] = [t for t in _auth_rates[ip] if now - t < window]
+    if len(_auth_rates[ip]) >= limit:
         return False
     _auth_rates[ip].append(now)
     return True
@@ -203,18 +203,14 @@ async def get_me(request: Request):
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(401, "Invalid token")
-    import os
-    is_admin = user.subscription_status == "pro"
-    admin_emails = os.environ.get("ADMIN_EMAILS", "")
-    if admin_emails and user.email and user.email in [e.strip() for e in admin_emails.split(",")]:
-        is_admin = True
+    from app.core.admin import is_admin as _is_admin
     return {
         "id": str(user.id),
         "email": user.email,
         "nama": user.nama,
         "subscription_status": user.subscription_status or "free",
         "telegram_id": user.telegram_id,
-        "is_admin": is_admin,
+        "is_admin": _is_admin(user),
     }
 
 

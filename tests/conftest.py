@@ -38,6 +38,9 @@ os.environ.setdefault("WEB_URL", "http://localhost:3000")
 os.environ.setdefault("TELEGRAM_BOT_TOKEN", "")
 os.environ.setdefault("ADMIN_EMAILS", "admin@test.com")
 os.environ.setdefault("ENCRYPTION_KEY", "a" * 64)
+os.environ.setdefault("CRYPTO_SALT", "test-salt")
+os.environ.setdefault("DEEPSEEK_API_KEY", "test-key")
+os.environ.setdefault("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 
 # Now safe to import app modules (pydantic-settings reads env vars)
 from app.core.config import settings

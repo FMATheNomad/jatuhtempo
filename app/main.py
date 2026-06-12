@@ -29,7 +29,6 @@ async def start_bot_polling_safe():
         logger.warning("Bot polling skipped: %s", e)
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -72,7 +71,15 @@ app.include_router(polar_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "app": settings.app_name, "version": settings.app_version}
+    from app.core.db import async_session_factory
+    from sqlalchemy import text
+    try:
+        async with async_session_factory() as session:
+            await session.execute(text("SELECT 1"))
+        db_ok = True
+    except Exception:
+        db_ok = False
+    return {"status": "ok", "app": settings.app_name, "version": settings.app_version, "database": "connected" if db_ok else "disconnected"}
 
 
 @app.get("/api/stats")

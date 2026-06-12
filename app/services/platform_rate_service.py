@@ -3,6 +3,7 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.platform_rate import PlatformRate
 
 logger = logging.getLogger(__name__)
@@ -22,10 +23,10 @@ async def update_platform_rate(
     Returns None if the rate is rejected as an outlier.
     """
     # --- Outlier detection ---
-    if rate > 50 or rate < 0.1:
+    if rate > settings.platform_rate_outlier_max or rate < settings.platform_rate_outlier_min:
         logger.warning(
-            "Outlier rate rejected for platform=%s: %.4f (must be 0.1–50)",
-            platform, rate,
+            "Outlier rate rejected for platform=%s: %.4f (must be %.1f–%.1f)",
+            platform, rate, settings.platform_rate_outlier_min, settings.platform_rate_outlier_max,
         )
         return None
 
@@ -39,7 +40,7 @@ async def update_platform_rate(
         # --- EMA decay ---
         sample_count = existing.sample_count
         old_avg = existing.avg_rate
-        alpha = min(0.3, 1.0 / (sample_count + 1))
+        alpha = min(settings.platform_rate_ema_alpha_max, 1.0 / (sample_count + 1))
         existing.avg_rate = (1 - alpha) * old_avg + alpha * rate
         existing.sample_count = sample_count + 1
 
@@ -67,7 +68,7 @@ async def update_platform_rate(
         session.add(existing)
 
     # Update confidence
-    existing.confidence = min(1.0, existing.sample_count / 20)
+    existing.confidence = min(1.0, existing.sample_count / settings.platform_rate_confidence_divisor)
 
     await session.commit()
     await session.refresh(existing)

@@ -19,11 +19,22 @@ class Settings(BaseSettings):
 
     reminder_check_interval_minutes: int = 1
 
+    api_rate_limit: int = 30
+    api_rate_window_seconds: int = 60
+    auth_rate_limit: int = 10
+    auth_rate_window_seconds: int = 60
+
+    platform_rate_confidence_divisor: int = 20
+    platform_rate_outlier_min: float = 0.1
+    platform_rate_outlier_max: float = 50.0
+    platform_rate_ema_alpha_max: float = 0.3
+
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     web_url: str = ""
 
     encryption_key: str = ""
+    crypto_salt: str = "jatuh-tempo-salt"
     polar_access_token: str = ""
     polar_product_id: str = ""
     polar_success_url: str = ""

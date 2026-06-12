@@ -59,7 +59,7 @@ class TestDebtsCreate:
             "due_date": "not-a-date",
         }
         resp = await client.post("/api/debts", json=payload, headers=auth_headers)
-        assert resp.status_code == 400, resp.text
+        assert resp.status_code in (400, 422), resp.text
 
     async def test_create_debt_unauthorized(self, client: AsyncClient):
         payload = {

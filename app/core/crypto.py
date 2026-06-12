@@ -4,6 +4,8 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+from app.core.config import settings
+
 _key: bytes | None = None
 
 
@@ -14,7 +16,7 @@ def _get_key() -> bytes:
     secret = os.environ.get("ENCRYPTION_KEY", "")
     if not secret:
         raise RuntimeError("ENCRYPTION_KEY not configured")
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=b"jatuh-tempo-salt", iterations=100000)
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=settings.crypto_salt.encode(), iterations=100000)
     _key = base64.urlsafe_b64encode(kdf.derive(secret.encode()))
     return _key
 
