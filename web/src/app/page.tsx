@@ -113,15 +113,15 @@ function LandingPage() {
               </a>
             </div>
             <div className="flex items-center gap-6 pt-2">
-              <div className="flex items-center gap-2 text-sm text-white/40">
+              <div className="flex items-center gap-2 text-sm text-white/60">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 Gratis
               </div>
-              <div className="flex items-center gap-2 text-sm text-white/40">
+              <div className="flex items-center gap-2 text-sm text-white/60">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 Telegram & Web
               </div>
-              <div className="flex items-center gap-2 text-sm text-white/40">
+              <div className="flex items-center gap-2 text-sm text-white/60">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 No card required
               </div>
@@ -145,7 +145,7 @@ function LandingPage() {
               <span className="text-2xl">{emoji}</span>
               <div>
                 <p className="font-semibold text-white">{val}</p>
-                <p className="text-white/50 text-xs">{desc}</p>
+                <p className="text-white/60 text-xs">{desc}</p>
               </div>
             </div>
           ))}
@@ -157,7 +157,7 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-white">Fitur Unggulan</h2>
-            <p className="mt-2 text-white/50">Semua yang kamu butuh buat keluar dari utang</p>
+            <p className="mt-2 text-white/60">Semua yang kamu butuh buat keluar dari utang</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
@@ -178,7 +178,7 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-white">Cara Kerja</h2>
-            <p className="mt-2 text-white/50">Tiga langkah aja</p>
+            <p className="mt-2 text-white/60">Tiga langkah aja</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((s, i) => (
@@ -232,7 +232,7 @@ function LandingPage() {
               <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-6">
                 <Icon className="h-8 w-8 mx-auto mb-3 text-teal-400" />
                 <h3 className="font-semibold text-white mb-1">{title}</h3>
-                <p className="text-sm text-white/50">{desc}</p>
+                <p className="text-sm text-white/60">{desc}</p>
               </div>
             ))}
           </div>
@@ -243,7 +243,7 @@ function LandingPage() {
       <section className="border-t border-white/10 py-20">
         <div className="mx-auto max-w-2xl px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold text-white">Siap Bebas Utang?</h2>
-          <p className="mb-8 text-white/50">Gratis. 1 klik. Langsung jalan.</p>
+          <p className="mb-8 text-white/60">Gratis. 1 klik. Langsung jalan.</p>
           <a href="/login">
             <Button size="lg" className="rounded-full bg-teal-500 hover:bg-teal-600 text-white px-10 py-6 text-base">
               Mulai Sekarang <ArrowUpRight className="w-4 h-4 ml-2" />
