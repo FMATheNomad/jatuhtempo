@@ -124,15 +124,21 @@ async def callback_ocr_confirm(callback: CallbackQuery):
         except (ValueError, TypeError):
             due_date_val = date.today()
 
-        debt_data = DebtCreate(
-            platform=parsed.get("platform") or "Unknown",
-            amount=parsed.get("amount") or 0,
-            due_date=due_date_val,
-            installment_current=parsed.get("installment_current"),
-            installment_total=parsed.get("installment_total"),
-            category=parsed.get("category"),
-            notes=parsed.get("notes"),
-        )
+        try:
+            debt_data = DebtCreate(
+                platform=parsed.get("platform") or "Unknown",
+                amount=parsed.get("amount") or 1,
+                due_date=due_date_val,
+                installment_current=parsed.get("installment_current"),
+                installment_total=parsed.get("installment_total"),
+                category=parsed.get("category"),
+                notes=parsed.get("notes"),
+            )
+        except Exception as e:
+            await callback.message.edit_text(f"❌ Gagal menyimpan: data tidak valid ({str(e)})")
+            await callback.answer("Gagal menyimpan.", show_alert=True)
+            return
+
         debt = await create_debt(session, user.id, debt_data, source=DebtSource.screenshot)
 
     msg = (
@@ -195,17 +201,22 @@ async def callback_confirm_debt_save(callback: CallbackQuery):
     except (ValueError, TypeError):
         due_date_val = _date.today()
 
-    debt_data = DebtCreate(
-        platform=parsed.get("platform") or "Unknown",
-        amount=parsed.get("amount") or 0,
-        due_date=due_date_val,
-        installment_current=parsed.get("installment_current"),
-        installment_total=parsed.get("installment_total"),
-        interest_rate=parsed.get("interest_rate"),
-        interest_type=parsed.get("interest_type"),
-        category=parsed.get("category"),
-        notes=parsed.get("notes"),
-    )
+    try:
+        debt_data = DebtCreate(
+            platform=parsed.get("platform") or "Unknown",
+            amount=parsed.get("amount") or 1,
+            due_date=due_date_val,
+            installment_current=parsed.get("installment_current"),
+            installment_total=parsed.get("installment_total"),
+            interest_rate=parsed.get("interest_rate"),
+            interest_type=parsed.get("interest_type"),
+            category=parsed.get("category"),
+            notes=parsed.get("notes"),
+        )
+    except Exception as e:
+        await callback.message.edit_text(f"❌ Gagal menyimpan: data tidak valid ({str(e)})")
+        await callback.answer("Gagal menyimpan.", show_alert=True)
+        return
 
     async with async_session_factory() as session:
         user = await get_or_create_user(session, callback.from_user.id)
