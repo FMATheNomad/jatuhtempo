@@ -77,28 +77,27 @@ export default function DocsPage() {
 
         {/* Quick links */}
         <div className="mt-12 border border-border rounded-2xl p-4 md:p-8 bg-card">
-          <h2 className="font-semibold text-lg mb-4">Markdown Source Files</h2>
+          <h2 className="font-semibold text-lg mb-4">Halaman Terkait</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            File dokumentasi juga tersedia dalam format markdown untuk referensi cepat:
+            Lihat halaman berikut untuk informasi lebih lengkap:
           </p>
           <ul className="space-y-2 text-sm">
             {[
-              ['Panduan Memulai', '/content/docs/getting-started.md'],
-              ['Bot Telegram', '/content/docs/telegram-bot.md'],
-              ['Panduan OCR', '/content/docs/ocr-guide.md'],
-              ['FAQ', '/content/faq.md'],
-              ['Syarat & Ketentuan', '/content/terms.md'],
-              ['Kebijakan Privasi', '/content/privacy.md'],
+              ['Panduan Memulai', '/docs/getting-started'],
+              ['Bot Telegram', '/docs/telegram-bot'],
+              ['Panduan OCR', '/docs/ocr-guide'],
+              ['FAQ', '/faq'],
+              ['Syarat & Ketentuan', '/legal/terms'],
+              ['Kebijakan Privasi', '/legal/privacy'],
             ].map(([label, path]) => (
               <li key={label}>
-                <a
+                <Link
                   href={path}
-                  target="_blank"
                   className="text-accent hover:underline inline-flex items-center gap-1"
                 >
                   {label}
                   <ArrowUpRight className="w-3 h-3" />
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
