@@ -1,6 +1,11 @@
 import uuid
 import time
+import secrets
+import logging
+from datetime import datetime, timezone, timedelta
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, HTTPException, Header, Request, Depends
 from pydantic import BaseModel
@@ -11,6 +16,12 @@ from app.core.auth import verify_token, create_session_token, create_login_token
 from app.core.config import settings
 from app.core.db import async_session_factory
 from app.models.user import User
+from app.models.debt import Debt
+from app.models.reminder import Reminder
+from app.models.payment import Payment
+from app.models.ocr_log import OcrLog
+from app.models.platform_signature import PlatformSignature
+from app.models.platform_rate import PlatformRate
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -224,3 +235,90 @@ async def verify(token: str) -> VerifyResponse:
         telegram_id=payload.get("telegram_id"),
         user_id=payload.get("user_id"),
     )
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+@router.post("/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest, request: Request = None):
+    if not _check_auth_rate_limit(request.client.host if request else "unknown"):
+        raise HTTPException(429, "Too many requests. Please wait.")
+
+    reset_token = secrets.token_urlsafe(48)
+    expires = datetime.now(timezone.utc) + timedelta(hours=1)
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.email == req.email))
+        user = result.scalar_one_or_none()
+        if user:
+            user.reset_token = reset_token
+            user.reset_token_expires = expires
+            await session.commit()
+
+    reset_url = f"{settings.web_url}/reset-password?token={reset_token}"
+    logger.info("Password reset URL: %s", reset_url)
+
+    return {"message": "Jika email terdaftar, link reset password akan dikirim."}
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+@router.post("/reset-password")
+async def reset_password(req: ResetPasswordRequest, request: Request = None):
+    if not _check_auth_rate_limit(request.client.host if request else "unknown"):
+        raise HTTPException(429, "Too many requests. Please wait.")
+    if len(req.new_password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(User).where(
+                User.reset_token == req.token,
+                User.reset_token_expires > datetime.now(timezone.utc),
+            )
+        )
+        user = result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(400, "Token tidak valid atau sudah kadaluarsa")
+
+        user.password_hash = _bcrypt.hashpw(req.new_password.encode('utf-8'), _bcrypt.gensalt()).decode('utf-8')
+        user.reset_token = None
+        user.reset_token_expires = None
+        await session.commit()
+
+    return {"message": "Password berhasil direset. Silakan login."}
+
+
+@router.post("/delete-account")
+async def delete_account(request: Request):
+    auth = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not auth:
+        raise HTTPException(401, "Not authenticated")
+
+    payload = verify_token(auth)
+    if not payload or payload.get("type") != "session":
+        raise HTTPException(401, "Invalid token")
+
+    user_id = uuid.UUID(payload["user_id"]) if payload.get("user_id") else None
+    if not user_id:
+        raise HTTPException(401, "Invalid session")
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(404, "User not found")
+
+        await session.execute(Debt.__table__.delete().where(Debt.user_id == user_id))
+        await session.execute(Reminder.__table__.delete().where(Reminder.user_id == user_id))
+        await session.execute(Payment.__table__.delete().where(Payment.user_id == user_id))
+        await session.execute(OcrLog.__table__.delete().where(OcrLog.user_id == user_id))
+        await session.delete(user)
+        await session.commit()
+
+    return {"message": "Akun dan semua data berhasil dihapus."}

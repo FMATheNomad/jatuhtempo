@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import {
   CreditCard, ArrowUpRight, BarChart3, Bell, Shield,
   ChevronRight, ChevronDown, Menu, X, Camera, Brain,
-  CheckCircle2, Smartphone, ScanLine, Sparkles
+  CheckCircle2, Smartphone, ScanLine, Sparkles, Upload
 } from 'lucide-react'
 import type { DebtResponse, MonthlySummary } from '@/lib/api'
 
@@ -397,9 +397,30 @@ function DashboardPage() {
             <div className="bg-gradient-to-br from-primary to-[#1a1a4e] rounded-2xl p-8 text-white text-center">
               <CreditCard className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <h2 className="text-2xl font-bold mb-2">Catat Utang Pertama Kamu</h2>
-              <p className="text-white/60 mb-8 max-w-md mx-auto">
-                Masukkan informasi tagihan kamu di bawah. Nanti bisa upload screenshot juga.
+              <p className="text-white/60 mb-6 max-w-md mx-auto">
+                Masukkan informasi tagihan di bawah. Atau upload screenshot — AI baca otomatis.
               </p>
+
+              {/* Quick tutorial */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto mb-8 text-left">
+                {[
+                  { icon: Upload, title: "1. Upload Screenshot", desc: "Foto tagihan kamu, AI ekstrak otomatis" },
+                  { icon: CreditCard, title: "2. Isi Manual", desc: "Atau ketik manual pakai form di bawah" },
+                  { icon: Bell, title: "3. Dapat Reminder", desc: "Notifikasi H-7, H-3, H-1, dan hari H" },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                    <Icon className="w-6 h-6 text-teal-300 mb-2" />
+                    <h3 className="font-semibold text-sm mb-1">{title}</h3>
+                    <p className="text-xs text-white/60">{desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-center mb-6">
+                <a href="https://t.me/JatuhTempo_bot" target="_blank" className="inline-flex items-center gap-2 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all">
+                  🤖 Buka Bot Telegram
+                </a>
+              </div>
 
               <AddDebtForm variant="hero" className="max-w-lg mx-auto space-y-3" />
             </div>

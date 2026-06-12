@@ -3,9 +3,10 @@ import logging
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.core.config import settings
 from app.core.db import init_db
@@ -50,6 +51,14 @@ async def lifespan(app: FastAPI):
         except asyncio.CancelledError:
             pass
 
+
+if settings.sentry_dsn:
+    try:
+        import sentry_sdk
+        sentry_sdk.init(dsn=settings.sentry_dsn, traces_sample_rate=0.1)
+        logger.info("Sentry initialized")
+    except Exception:
+        logger.warning("Sentry import failed, continuing without")
 
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan, docs_url=None, redoc_url=None)
 
@@ -97,6 +106,27 @@ async def get_stats():
 
 
 import os
+
+_404_HTML = """<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 — JatuhTempo</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-50 dark:bg-slate-900 min-h-screen flex items-center justify-center px-4"><div class="text-center max-w-md"><div class="text-8xl mb-4">🔍</div><h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Halaman Tidak Ditemukan</h1><p class="text-slate-500 dark:text-slate-400 mb-8">Halaman yang kamu cari tidak ada atau sudah dipindahkan.</p><a href="/" class="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 transition-colors">Kembali ke Beranda</a></div></body></html>"""
+
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    if request.url.path.startswith("/api/"):
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+    return HTMLResponse(content=_404_HTML, status_code=404)
+
+
+@app.exception_handler(500)
+async def internal_error_handler(request: Request, exc):
+    if request.url.path.startswith("/api/"):
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    return HTMLResponse(
+        content="""<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Error — JatuhTempo</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-50 dark:bg-slate-900 min-h-screen flex items-center justify-center px-4"><div class="text-center max-w-md"><div class="text-8xl mb-4">😔</div><h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Terjadi Kesalahan</h1><p class="text-slate-500 dark:text-slate-400 mb-8">Kami sudah mencatat error ini. Silakan coba lagi.</p><a href="/" class="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 transition-colors">Kembali ke Beranda</a></div></body></html>""",
+        status_code=500,
+    )
+
+
 web_out = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web-out")
 if os.path.isdir(web_out):
     app.mount("/", StaticFiles(directory=web_out, html=True), name="web")

@@ -41,6 +41,7 @@ os.environ.setdefault("ENCRYPTION_KEY", "a" * 64)
 os.environ.setdefault("CRYPTO_SALT", "test-salt")
 os.environ.setdefault("DEEPSEEK_API_KEY", "test-key")
 os.environ.setdefault("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+os.environ.setdefault("SENTRY_DSN", "")
 
 # Now safe to import app modules (pydantic-settings reads env vars)
 from app.core.config import settings

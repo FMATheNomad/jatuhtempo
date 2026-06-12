@@ -105,6 +105,8 @@ MIGRATIONS = [
     "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS max_rate FLOAT",
     "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS last_rate_update TIMESTAMPTZ",
     "ALTER TABLE platform_rates ADD COLUMN IF NOT EXISTS outlier_count INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ",
 ]
 
 

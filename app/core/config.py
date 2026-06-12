@@ -42,6 +42,7 @@ class Settings(BaseSettings):
 
     encryption_key: str = ""
     crypto_salt: str = "jatuh-tempo-salt"
+    sentry_dsn: str = ""
     polar_access_token: str = ""
     polar_product_id: str = ""
     polar_success_url: str = ""

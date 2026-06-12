@@ -335,9 +335,19 @@ async def suggest_platform_rate(platform: str):
 async def create_debt_endpoint(body: DebtCreateSchema, user: User = Depends(get_current_user), request: Request = None):
     async with async_session_factory() as session:
         try:
+            if user.subscription_status != "pro":
+                from sqlalchemy import func
+                count_q = await session.execute(
+                    sa_select(func.count()).where(Debt.user_id == user.id, Debt.status != "paid")
+                )
+                active_count = count_q.scalar() or 0
+                if active_count >= 10:
+                    raise HTTPException(402, "Batas 10 utang aktif gratis. Upgrade ke Pro untuk unlimited.")
             debt = await create_debt(session, user.id, body, source=DebtSource.manual)
             await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
             return DebtResponse.model_validate(debt)
+        except HTTPException:
+            raise
         except Exception:
             logger.exception("Failed to create debt")
             raise HTTPException(500, "Internal server error")
