@@ -130,7 +130,7 @@ function LandingPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <img src="/assets/hero.webp" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/30" />
+            <img src="/assets/hero-image.png" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/30" />
           </div>
         </div>
       </section>
