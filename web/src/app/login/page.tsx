@@ -84,32 +84,32 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center">
-      <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 animate-fade-in">
+      <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 animate-fade-in text-slate-900">
         <img src="/assets/logo.webp" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
 
         <h1 className="text-xl font-bold mb-1">{mode === 'login' ? 'Masuk' : 'Daftar'}</h1>
-        <p className="text-sm text-muted-foreground mb-6">
+        <p className="text-sm text-slate-500 mb-6">
           {mode === 'login' ? 'Sudah punya akun? Masuk dengan email.' : 'Buat akun baru untuk mulai.'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="text-sm font-medium mb-1 block">Nama</label>
-              <input value={nama} onChange={e => setNama(e.target.value)} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+              <label className="text-sm font-medium text-slate-700 mb-1 block">Nama</label>
+              <input value={nama} onChange={e => setNama(e.target.value)} className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
             </div>
           )}
           <div>
-            <label className="text-sm font-medium mb-1 block">Email</label>
-            <input value={email} onChange={e => setEmail(e.target.value)} type="email" required className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+            <label className="text-sm font-medium text-slate-700 mb-1 block">Email</label>
+            <input value={email} onChange={e => setEmail(e.target.value)} type="email" required className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Password</label>
-            <input value={password} onChange={e => setPassword(e.target.value)} type="password" required minLength={6} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm" />
+            <label className="text-sm font-medium text-slate-700 mb-1 block">Password</label>
+            <input value={password} onChange={e => setPassword(e.target.value)} type="password" required minLength={6} className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
             {mode === 'login' && (
-              <p className="text-xs text-muted-foreground mt-1.5">
+              <p className="text-xs text-slate-500 mt-1.5">
                 Lupa password?{' '}
-                <a href="mailto:fmasoftwarelabs@gmail.com" className="text-accent hover:underline">
+                <a href="mailto:fmasoftwarelabs@gmail.com" className="text-teal-600 hover:underline">
                   Hubungi kami untuk reset
                 </a>
               </p>
@@ -118,23 +118,23 @@ function LoginContent() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <button type="submit" disabled={loading} className="w-full min-h-[44px] rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full min-h-[44px] rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 disabled:opacity-50 transition-colors">
             {loading ? 'Memproses...' : mode === 'login' ? 'Masuk' : 'Daftar'}
           </button>
         </form>
 
         <div className="mt-4 text-center">
-          <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError('') }} className="text-sm text-accent hover:underline">
+          <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError('') }} className="text-sm text-teal-600 hover:underline">
             {mode === 'login' ? 'Belum punya akun? Daftar' : 'Sudah punya akun? Masuk'}
           </button>
         </div>
 
         <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
-          <div className="relative flex justify-center text-xs text-muted-foreground"><span className="bg-white px-2">atau</span></div>
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+          <div className="relative flex justify-center text-xs text-slate-500"><span className="bg-white px-2">atau</span></div>
         </div>
 
-        <a href={`https://t.me/${BOT_USERNAME.replace('@', '')}`} target="_blank" className="flex items-center justify-center gap-2 w-full min-h-[44px] rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary">
+        <a href={`https://t.me/${BOT_USERNAME.replace('@', '')}`} target="_blank" className="flex items-center justify-center gap-2 w-full min-h-[44px] rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
           Login dengan Telegram
         </a>
 
@@ -142,24 +142,24 @@ function LoginContent() {
           <button
             onClick={handleDemoLogin}
             disabled={demoLoading}
-            className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border border-dashed border-accent/40 bg-accent/5 text-sm font-medium hover:bg-accent/10 transition-all disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border-2 border-dashed border-teal-400 bg-teal-50 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-all disabled:opacity-50"
           >
             {demoLoading ? 'Memproses...' : '🔑 Login Demo (User Biasa)'}
           </button>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-4">
+        <p className="text-xs text-slate-500 text-center mt-4">
           Setelah login, tautkan Telegram di menu Pengaturan.
         </p>
 
-        <div className="mt-6 pt-4 border-t border-border text-xs text-muted-foreground flex items-center justify-center gap-2">
-          <a href="/faq" className="hover:text-foreground transition-colors">FAQ</a>
+        <div className="mt-6 pt-4 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-center gap-2">
+          <a href="/faq" className="hover:text-slate-700 transition-colors">FAQ</a>
           <span>•</span>
-          <a href="/legal/terms" className="hover:text-foreground transition-colors">Terms</a>
+          <a href="/legal/terms" className="hover:text-slate-700 transition-colors">Terms</a>
           <span>•</span>
-          <a href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+          <a href="/legal/privacy" className="hover:text-slate-700 transition-colors">Privacy</a>
           <span>•</span>
-          <a href="/docs" className="hover:text-foreground transition-colors">Docs</a>
+          <a href="/docs" className="hover:text-slate-700 transition-colors">Docs</a>
         </div>
       </div>
     </div>
