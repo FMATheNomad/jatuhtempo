@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi — JatuhTempo',
@@ -70,16 +69,7 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 pt-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground/60 hover:text-accent transition-all duration-200 group">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border bg-card hover:bg-accent/5 hover:border-accent/30 transition-all duration-200 group-hover:-translate-x-0.5">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </span>
-          <span className="hidden sm:inline">Kembali</span>
-        </Link>
-      </div>
+
       {/* Hero */}
       <section className="gradient-hero text-white">
         <div className="max-w-3xl mx-auto px-6 py-16 md:py-24 text-center">
@@ -139,7 +129,8 @@ export default function PrivacyPage() {
 
       {/* Footer */}
       <footer className="border-t py-8 px-6 text-center text-sm text-muted-foreground">
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <Link href="/" className="text-accent hover:underline text-sm">← Kembali ke Beranda</Link>
+        <div className="flex items-center justify-center gap-4 mt-2 mb-4">
           <Link href="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
           <span className="text-border">•</span>
           <Link href="/legal/terms" className="hover:text-foreground transition-colors">Terms</Link>
