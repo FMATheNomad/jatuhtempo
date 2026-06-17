@@ -38,6 +38,11 @@ async def lifespan(app: FastAPI):
     await init_db()
     start_scheduler()
     polling_task = None
+    try:
+        from app.services.alert_service import send_startup_alert
+        asyncio.create_task(send_startup_alert())
+    except Exception:
+        pass
     if settings.telegram_bot_token:
         set_bot_instance(get_bot())
         polling_task = asyncio.create_task(start_bot_polling_safe())
@@ -119,6 +124,15 @@ async def not_found_handler(request: Request, exc):
 
 @app.exception_handler(500)
 async def internal_error_handler(request: Request, exc):
+    try:
+        from app.services.alert_service import send_alert
+        asyncio.create_task(send_alert(
+            subject=f"500 Error: {request.method} {request.url.path}",
+            detail=f"IP: {request.client.host if request.client else 'unknown'}",
+            exc=exc if isinstance(exc, Exception) else None,
+        ))
+    except Exception:
+        pass
     if request.url.path.startswith("/api/"):
         return JSONResponse(status_code=500, content={"detail": "Internal server error"})
     return HTMLResponse(
