@@ -47,7 +47,7 @@ export default function UpcomingPage() {
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
+                className="min-h-[44px] rounded-lg border border-input bg-background px-3 text-sm"
               >
                 <option value="">Semua</option>
                 <option value="active">Aktif</option>

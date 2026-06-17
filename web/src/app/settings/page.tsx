@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor, Trash2 } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 
 export default function SettingsPage() {
@@ -14,6 +14,9 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -188,13 +191,60 @@ export default function SettingsPage() {
           {/* Logout */}
           <div className="space-y-2">
             <button
-              onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
+              onClick={async () => {
+                const token = localStorage.getItem('session_token')
+                if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+                localStorage.removeItem('session_token')
+                window.location.href = '/'
+              }}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              Keluar (browser ini saja)
+              Keluar
             </button>
-            <p className="text-xs text-muted-foreground/60 pl-6">Token akan tetap valid di perangkat lain sampai kedaluwarsa.</p>
+            <p className="text-xs text-muted-foreground/60 pl-6">Token akan dinonaktifkan. Perlu login ulang di semua perangkat.</p>
+          </div>
+
+          {/* Delete Account */}
+          <div className="border border-red-200 dark:border-red-900/50 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-red-500" />
+              <div>
+                <p className="font-semibold text-sm text-red-700 dark:text-red-400">Hapus Akun</p>
+                <p className="text-xs text-muted-foreground">Semua data utang, pembayaran, dan pengingat akan dihapus permanen.</p>
+              </div>
+            </div>
+            {!deleteConfirm ? (
+              <button onClick={() => setDeleteConfirm(true)} className="min-h-[44px] px-4 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">
+                Hapus Akun Saya
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-red-600 font-medium">Apakah kamu yakin? Tindakan ini tidak bisa dibatalkan.</p>
+                {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      setDeleting(true); setDeleteError(null)
+                      try {
+                        const token = localStorage.getItem('session_token')
+                        const res = await fetch('/api/auth/delete-account', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                        if (!res.ok) throw new Error('Gagal menghapus akun')
+                        localStorage.removeItem('session_token')
+                        window.location.href = '/'
+                      } catch (e: any) { setDeleteError(e.message); setDeleting(false) }
+                    }}
+                    disabled={deleting}
+                    className="min-h-[44px] px-4 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    {deleting ? 'Menghapus...' : 'Ya, Hapus Akun Saya'}
+                  </button>
+                  <button onClick={() => { setDeleteConfirm(false); setDeleteError(null) }} className="min-h-[44px] px-4 rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary transition-colors">
+                    Batal
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>

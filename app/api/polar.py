@@ -1,9 +1,12 @@
 import os
+import json
 import logging
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from sqlalchemy import select
+
+from polar_sdk.webhooks import validate_event, WebhookVerificationError
 
 from app.core.db import async_session_factory
 from app.api.debts import get_current_user
@@ -35,54 +38,59 @@ async def polar_webhook(request: Request):
     secret = os.environ.get("POLAR_WEBHOOK_SECRET", "")
     if secret:
         try:
-            from polar_sdk.webhooks import validate_event, WebhookVerificationError
             validate_event(body=body, headers=headers, secret=secret)
         except WebhookVerificationError:
             logger.warning("Invalid webhook signature")
             return "", 403
-        except ImportError:
-            logger.warning("polar_sdk.webhooks not available, skipping verification")
 
-    import json
     payload = json.loads(body)
     event = payload.get("type", "")
+    data = payload.get("data", {})
+    metadata = data.get("metadata", {})
+    telegram_id = metadata.get("telegram_id")
+    customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
 
-    if event == "order.paid":
-        data = payload.get("data", {})
-        metadata = data.get("metadata", {})
-        telegram_id = metadata.get("telegram_id")
-        customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
-
+    async with async_session_factory() as session:
+        user = None
         if telegram_id:
-            async with async_session_factory() as session:
-                result = await session.execute(
-                    select(User).where(User.telegram_id == int(telegram_id))
-                )
-                user = result.scalar_one_or_none()
-                if user:
-                    user.subscription_status = "pro"
-                    if customer_id:
-                        user.polar_customer_id = str(customer_id)
-                    await session.commit()
-                    logger.info(f"User {telegram_id} upgraded to pro via order.paid")
+            result = await session.execute(
+                select(User).where(User.telegram_id == int(telegram_id))
+            )
+            user = result.scalar_one_or_none()
+        if not user and customer_id:
+            result = await session.execute(
+                select(User).where(User.polar_customer_id == str(customer_id))
+            )
+            user = result.scalar_one_or_none()
 
-    elif event == "subscription.active":
-        data = payload.get("data", {})
-        metadata = data.get("metadata", {})
-        telegram_id = metadata.get("telegram_id")
-        customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
+        if event == "order.paid":
+            if user:
+                user.subscription_status = "pro"
+                if customer_id:
+                    user.polar_customer_id = str(customer_id)
+                await session.commit()
+                logger.info(f"User upgraded to pro via order.paid: {user.id}")
 
-        if telegram_id:
-            async with async_session_factory() as session:
-                result = await session.execute(
-                    select(User).where(User.telegram_id == int(telegram_id))
-                )
-                user = result.scalar_one_or_none()
-                if user:
-                    user.subscription_status = "pro"
-                    if customer_id:
-                        user.polar_customer_id = str(customer_id)
-                    await session.commit()
-                    logger.info(f"User {telegram_id} subscription activated")
+        elif event == "subscription.active":
+            if user:
+                user.subscription_status = "pro"
+                if customer_id:
+                    user.polar_customer_id = str(customer_id)
+                await session.commit()
+                logger.info(f"Subscription activated: {user.id}")
+
+        elif event in ("subscription.canceled", "subscription.revoked"):
+            if user:
+                user.subscription_status = "free"
+                user.polar_customer_id = None
+                await session.commit()
+                logger.info(f"Subscription {event}: {user.id}")
+
+        elif event == "order.refunded":
+            if user:
+                user.subscription_status = "free"
+                user.polar_customer_id = None
+                await session.commit()
+                logger.info(f"Order refunded, user downgraded: {user.id}")
 
     return {"ok": True}

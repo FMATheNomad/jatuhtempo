@@ -1,9 +1,24 @@
 import uuid
+import hashlib
 from datetime import datetime, timedelta, timezone
 
 import jwt
 
 from app.core.config import settings
+
+_blacklisted_tokens: set[str] = set()
+
+
+def _token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def blacklist_token(token: str) -> None:
+    _blacklisted_tokens.add(_token_hash(token))
+
+
+def is_blacklisted(token: str) -> bool:
+    return _token_hash(token) in _blacklisted_tokens
 
 
 def _require_jwt_secret():
@@ -39,6 +54,8 @@ def create_session_token(telegram_id: int | None, user_id: uuid.UUID) -> str:
 
 def verify_token(token: str) -> dict | None:
     _require_jwt_secret()
+    if is_blacklisted(token):
+        return None
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         return payload

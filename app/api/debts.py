@@ -342,7 +342,7 @@ async def create_debt_endpoint(body: DebtCreateSchema, user: User = Depends(get_
                 )
                 active_count = count_q.scalar() or 0
                 if active_count >= 10:
-                    raise HTTPException(402, "Batas 5 utang aktif gratis. Upgrade ke Pro untuk unlimited.")
+                    raise HTTPException(402, "Batas 10 utang aktif gratis. Upgrade ke Pro untuk unlimited.")
             debt = await create_debt(session, user.id, body, source=DebtSource.manual)
             await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
             return DebtResponse.model_validate(debt)

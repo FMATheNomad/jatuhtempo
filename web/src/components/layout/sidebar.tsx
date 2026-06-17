@@ -79,7 +79,11 @@ export function Sidebar() {
           {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
         </button>
         <button
-          onClick={() => { localStorage.removeItem('session_token'); window.location.href = '/' }}
+          onClick={async () => {
+            const token = localStorage.getItem('session_token')
+            if (token) await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+            localStorage.removeItem('session_token'); window.location.href = '/'
+          }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all w-full"
         >
           <LogOut className="w-4 h-4" />

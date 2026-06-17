@@ -26,6 +26,7 @@ from app.models.platform_rate import PlatformRate
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 _auth_rates: dict[str, list[float]] = defaultdict(list)
+_password_reset_rates: dict[str, list[float]] = defaultdict(list)
 
 
 def _check_auth_rate_limit(ip: str) -> bool:
@@ -36,6 +37,15 @@ def _check_auth_rate_limit(ip: str) -> bool:
     if len(_auth_rates[ip]) >= limit:
         return False
     _auth_rates[ip].append(now)
+    return True
+
+
+def _check_email_reset_rate(email: str) -> bool:
+    now = time.time()
+    _password_reset_rates[email] = [t for t in _password_reset_rates[email] if now - t < 300]
+    if len(_password_reset_rates[email]) >= 1:
+        return False
+    _password_reset_rates[email].append(now)
     return True
 
 
@@ -245,6 +255,8 @@ class ForgotPasswordRequest(BaseModel):
 async def forgot_password(req: ForgotPasswordRequest, request: Request = None):
     if not _check_auth_rate_limit(request.client.host if request else "unknown"):
         raise HTTPException(429, "Too many requests. Please wait.")
+    if not _check_email_reset_rate(req.email):
+        raise HTTPException(429, "Tunggu 5 menit sebelum meminta reset lagi. Silakan cek folder spam.")
 
     reset_token = secrets.token_urlsafe(48)
     expires = datetime.now(timezone.utc) + timedelta(hours=1)
@@ -296,6 +308,15 @@ async def reset_password(req: ResetPasswordRequest, request: Request = None):
         await session.commit()
 
     return {"message": "Password berhasil direset. Silakan login."}
+
+
+@router.post("/logout")
+async def logout(request: Request):
+    auth = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if auth:
+        from app.core.auth import blacklist_token
+        blacklist_token(auth)
+    return {"message": "Logged out"}
 
 
 @router.post("/delete-account")

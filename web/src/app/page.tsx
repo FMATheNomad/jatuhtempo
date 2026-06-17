@@ -47,6 +47,20 @@ const faqs = [
 function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [stats, setStats] = useState<{ total_users: number; total_amount?: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(d => setStats(d))
+      .catch(() => setStats(null))
+  }, [])
+
+  const statItems = stats ? [
+    ['💰', `Rp${((stats.total_amount || 0) / 1_000_000).toFixed(1)}M+`, 'Total utang terkelola'],
+    ['📱', `${stats.total_users || 0}+`, 'Pengguna aktif'],
+    ['🤖', '95%', 'Akurasi OCR'],
+  ] : null
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
@@ -138,11 +152,7 @@ function LandingPage() {
       {/* Stats */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            ['💰', 'Rp1.2M+', 'Total utang terkelola'],
-            ['📱', '1K+', 'Pengguna aktif'],
-            ['🤖', '95%', 'Akurasi OCR'],
-          ].map(([emoji, val, desc]) => (
+          {statItems ? statItems.map(([emoji, val, desc]) => (
             <div key={desc} className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-slate-200 dark:border-white/10 flex items-center gap-4">
               <span className="text-2xl">{emoji}</span>
               <div>
@@ -150,7 +160,11 @@ function LandingPage() {
                 <p className="text-slate-500 dark:text-white/60 text-xs">{desc}</p>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-3 text-center text-sm text-slate-400 dark:text-white/40 py-4">
+              Data akan muncul setelah kamu mulai menggunakan JatuhTempo
+            </div>
+          )}
         </div>
       </section>
 

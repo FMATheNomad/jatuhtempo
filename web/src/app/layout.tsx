@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'JatuhTempo — Debt Management',
+  title: 'JatuhTempo — Kelola Utang dengan AI',
   description: 'AI-powered debt management assistant',
   icons: { icon: '/assets/logo.webp' },
 }
