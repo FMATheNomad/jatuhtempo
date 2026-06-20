@@ -47,7 +47,7 @@ const faqs = [
 function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [stats, setStats] = useState<{ total_users: number; total_amount?: number } | null>(null)
+  const [stats, setStats] = useState<{ total_users: number; total_debts?: number; total_paid?: number } | null>(null)
 
   useEffect(() => {
     fetch('/api/stats')
