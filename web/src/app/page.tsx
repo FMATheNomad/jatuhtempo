@@ -57,9 +57,9 @@ function LandingPage() {
   }, [])
 
   const statItems = stats ? [
-    ['💰', `Rp${((stats.total_amount || 0) / 1_000_000).toFixed(1)}M+`, 'Total utang terkelola'],
-    ['📱', `${stats.total_users || 0}+`, 'Pengguna aktif'],
-    ['🤖', '95%', 'Akurasi OCR'],
+    ['📱', `${stats.total_users || 0}`, 'Pengguna aktif'],
+    ['💰', `${stats.total_debts || 0}`, 'Total utang tercatat'],
+    ['✅', `${stats.total_paid || 0}`, 'Utang lunas'],
   ] : null
 
   return (

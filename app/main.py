@@ -101,11 +101,17 @@ async def get_stats():
     from app.core.db import async_session_factory
     from sqlalchemy import text
     async with async_session_factory() as session:
-        result = await session.execute(text("SELECT COUNT(*) FROM users"))
-        total_users = result.scalar() or 0
+        users = await session.execute(text("SELECT COUNT(*) FROM users"))
+        total_users = users.scalar() or 0
+        debts = await session.execute(text("SELECT COUNT(*) FROM debts"))
+        total_debts = debts.scalar() or 0
+        paid = await session.execute(text("SELECT COUNT(*) FROM debts WHERE status = 'paid'"))
+        total_paid = paid.scalar() or 0
     return {
         "product": "jatuhtempo",
         "total_users": total_users,
+        "total_debts": total_debts,
+        "total_paid": total_paid,
         "status": "online",
     }
 
