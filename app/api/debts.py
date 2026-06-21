@@ -84,14 +84,30 @@ class PhoneUpdate(BaseModel):
 async def list_debts(
     status: str | None = None,
     platform: str | None = None,
+    page: int = 1,
+    limit: int = 50,
     user: User = Depends(get_current_user),
     request: Request = None,
 ):
     try:
         async with async_session_factory() as session:
             status_enum = DebtStatus(status) if status else None
-            debts = await get_user_debts(session, user.id, status=status_enum, platform=platform)
-            return [DebtResponse.model_validate(d) for d in debts]
+            skip = (page - 1) * limit
+            debts = await get_user_debts(session, user.id, status=status_enum, platform=platform, skip=skip, limit=limit)
+
+            from sqlalchemy import func as sfunc
+            count_q = await session.execute(
+                sa_select(sfunc.count()).where(Debt.user_id == user.id)
+            )
+            total = count_q.scalar() or 0
+
+            return {
+                "data": [DebtResponse.model_validate(d) for d in debts],
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "pages": max(1, (total + limit - 1) // limit),
+            }
     except Exception:
         logger.exception("Failed to list debts")
         raise HTTPException(500, "Internal server error")

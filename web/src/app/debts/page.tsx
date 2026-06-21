@@ -44,7 +44,7 @@ export default function DebtsPage() {
       if (statusFilter) params.set('status', statusFilter)
       if (filter) params.set('platform', filter)
       const d = await fetchAPI(`/api/debts?${params}`)
-      setDebts(d)
+      setDebts(d.data || d)
     } catch { setError('Gagal memuat data.') }
     setLoading(false)
   }

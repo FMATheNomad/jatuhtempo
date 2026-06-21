@@ -77,13 +77,14 @@ async def _create_reminders(session: AsyncSession, debt: Debt):
 async def get_user_debts(
     session: AsyncSession, user_id: uuid.UUID,
     status: DebtStatus | None = None, platform: str | None = None,
+    skip: int = 0, limit: int = 50,
 ) -> list[Debt]:
     stmt = select(Debt).where(Debt.user_id == user_id)
     if status:
         stmt = stmt.where(Debt.status == status)
     if platform:
         stmt = stmt.where(Debt.platform.ilike(f"%{platform}%"))
-    stmt = stmt.order_by(Debt.due_date.asc())
+    stmt = stmt.order_by(Debt.due_date.asc()).offset(skip).limit(limit)
     result = await session.execute(stmt)
     return list(result.scalars().all())
 

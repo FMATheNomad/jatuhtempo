@@ -32,7 +32,7 @@ export default function StrategyPage() {
   const [strategy, setStrategy] = useState<'snowball' | 'avalanche'>('snowball')
 
   useEffect(() => {
-    fetchAPI('/api/debts').then(d => { setDebts(d); setLoading(false) }).catch(() => setLoading(false))
+    fetchAPI('/api/debts').then(d => { setDebts(d.data || d); setLoading(false) }).catch(() => setLoading(false))
   }, [])
 
   const active = debts.filter(d => d.status === 'active')
