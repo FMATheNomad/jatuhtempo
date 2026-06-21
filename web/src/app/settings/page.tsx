@@ -170,7 +170,17 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Pricing */}
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <span className="text-sm line-through text-muted-foreground">Rp50.000</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">Diskon 30%</span>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">Rp35.000</p>
+                    <p className="text-xs text-muted-foreground">per bulan · khusus pengguna awal</p>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
                       ['Catat utang', '✅ Unlimited'],
@@ -186,6 +196,7 @@ export default function SettingsPage() {
                       </div>
                     ))}
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">Harga akan naik setelah pelunasan resmi. Diskon awal 30% untuk pengguna pertama.</p>
                   <Button
                     variant="accent"
                     onClick={async () => {
