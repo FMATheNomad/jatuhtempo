@@ -27,7 +27,7 @@ const categories: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: 'Bisakah saya menghapus akun?',
-        a: 'Saat ini belum ada fitur hapus akun mandiri. Hubungi kami melalui email fmasoftwarelabs@gmail.com untuk bantuan.',
+        a: 'Ya. Buka menu Pengaturan, scroll ke bagian "Hapus Akun", dan klik tombol "Hapus Akun Saya". Semua data utang, pembayaran, dan pengingat akan dihapus permanen.',
       },
     ],
   },

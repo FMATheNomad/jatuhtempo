@@ -109,8 +109,8 @@ function LoginContent() {
             {mode === 'login' && (
               <p className="text-xs text-slate-500 mt-1.5">
                 Lupa password?{' '}
-                <a href="mailto:fmasoftwarelabs@gmail.com" className="text-teal-600 hover:underline">
-                  Hubungi kami untuk reset
+                <a href="/reset-password" className="text-teal-600 hover:underline">
+                  Reset di sini
                 </a>
               </p>
             )}
