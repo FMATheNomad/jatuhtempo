@@ -191,6 +191,23 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(400, "File must be an image")
 
+    if user.subscription_status != "pro":
+        from datetime import date as dt_date
+        from sqlalchemy import func as sf
+        today = dt_date.today()
+        start_month = today.replace(day=1)
+        async with async_session_factory() as session:
+            count_q = await session.execute(
+                sa_select(sf.count()).where(
+                    Debt.user_id == user.id,
+                    Debt.source == "screenshot",
+                    Debt.created_at >= start_month,
+                )
+            )
+            monthly_count = count_q.scalar() or 0
+            if monthly_count >= 5:
+                raise HTTPException(402, "Batas 5 OCR gratis per bulan. Upgrade ke Pro untuk unlimited.")
+
     import uuid as uuid_gen
     media_dir = Path("media")
     media_dir.mkdir(parents=True, exist_ok=True)
@@ -351,14 +368,8 @@ async def suggest_platform_rate(platform: str):
 async def create_debt_endpoint(body: DebtCreateSchema, user: User = Depends(get_current_user), request: Request = None):
     async with async_session_factory() as session:
         try:
-            if user.subscription_status != "pro":
-                from sqlalchemy import func
-                count_q = await session.execute(
-                    sa_select(func.count()).where(Debt.user_id == user.id, Debt.status != "paid")
-                )
-                active_count = count_q.scalar() or 0
-                if active_count >= 10:
-                    raise HTTPException(402, "Batas 10 utang aktif gratis. Upgrade ke Pro untuk unlimited.")
+            if body.notes and len(body.notes) > 500:
+                raise HTTPException(400, "Catatan maksimal 500 karakter")
             debt = await create_debt(session, user.id, body, source=DebtSource.manual)
             await log_audit(session, user.id, "create", "debt", str(debt.id), ip_address=get_client_ip(request))
             return DebtResponse.model_validate(debt)
@@ -423,6 +434,23 @@ async def get_current_user_endpoint(user: User = Depends(get_current_user)):
         "email": user.email,
         "nama": user.nama,
         "phone_number": user.phone_number,
+        "subscription_status": user.subscription_status or "free",
+    }
+
+
+@router.get("/user/features")
+async def get_user_features(user: User = Depends(get_current_user)):
+    is_pro = user.subscription_status == "pro"
+    return {
+        "plan": "pro" if is_pro else "free",
+        "unlimited_debts": True,
+        "ocr_monthly_limit": None if is_pro else 5,
+        "export_csv": is_pro,
+        "export_pdf": is_pro,
+        "health_score": is_pro,
+        "whatsapp_reminder": is_pro,
+        "opportunity_network": is_pro,
+        "ai_priority": is_pro,
     }
 
 

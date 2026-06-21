@@ -145,23 +145,62 @@ export default function SettingsPage() {
                 <Sparkles className="w-5 h-5 text-amber-500" />
                 <div>
                   <CardTitle>Langganan</CardTitle>
-                  <CardDescription>Upgrade untuk fitur unlimited</CardDescription>
+                  <CardDescription>
+                    {user?.subscription_status === 'pro' ? 'Kamu sedang menikmati fitur Pro' : 'Upgrade untuk fitur tambahan'}
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <Button
-                variant="accent"
-                onClick={async () => {
-                  try {
-                    const { getCheckoutUrl } = await import('@/lib/api')
-                    const { url } = await getCheckoutUrl()
-                    if (url) window.location.href = url
-                  } catch { alert('Gagal memuat checkout.') }
-                }}
-              >
-                Upgrade ke Pro
-              </Button>
+              {user?.subscription_status === 'pro' ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {[
+                      ['✅ Catat utang', 'Unlimited'],
+                      ['✅ OCR', 'Unlimited'],
+                      ['✅ Export CSV/PDF', 'Aktif'],
+                      ['✅ Debt Health Score', 'Aktif'],
+                      ['✅ Prioritas AI', 'Aktif'],
+                    ].map(([f, v]) => (
+                      <div key={f} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                        <span className="text-xs">{f}</span>
+                        <span className="text-xs font-medium ml-auto">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {[
+                      ['Catat utang', '✅ Unlimited'],
+                      ['OCR / bulan', '5x gratis'],
+                      ['Reminder Telegram', '✅'],
+                      ['Export CSV/PDF', '🔒 Pro'],
+                      ['Debt Health Score', '🔒 Pro'],
+                      ['Prioritas AI', '🔒 Pro'],
+                    ].map(([f, v]) => (
+                      <div key={f} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                        <span className="text-xs">{f}</span>
+                        <span className="text-xs font-medium ml-auto">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    variant="accent"
+                    onClick={async () => {
+                      try {
+                        const { getCheckoutUrl } = await import('@/lib/api')
+                        const { url } = await getCheckoutUrl()
+                        if (url) window.location.href = url
+                      } catch { alert('Gagal memuat checkout.') }
+                    }}
+                    className="w-full"
+                  >
+                    Upgrade ke Pro
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

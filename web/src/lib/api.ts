@@ -101,6 +101,7 @@ export async function getUser() {
     email: string | null
     nama: string | null
     phone_number: string | null
+    subscription_status: string
   }>
 }
 

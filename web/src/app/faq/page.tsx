@@ -19,7 +19,7 @@ const categories: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: 'Apakah JatuhTempo gratis?',
-        a: 'Ya! Kamu bisa menggunakan JatuhTempo secara gratis untuk mencatat hingga 10 utang aktif. Untuk fitur unlimited (OCR tanpa batas, pengingat prioritas, dan ekspor data), tersedia langganan Pro.',
+        a:         'Ya! Kamu bisa menggunakan JatuhTempo secara gratis untuk mencatat utang tanpa batas. Fitur OCR gratis 5 kali per bulan, upgrade ke Pro untuk akses unlimited, export data, dan fitur premium lainnya.',
       },
       {
         q: 'Bagaimana cara berlangganan Pro?',
