@@ -522,10 +522,12 @@ async def cmd_wa(message: Message):
     if not check_rate_limit(message.from_user.id):
         await message.reply(RATE_MSG)
         return
+    import re
     text = message.text.removeprefix("/wa").strip()
-        async with async_session_factory() as session:
-            if not text:
-                user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+
+    async with async_session_factory() as session:
+        if not text:
+            user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
             if user.phone_number:
                 await message.reply(
                     f"📱 Nomor WA Anda: {user.phone_number}\n"
@@ -544,16 +546,14 @@ async def cmd_wa(message: Message):
             await message.reply("Nomor WhatsApp berhasil dihapus.")
             return
 
-    import re
-    digits = re.sub(r"\D", "", text)
-    if not digits.startswith("0") or len(digits) < 10:
-        await message.reply("Nomor tidak valid. Gunakan format: 08123456789")
-        return
-    formatted = f"+62{digits[1:]}"
+        digits = re.sub(r"\D", "", text)
+        if not digits.startswith("0") or len(digits) < 10:
+            await message.reply("Nomor tidak valid. Gunakan format: 08123456789")
+            return
+        formatted = f"+62{digits[1:]}"
 
-    async with async_session_factory() as session:
         await update_user_wa(session, message.from_user.id, phone_number=formatted)
-    await message.reply(f"✅ Nomor WhatsApp tersimpan: {formatted}")
+        await message.reply(f"✅ Nomor WhatsApp tersimpan: {formatted}")
 
 
 @router.message(Command("strategy"))
