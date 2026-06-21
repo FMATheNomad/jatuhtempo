@@ -1,7 +1,6 @@
 import logging
 import uuid
-from datetime import date
-from pathlib import Path
+from datetime import date, datetime, timezone
 
 from aiogram import Router, F
 from aiogram.types import Message
@@ -10,11 +9,12 @@ from app.core.config import settings
 from app.core.db import async_session_factory
 from app.core.ratelimit import check_rate_limit
 from app.core.temp_store import store_ocr
-from app.models.ocr_log import OcrLog
+from app.models.debt import Debt
 from app.services.ai_parser import parse_debt_from_text
 from app.services.debt_service import get_or_create_user
 from app.services.ocr_service import ocr_image
 from app.platforms.telegram.keyboards.inline import confirm_keyboard
+from sqlalchemy import select, func
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,28 @@ async def handle_photo(message: Message):
     processing_msg = await message.reply("Memproses screenshot...")
 
     try:
+        # OCR limit check for free users
+        async with async_session_factory() as session:
+            user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
+            if user.subscription_status != "pro":
+                today = date.today()
+                start_month = today.replace(day=1)
+                count_q = await session.execute(
+                    select(func.count()).where(
+                        Debt.user_id == user.id,
+                        Debt.source == "screenshot",
+                        Debt.created_at >= start_month,
+                    )
+                )
+                monthly_count = count_q.scalar() or 0
+                if monthly_count >= 5:
+                    await processing_msg.edit_text(
+                        "📸 Batas OCR gratis bulan ini sudah habis (5x).\n\n"
+                        "Upgrade ke Pro untuk OCR unlimited:\n"
+                        "➡️ Buka web dashboard → Pengaturan → Upgrade"
+                    )
+                    return
+
         photo = message.photo[-1]
         file = await message.bot.get_file(photo.file_id)
 
