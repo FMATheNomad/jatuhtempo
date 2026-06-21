@@ -147,4 +147,5 @@ async def generate_marketing_content():
     result = await generate_content()
     if result:
         logger.info("Marketing content auto-generated: %s", result["title"])
-    logger.info("Scheduler started")
+    else:
+        logger.warning("Marketing content generation failed (will retry in 6h)")
