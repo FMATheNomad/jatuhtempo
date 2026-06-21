@@ -1,12 +1,11 @@
-from datetime import date, datetime, timezone
+from datetime import date
 
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-from app.core.config import settings
 from app.core.db import async_session_factory
 from app.core.platforms import PLATFORMS, CATEGORIES
 from app.core.ratelimit import check_rate_limit
@@ -25,6 +24,7 @@ class AddDebt(StatesGroup):
     installment = State()
     category = State()
     interest_rate = State()
+    interest_type = State()
     confirm = State()
 
 
@@ -148,7 +148,8 @@ async def cmd_add(message: Message, state: FSMContext):
                 await message.reply("\n".join(lines), reply_markup=confirm_nl_keyboard(temp_key))
                 return
             except Exception:
-                pass  # Fall through to FSM wizard
+                import logging
+                logging.getLogger(__name__).warning("NL parse failed, falling back to FSM wizard")
 
     await state.set_state(AddDebt.platform)
     await message.reply(
@@ -267,7 +268,7 @@ async def input_interest_rate(message: Message, state: FSMContext):
         await message.reply("Masukkan angka persen yang valid, atau ketik 'tidak ada'.")
         return
     await state.update_data(interest_rate=rate)
-    await state.set_state(AddDebt.interest_rate)
+    await state.set_state(AddDebt.interest_type)
     await message.reply(
         f"Bunga: {rate}%\n\n"
         "Jenis bunga?",
@@ -284,7 +285,7 @@ async def skip_interest_rate(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.callback_query(lambda c: c.data.startswith("adb_int_type:"))
+@router.callback_query(StateFilter(AddDebt.interest_type), lambda c: c.data.startswith("adb_int_type:"))
 async def select_interest_type(callback: CallbackQuery, state: FSMContext):
     int_type = callback.data.split(":", 1)[1]
     if int_type == "none":

@@ -556,6 +556,23 @@ async def cmd_wa(message: Message):
         await message.reply(f"✅ Nomor WhatsApp tersimpan: {formatted}")
 
 
+@router.message(Command("faq"))
+async def cmd_faq(message: Message):
+    if not check_rate_limit(message.from_user.id):
+        await message.reply(RATE_MSG)
+        return
+    await message.reply(
+        "📖 <b>Pertanyaan Umum</b>\n\n"
+        "Q: Apakah JatuhTempo gratis?\n"
+        "A: Ya! Gratis untuk mencatat hingga 10 utang aktif.\n\n"
+        "Q: Bagaimana cara mulai?\n"
+        "A: Buka @JatuhTempo_bot, kirim screenshot tagihan atau /add.\n\n"
+        "Q: Bisakah saya hapus akun?\n"
+        "A: Ya, buka web dashboard → Pengaturan → Hapus Akun.\n\n"
+        "🌐 FAQ lengkap: https://jatuhtempo.up.railway.app/faq"
+    )
+
+
 @router.message(Command("strategy"))
 async def cmd_strategy(message: Message):
     if not check_rate_limit(message.from_user.id):

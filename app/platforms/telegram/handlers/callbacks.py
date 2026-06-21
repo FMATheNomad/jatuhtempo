@@ -197,12 +197,11 @@ async def callback_confirm_debt_save(callback: CallbackQuery):
         return
 
     parsed = data.get("parsed", {})
-    from datetime import date as _date
     raw_due = parsed.get("due_date")
     try:
-        due_date_val = _date.fromisoformat(raw_due) if raw_due else _date.today()
+        due_date_val = date.fromisoformat(raw_due) if raw_due else date.today()
     except (ValueError, TypeError):
-        due_date_val = _date.today()
+        due_date_val = date.today()
 
     try:
         debt_data = DebtCreate(
