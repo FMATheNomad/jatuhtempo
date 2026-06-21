@@ -131,5 +131,20 @@ def start_scheduler():
         id="check_wa_unlinked",
         replace_existing=True,
     )
+    if settings.deepseek_api_key:
+        scheduler.add_job(
+            generate_marketing_content,
+            trigger=IntervalTrigger(hours=6),
+            id="generate_marketing_content",
+            replace_existing=True,
+        )
+        logger.info("Marketing content scheduler added (every 6 hours)")
     scheduler.start()
+
+
+async def generate_marketing_content():
+    from app.services.marketing_service import generate_content
+    result = await generate_content()
+    if result:
+        logger.info("Marketing content auto-generated: %s", result["title"])
     logger.info("Scheduler started")

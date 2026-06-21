@@ -410,6 +410,19 @@ async def get_current_user_endpoint(user: User = Depends(get_current_user)):
     }
 
 
+@router.post("/marketing/generate")
+async def trigger_marketing_content(user: User = Depends(get_current_user)):
+    """Manually trigger marketing content generation (admin only)."""
+    from app.core.admin import is_admin
+    if not is_admin(user):
+        raise HTTPException(403, "Admin access required")
+    from app.services.marketing_service import generate_content
+    result = await generate_content()
+    if not result:
+        raise HTTPException(500, "Failed to generate content")
+    return result
+
+
 class ReinforceRequest(BaseModel):
     raw_text: str
     platform: str
