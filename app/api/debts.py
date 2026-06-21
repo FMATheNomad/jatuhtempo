@@ -206,7 +206,13 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
             )
             monthly_count = count_q.scalar() or 0
             if monthly_count >= 5:
-                raise HTTPException(402, "Batas 5 OCR gratis per bulan. Upgrade ke Pro untuk unlimited.")
+                raise HTTPException(402, json.dumps({
+                    "code": "ocr_limit_reached",
+                    "message": "Kamu sudah menggunakan 5x OCR gratis bulan ini.",
+                    "upgrade_url": "/settings",
+                    "plan": "pro",
+                    "price": "Rp35.000/bulan",
+                }))
 
     import uuid as uuid_gen
     media_dir = Path("media")

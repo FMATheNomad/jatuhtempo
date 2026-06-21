@@ -34,6 +34,8 @@ export default function DebtsPage() {
   const [smartError, setSmartError] = useState<string | null>(null)
   const [showOcr, setShowOcr] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [upgradeMsg, setUpgradeMsg] = useState('')
 
   const activeDebts = debts.filter(d => d.status !== 'paid')
   const paidDebts = debts.filter(d => d.status === 'paid')
@@ -188,6 +190,27 @@ export default function DebtsPage() {
             </div>
           )}
 
+          {/* Upgrade prompt */}
+          {showUpgrade && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowUpgrade(false)}>
+              <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+              <div className="relative bg-white dark:bg-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in border text-center" onClick={e => e.stopPropagation()}>
+                <div className="text-4xl mb-4">⭐</div>
+                <h3 className="text-lg font-semibold mb-2">Batas OCR Habis</h3>
+                <p className="text-sm text-muted-foreground mb-2">{upgradeMsg}</p>
+                <p className="text-xs text-muted-foreground mb-6">Upgrade ke Pro untuk OCR unlimited, export data, dan fitur premium lainnya.</p>
+                <div className="flex gap-3">
+                  <a href="/settings" className="flex-1 min-h-[44px] rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center">
+                    Upgrade ke Pro
+                  </a>
+                  <button onClick={() => setShowUpgrade(false)} className="min-h-[44px] px-4 rounded-lg border border-input bg-background text-sm font-medium hover:bg-secondary transition-colors">
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>}
 
           {/* OCR Upload — collapsible */}
@@ -213,9 +236,24 @@ export default function DebtsPage() {
                   try {
                     const fd = new FormData(); fd.append('file', file)
                     const res = await fetch('/api/ocr', { method: 'POST', headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {}, body: fd })
-                    if (!res.ok) throw new Error(await res.text())
+                    if (!res.ok) {
+                      if (res.status === 402) {
+                        const errData = await res.json()
+                        setUpgradeMsg(errData.detail?.message || errData.message || 'Batas OCR gratis habis')
+                        setShowUpgrade(true)
+                        return
+                      }
+                      throw new Error(await res.text())
+                    }
                     setOcrPreview((await res.json()).parsed)
-                  } catch (e) { setError('OCR gagal') }
+                  } catch (e: any) {
+                    if (e.message?.includes('402') || e.message?.includes('ocr_limit')) {
+                      setUpgradeMsg('Batas OCR gratis habis')
+                      setShowUpgrade(true)
+                      return
+                    }
+                    setError('OCR gagal')
+                  }
                   setOcrLoading(false)
                 }}
                 onClick={() => document.getElementById('ocr-input')?.click()}
