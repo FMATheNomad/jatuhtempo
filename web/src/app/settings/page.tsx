@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor, Trash2 } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor, Trash2, Pencil, X } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 
 export default function SettingsPage() {
@@ -17,6 +17,8 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState(false)
+  const [editNama, setEditNama] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -62,8 +64,37 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground">Nama</p>
-                <p className="font-medium">{user?.nama || '-'}</p>
+                <p className="text-sm text-muted-foreground mb-1">Nama</p>
+                <div className="flex gap-2">
+                  <input
+                    value={editingName ? editNama : user?.nama || ''}
+                    onChange={e => setEditNama(e.target.value)}
+                    disabled={!editingName}
+                    className="flex-1 h-10 rounded-lg border border-input bg-background px-3 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  />
+                  {!editingName ? (
+                    <button onClick={() => { setEditNama(user?.nama || ''); setEditingName(true) }} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-secondary transition-colors">
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  ) : (
+                    <div className="flex gap-1">
+                      <button onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('session_token')
+                          const res = await fetch('/api/auth/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ nama: editNama }),
+                          })
+                          if (!res.ok) throw new Error()
+                          setUser({ ...user, nama: editNama })
+                          setEditingName(false)
+                        } catch { setError('Gagal menyimpan') }
+                      }} className="min-h-[44px] px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">Simpan</button>
+                      <button onClick={() => setEditingName(false)} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-secondary transition-colors"><X className="w-4 h-4" /></button>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Email</p>
@@ -72,6 +103,9 @@ export default function SettingsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Telegram</p>
                 <p className="font-medium">{user?.telegram_id ? `Terhubung (ID: ${user.telegram_id})` : 'Belum terhubung'}</p>
+              </div>
+              <div className="pt-2">
+                <a href="/reset-password" className="text-sm text-accent hover:underline">Ganti Password</a>
               </div>
             </CardContent>
           </Card>

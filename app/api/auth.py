@@ -251,6 +251,33 @@ class ForgotPasswordRequest(BaseModel):
     email: str
 
 
+class UpdateProfileRequest(BaseModel):
+    nama: str | None = None
+
+
+@router.put("/profile")
+async def update_profile(req: UpdateProfileRequest, request: Request):
+    auth = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not auth:
+        raise HTTPException(401, "Not authenticated")
+    payload = verify_token(auth)
+    if not payload or payload.get("type") != "session":
+        raise HTTPException(401, "Invalid token")
+    user_id = uuid.UUID(payload["user_id"]) if payload.get("user_id") else None
+    if not user_id:
+        raise HTTPException(401, "Invalid session")
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(404, "User not found")
+        if req.nama is not None:
+            user.nama = req.nama
+        await session.commit()
+    return {"message": "Profil diperbarui"}
+
+
 @router.post("/forgot-password")
 async def forgot_password(req: ForgotPasswordRequest, request: Request = None):
     if not _check_auth_rate_limit(request.client.host if request else "unknown"):
