@@ -41,7 +41,7 @@ async def cmd_start(message: Message):
         paid = sum(1 for d in debts if d.status.value == "paid")
         late = sum(1 for d in debts if d.status.value == "late")
         await message.reply(
-            f"Selamat datang kembali, {message.from_user.full_name}!\n\n"
+            f"Selamat datang kembali di JatuhTempo Beta, {message.from_user.full_name}!\n\n"
             f"📊 Statistik utang Anda:\n"
             f"🟡 Aktif: {active}\n"
             f"✅ Lunas: {paid}\n"
@@ -55,7 +55,7 @@ async def cmd_start(message: Message):
         )
     else:
         await message.reply(
-            "👋 Halo! Saya JatuhTempo, asisten manajemen utang Anda.\n\n"
+            "👋 Halo! Saya JatuhTempo Beta, asisten manajemen utang Anda.\n\n"
             "Mulai dengan cara termudah:\n\n"
             "📸 Kirim screenshot tagihan → AI baca otomatis\n"
             "➕ Atau ketik: /add Kredivo 350000 2026-07-15\n\n"

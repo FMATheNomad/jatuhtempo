@@ -46,6 +46,7 @@ export function Sidebar() {
       <div className="p-6 border-b">
         <Link href="/" className="flex items-center gap-2">
           <img src="/assets/logo.webp" alt="JatuhTempo" className="h-8 w-auto" />
+          <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
         </Link>
       </div>
 

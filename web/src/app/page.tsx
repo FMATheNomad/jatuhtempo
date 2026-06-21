@@ -70,6 +70,7 @@ function LandingPage() {
           <div className="flex items-center gap-3">
             <img src="/assets/logo.webp" alt="JatuhTempo" className="h-7 w-auto" />
             <span className="text-lg font-bold text-slate-900 dark:text-white">JatuhTempo</span>
+            <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
           </div>
           <div className="hidden items-center gap-6 md:flex">
             <a href="#features" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Fitur</a>
@@ -392,6 +393,7 @@ function DashboardPage() {
         <header className="sticky top-0 bg-background/80 backdrop-blur-sm border-b z-30">
           <div className="flex items-center justify-between p-4 lg:px-8">
             <h1 className="text-xl font-semibold">Dashboard</h1>
+            <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800 hidden sm:inline">Beta</span>
             <div className="flex items-center gap-3">
               <a href="/docs" className="text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex items-center gap-1">
                 Bantuan
