@@ -114,6 +114,7 @@ async def cmd_add(message: Message, state: FSMContext):
                     debt = await create_debt(session, user.id, data, source=DebtSource.manual)
                 msg = f"Utang tercatat!\n{debt.platform} — Rp{debt.amount:,}\nJatuh tempo: {debt.due_date}"
                 await message.reply(msg, reply_markup=debt_keyboard(debt.id))
+                await state.clear()
                 return
         except (ValueError, IndexError):
             # Structured parse failed — try NL AI parsing
@@ -125,7 +126,7 @@ async def cmd_add(message: Message, state: FSMContext):
 
                 parsed = await parse_debt_from_text(text)
                 temp_key = str(_uuid.uuid4())
-                store_temp(temp_key, {"parsed": parsed, "user_id": message.from_user.id})
+                store_temp(temp_key, {"parsed": parsed, "user_id": message.from_user.id, "raw_text": text})
 
                 lines = ["📋 <b>Hasil parsing AI:</b>\n"]
                 if parsed.get("platform"):

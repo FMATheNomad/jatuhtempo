@@ -332,6 +332,7 @@ async def cmd_edit(message: Message):
             return
 
         update_kwargs = {}
+        null_fields = []
         changed = []
         i = 0
         while i < len(rest):
@@ -366,8 +367,7 @@ async def cmd_edit(message: Message):
             elif rest[i] == "--cicilan" and i + 1 < len(rest):
                 cicilan = rest[i + 1]
                 if cicilan.lower() == "hapus":
-                    update_kwargs["installment_current"] = None
-                    update_kwargs["installment_total"] = None
+                    null_fields.extend(["installment_current", "installment_total"])
                     changed.append("cicilan dihapus")
                 elif "/" in cicilan:
                     try:
@@ -384,7 +384,7 @@ async def cmd_edit(message: Message):
             elif rest[i] == "--kategori" and i + 1 < len(rest):
                 val = rest[i + 1]
                 if val.lower() == "hapus":
-                    update_kwargs["category"] = None
+                    null_fields.append("category")
                     changed.append("kategori dihapus")
                 else:
                     update_kwargs["category"] = val
@@ -393,7 +393,7 @@ async def cmd_edit(message: Message):
             elif rest[i] == "--notes" and i + 1 < len(rest):
                 val = rest[i + 1]
                 if val.lower() == "hapus":
-                    update_kwargs["notes"] = None
+                    null_fields.append("notes")
                     changed.append("catatan dihapus")
                 else:
                     update_kwargs["notes"] = val
@@ -402,7 +402,7 @@ async def cmd_edit(message: Message):
             elif rest[i] == "--bunga" and i + 1 < len(rest):
                 val = rest[i + 1]
                 if val.lower() == "hapus":
-                    update_kwargs["interest_rate"] = None
+                    null_fields.append("interest_rate")
                     changed.append("bunga dihapus")
                 else:
                     try:
@@ -415,7 +415,7 @@ async def cmd_edit(message: Message):
             elif rest[i] == "--bunga-type" and i + 1 < len(rest):
                 val = rest[i + 1]
                 if val.lower() == "hapus":
-                    update_kwargs["interest_type"] = None
+                    null_fields.append("interest_type")
                     changed.append("tipe bunga dihapus")
                 elif val.lower() in ("daily", "monthly", "yearly", "flat"):
                     update_kwargs["interest_type"] = val.lower()
@@ -427,11 +427,11 @@ async def cmd_edit(message: Message):
             else:
                 i += 1
 
-        if not update_kwargs:
+        if not update_kwargs and not null_fields:
             await message.reply("Tidak ada field valid yang diubah.")
             return
 
-        updated = await update_debt(session, debt_id, user.id, **update_kwargs)
+        updated = await update_debt(session, debt_id, user.id, null_fields=null_fields, **update_kwargs)
 
     if updated:
         msg = "✅ <b>Utang diperbarui:</b>\n" + "\n".join(f"• {c}" for c in changed)
@@ -523,9 +523,9 @@ async def cmd_wa(message: Message):
         await message.reply(RATE_MSG)
         return
     text = message.text.removeprefix("/wa").strip()
-    async with async_session_factory() as session:
-        if not text:
-            user = await get_or_create_user(session, message.from_user.id)
+        async with async_session_factory() as session:
+            if not text:
+                user = await get_or_create_user(session, message.from_user.id, message.from_user.full_name)
             if user.phone_number:
                 await message.reply(
                     f"📱 Nomor WA Anda: {user.phone_number}\n"

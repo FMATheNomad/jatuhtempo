@@ -195,13 +195,17 @@ async def get_user_debt_by_id(session: AsyncSession, debt_id: uuid.UUID, user_id
     return None
 
 
-async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID, **kwargs) -> Debt | None:
+async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.UUID, null_fields: list[str] | None = None, **kwargs) -> Debt | None:
     debt = await session.get(Debt, debt_id)
     if not debt or debt.user_id != user_id:
         return None
     for key, value in kwargs.items():
         if value is not None:
             setattr(debt, key, value)
+    if null_fields:
+        for field in null_fields:
+            if hasattr(debt, field):
+                setattr(debt, field, None)
     if kwargs.get("status") == DebtStatus.paid:
         debt.paid_at = datetime.now(timezone.utc)
         payment = Payment(debt_id=debt.id, user_id=debt.user_id, amount_paid=debt.amount)
@@ -209,7 +213,6 @@ async def update_debt(session: AsyncSession, debt_id: uuid.UUID, user_id: uuid.U
     await session.commit()
     await session.refresh(debt)
 
-    # Learn from this debt if interest rate was updated and platform is known
     rate = kwargs.get("interest_rate")
     rate_type = kwargs.get("interest_type")
     await _learn_from_debt(session, debt, rate, rate_type)
