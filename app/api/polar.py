@@ -2,7 +2,7 @@ import os
 import json
 import logging
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Response
 from pydantic import BaseModel
 from sqlalchemy import select
 
@@ -24,7 +24,7 @@ class CheckoutResponse(BaseModel):
 
 @router.get("/checkout")
 async def polar_checkout(user: User = Depends(get_current_user)):
-    url = create_checkout_url(user.telegram_id)
+    url = create_checkout_url(user.telegram_id, user.id)
     if not url:
         raise HTTPException(503, "Polar.sh not configured")
     return CheckoutResponse(url=url)
@@ -41,13 +41,14 @@ async def polar_webhook(request: Request):
             validate_event(body=body, headers=headers, secret=secret)
         except WebhookVerificationError:
             logger.warning("Invalid webhook signature")
-            return "", 403
+            return Response(status_code=403)
 
     payload = json.loads(body)
     event = payload.get("type", "")
     data = payload.get("data", {})
     metadata = data.get("metadata", {})
     telegram_id = metadata.get("telegram_id")
+    user_id_str = metadata.get("user_id")
     customer_id = data.get("customer_id") or data.get("customer", {}).get("id")
 
     async with async_session_factory() as session:
@@ -57,6 +58,15 @@ async def polar_webhook(request: Request):
                 select(User).where(User.telegram_id == int(telegram_id))
             )
             user = result.scalar_one_or_none()
+        if not user and user_id_str:
+            try:
+                import uuid as _uuid
+                result = await session.execute(
+                    select(User).where(User.id == _uuid.UUID(user_id_str))
+                )
+                user = result.scalar_one_or_none()
+            except ValueError:
+                pass
         if not user and customer_id:
             result = await session.execute(
                 select(User).where(User.polar_customer_id == str(customer_id))
