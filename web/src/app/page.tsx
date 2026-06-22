@@ -362,7 +362,7 @@ function LandingPage() {
       <footer className="border-t border-slate-200 dark:border-white/10 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-slate-500 dark:text-white/60 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
-            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-8 w-auto" />
+            <img src="/assets/logo-icon.png" alt="JatuhTempo" className="h-8 w-auto" />
             JatuhTempo
           </div>
           <div className="flex items-center gap-4">
