@@ -167,7 +167,7 @@ function LandingPage() {
           </div>
         </div>
         <div className="flex items-center justify-center gap-3 mt-8">
-          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">JT</span>
+          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-8 w-auto" />
           <span className="text-xs text-slate-400 dark:text-white/40">AI-Powered Debt Management</span>
         </div>
       </section>
