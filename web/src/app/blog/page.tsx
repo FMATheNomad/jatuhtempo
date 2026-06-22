@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 interface BlogPost {
+  slug: string
   pillar: string
   title: string
   content: string
@@ -51,8 +52,8 @@ function BlogContent() {
   const [copied, setCopied] = useState(false)
   const [filter, setFilter] = useState('all')
 
-  const postId = searchParams.get('post')
-  const selected = postId !== null ? posts[parseInt(postId)] || null : null
+  const slug = searchParams.get('s')
+  const selected = slug ? posts.find(p => p.slug === slug) || null : null
 
   useEffect(() => {
     fetch('/api/blog')
@@ -62,21 +63,20 @@ function BlogContent() {
       .finally(() => setLoading(false))
   }, [])
 
-  const goToPost = (index: number) => {
-    router.push(`/blog?post=${index}`, { scroll: false })
+  const goToPost = (s: string) => {
+    router.push(`/blog?s=${s}`, { scroll: false })
   }
 
   const goToList = () => {
     router.push('/blog', { scroll: false })
   }
 
-  const postUrl = (index: number) => `https://jatuhtempo.up.railway.app/blog?post=${index}`
+  const postUrl = (s: string) => `https://jatuhtempo.up.railway.app/blog?s=${s}`
 
   const filtered = filter === 'all' ? posts : posts.filter(p => p.pillar === filter)
 
   if (selected) {
-    const idx = posts.indexOf(selected)
-    const url = postUrl(idx)
+    const url = postUrl(selected.slug)
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <div className="max-w-3xl mx-auto px-4 py-12 animate-fade-in">
@@ -178,7 +178,7 @@ function BlogContent() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((post, i) => (
-              <button key={i} onClick={() => goToPost(posts.indexOf(post))}
+              <button key={post.slug} onClick={() => goToPost(post.slug)}
                 className="text-left bg-white dark:bg-card border border-border rounded-2xl p-5 hover:border-accent/50 hover:shadow-sm transition-all group"
               >
                 <div className="flex items-center gap-2 mb-3">

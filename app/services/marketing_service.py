@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import re
 from datetime import date, datetime
 
 import httpx
@@ -158,7 +159,11 @@ async def generate_content() -> dict | None:
             data = response.json()
             content = data["choices"][0]["message"]["content"].strip()
 
+            slug = re.sub(r'[^a-z0-9]', '-', prompt_data["title"].lower().strip())
+            slug = re.sub(r'-+', '-', slug).strip('-')[:60]
+
             result = {
+                "slug": slug,
                 "pillar": prompt_data["pillar"],
                 "title": prompt_data["title"],
                 "content": content,
