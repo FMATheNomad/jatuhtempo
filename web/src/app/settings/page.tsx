@@ -196,7 +196,7 @@ export default function SettingsPage() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-muted-foreground text-center">Harga akan naik setelah pelunasan resmi. Diskon awal 30% untuk pengguna pertama.</p>
+                  <p className="text-[10px] text-muted-foreground text-center">Rp35.000/bulan selamanya untuk pengguna awal. Harga normal Rp50.000/bulan setelah launching stabil.</p>
                   <Button
                     variant="accent"
                     onClick={async () => {

@@ -70,7 +70,7 @@ function LandingPage() {
     <><div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
       {/* Promo Banner */}
       <div className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-2 px-4 text-xs font-medium">
-        {t('🎉 Diskon 30% untuk pengguna awal — Rp35.000/bulan selamanya! Upgrade di Pengaturan →', '🎉 Early bird 30% off — Rp35,000/month forever! Upgrade in Settings →')}
+        {t('🎉 Harga khusus pengguna awal — Rp35.000/bulan selamanya! Upgrade di Pengaturan →', '🎉 Early bird special — Rp35,000/month forever! Upgrade in Settings →')}
       </div>
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#0a0b1e]/80 backdrop-blur-md">
@@ -262,7 +262,7 @@ function LandingPage() {
             </div>
           </div>
           <p className="text-center text-xs text-slate-400 dark:text-white/40 mt-6">
-            {t('Harga akan naik setelah pelunasan resmi. Diskon 30% untuk pengguna awal.', 'Price will increase after official launch. 30% off for early users.')}
+            {t('Rp35.000/bulan selamanya untuk pengguna awal. Harga normal Rp50.000/bulan setelah launching stabil.', 'Rp35,000/month forever for early users. Normal price Rp50,000/month after stable launch.')}
           </p>
         </div>
       </section>
