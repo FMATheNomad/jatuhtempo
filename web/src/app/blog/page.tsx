@@ -13,6 +13,8 @@ interface BlogPost {
   pillar: string
   title: string
   content: string
+  image_prompt?: string
+  image_url?: string
   generated_at: string
   source: string
   posted: boolean
