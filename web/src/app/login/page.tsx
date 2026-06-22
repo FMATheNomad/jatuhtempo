@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import Head from 'next/head'
 
 const BOT_USERNAME = '@JatuhTempo_bot'
 
