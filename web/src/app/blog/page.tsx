@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { Calendar, ArrowLeft, Sparkles } from 'lucide-react'
 
 interface BlogPost {
-  type: string
+  pillar: string
   title: string
   content: string
   generated_at: string
+  source: string
   posted: boolean
 }
 
@@ -25,7 +26,7 @@ export default function BlogPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const typeIcon: Record<string, string> = { thread: '🧵', tip: '💡', fact: '📊', motivation: '🔥' }
+  const typeIcon: Record<string, string> = { edukasi: '📚', data: '📊', psikologi: '🧠', produk: '⚡' }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -44,7 +45,7 @@ export default function BlogPage() {
             </button>
             <article className="bg-white dark:bg-card border border-border rounded-2xl p-6 lg:p-8">
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <span>{typeIcon[selected.type] || '📄'} {selected.type}</span>
+                <span>{typeIcon[selected.pillar] || '📄'} {selected.pillar}</span>
                 <span>·</span>
                 <Calendar className="w-3 h-3" />
                 <span>{new Date(selected.generated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -67,7 +68,7 @@ export default function BlogPage() {
                 {posts.map((post, i) => (
                   <button key={i} onClick={() => setSelected(post)} className="w-full text-left bg-white dark:bg-card border border-border rounded-2xl p-5 hover:border-accent/50 transition-all hover:shadow-sm">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                      <span>{typeIcon[post.type] || '📄'} {post.type}</span>
+                      <span>{typeIcon[post.pillar] || '📄'} {post.pillar}</span>
                       <span>·</span>
                       <Calendar className="w-3 h-3" />
                       <span>{new Date(post.generated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}</span>
