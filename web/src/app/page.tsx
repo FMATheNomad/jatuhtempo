@@ -166,8 +166,8 @@ function LandingPage() {
             <img src="/assets/hero-image.png" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/30" />
           </div>
         </div>
-        <div className="flex items-center justify-center gap-3 mt-8">
-          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-8 w-auto" />
+        <div className="flex flex-col items-center gap-1 mt-8">
+          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-12 w-auto" />
           <span className="text-xs text-slate-400 dark:text-white/40">AI-Powered Debt Management</span>
         </div>
       </section>
