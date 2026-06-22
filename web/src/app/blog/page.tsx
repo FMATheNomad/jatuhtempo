@@ -75,6 +75,15 @@ export default function BlogPage() {
               <div className="prose prose-slate dark:prose-invert max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{selected.content}</ReactMarkdown>
               </div>
+              {/* CTA Card */}
+              <div className="mt-10 p-6 rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-700 text-white text-center">
+                <div className="text-3xl mb-3">📊</div>
+                <h3 className="text-lg font-bold mb-2">Mulai Tracking Utangmu Sekarang</h3>
+                <p className="text-sm text-white/80 mb-4 max-w-md mx-auto">Catat semua utang di satu tempat, dapatkan reminder otomatis, dan lihat strategi bebas utang. Gratis.</p>
+                <a href="/login?mode=register" className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-xl bg-white text-teal-700 font-semibold text-sm hover:bg-white/90 transition-colors shadow-lg">
+                  Coba JatuhTempo Gratis
+                </a>
+              </div>
               {/* Share */}
               <div className="flex items-center gap-3 mt-10 pt-6 border-t border-border">
                 <span className="text-xs text-muted-foreground">Bagikan:</span>
