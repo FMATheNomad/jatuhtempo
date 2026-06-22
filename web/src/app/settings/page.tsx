@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor, Trash2, Pencil, X } from 'lucide-react'
+import { Smartphone, LogOut, Sparkles, MessageCircle, Sun, Moon, Monitor, Trash2, Pencil, X, Check, Lock } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 
 export default function SettingsPage() {
@@ -156,13 +156,14 @@ export default function SettingsPage() {
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
-                      ['✅ Catat utang', 'Unlimited'],
-                      ['✅ Scan Tagihan', 'Unlimited'],
-                      ['✅ Export CSV/PDF', 'Aktif'],
-                      ['✅ Debt Health Score', 'Aktif'],
-                      ['✅ Prioritas AI', 'Aktif'],
-                    ].map(([f, v]) => (
-                      <div key={f} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                      ['Catat utang', 'Unlimited', true],
+                      ['Scan Tagihan', 'Unlimited', true],
+                      ['Export CSV/PDF', 'Aktif', true],
+                      ['Debt Health Score', 'Aktif', true],
+                      ['Prioritas AI', 'Aktif', true],
+                    ].map(([f, v, inc]) => (
+                      <div key={typeof f === 'string' ? f : ''} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                        {inc ? <Check className="w-4 h-4 text-emerald-500 shrink-0" /> : null}
                         <span className="text-xs">{f}</span>
                         <span className="text-xs font-medium ml-auto">{v}</span>
                       </div>
@@ -183,14 +184,15 @@ export default function SettingsPage() {
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
-                      ['Catat utang', '✅ Unlimited'],
-                      ['Scan / bulan', '5x gratis'],
-                      ['Reminder Telegram', '✅'],
-                      ['Export CSV/PDF', '🔒 Pro'],
-                      ['Debt Health Score', '🔒 Pro'],
-                      ['Prioritas AI', '🔒 Pro'],
-                    ].map(([f, v]) => (
-                      <div key={f} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                      ['Catat utang', 'Unlimited', true],
+                      ['Scan / bulan', '5x gratis', true],
+                      ['Reminder Telegram', '', true],
+                      ['Export CSV/PDF', 'Pro', false],
+                      ['Debt Health Score', 'Pro', false],
+                      ['Prioritas AI', 'Pro', false],
+                    ].map(([f, v, inc]) => (
+                      <div key={typeof f === 'string' ? f : ''} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+                        {inc ? <Check className="w-4 h-4 text-emerald-500 shrink-0" /> : <Lock className="w-4 h-4 text-muted-foreground shrink-0" />}
                         <span className="text-xs">{f}</span>
                         <span className="text-xs font-medium ml-auto">{v}</span>
                       </div>
