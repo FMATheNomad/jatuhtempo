@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Calendar, ArrowLeft, Sparkles } from 'lucide-react'
+import { Calendar, ArrowLeft, Sparkles, Check } from 'lucide-react'
 
 interface BlogPost {
   pillar: string
@@ -17,6 +17,7 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<BlogPost | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetch('/api/blog')
@@ -43,16 +44,41 @@ export default function BlogPage() {
             <button onClick={() => setSelected(null)} className="text-sm text-accent hover:underline mb-4 inline-flex items-center gap-1">
               <ArrowLeft className="w-4 h-4" /> Kembali ke daftar
             </button>
-            <article className="bg-white dark:bg-card border border-border rounded-2xl p-6 lg:p-8">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <span>{typeIcon[selected.pillar] || '📄'} {selected.pillar}</span>
-                <span>·</span>
-                <Calendar className="w-3 h-3" />
-                <span>{new Date(selected.generated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{selected.title}</h2>
-              <div className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">{selected.content}</div>
-            </article>
+              <article className="bg-white dark:bg-card border border-border rounded-2xl p-6 lg:p-8">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                  <span>{typeIcon[selected.pillar] || '📄'} {selected.pillar}</span>
+                  <span>·</span>
+                  <Calendar className="w-3 h-3" />
+                  <span>{new Date(selected.generated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  <span>·</span>
+                  <span>{selected.source}</span>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{selected.title}</h2>
+                <div className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">{selected.content}</div>
+                {/* Share */}
+                <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
+                  <span className="text-xs text-muted-foreground">Bagikan:</span>
+                  <button onClick={() => {
+                    const url = 'https://jatuhtempo.up.railway.app/blog'
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(selected.title + '\n\n' + url)}`, '_blank', 'noopener')
+                  }} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/30 text-sky-600 transition-colors text-sm font-medium">
+                    𝕏
+                  </button>
+                  <button onClick={() => {
+                    const url = 'https://jatuhtempo.up.railway.app/blog'
+                    window.open(`https://wa.me/?text=${encodeURIComponent(selected.title + '\n\n' + url)}`, '_blank', 'noopener')
+                  }} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 transition-colors text-sm font-medium">
+                    WA
+                  </button>
+                  <button onClick={() => {
+                    navigator.clipboard.writeText('https://jatuhtempo.up.railway.app/blog')
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 2000)
+                  }} className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary transition-colors">
+                    {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <span className="text-xs font-medium text-muted-foreground">📋</span>}
+                  </button>
+                </div>
+              </article>
           </div>
         ) : (
           <>
@@ -82,8 +108,8 @@ export default function BlogPage() {
           </>
         )}
 
-        <div className="mt-12 text-center text-xs text-muted-foreground">
-          Konten digenerate otomatis oleh AI setiap 6 jam. <a href="/" className="text-accent hover:underline">Kembali ke Beranda</a>
+        <div className="mt-12 text-center">
+          <a href="/" className="text-sm text-accent hover:underline">← Kembali ke Beranda</a>
         </div>
       </div>
     </div>
