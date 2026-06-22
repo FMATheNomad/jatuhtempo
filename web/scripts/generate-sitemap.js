@@ -2,7 +2,7 @@ const fs = require('fs')
 
 const pages = [
   { url: '', priority: '1.0', changefreq: 'weekly' },
-  { url: 'login', priority: '0.8', changefreq: 'monthly' },
+  { url: 'blog', priority: '0.8', changefreq: 'daily' },
   { url: 'faq', priority: '0.7', changefreq: 'monthly' },
   { url: 'docs', priority: '0.6', changefreq: 'monthly' },
   { url: 'docs/getting-started', priority: '0.5', changefreq: 'monthly' },

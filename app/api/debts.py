@@ -444,6 +444,26 @@ async def get_current_user_endpoint(user: User = Depends(get_current_user)):
     }
 
 
+@router.get("/blog")
+async def list_blog_posts():
+    """Return all generated blog posts from the content file."""
+    import os, json
+    log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "generated_content.jsonl")
+    if not os.path.exists(log_file):
+        return {"posts": []}
+    posts = []
+    with open(log_file) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                try:
+                    posts.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    posts.reverse()
+    return {"posts": posts, "total": len(posts)}
+
+
 @router.get("/user/features")
 async def get_user_features(user: User = Depends(get_current_user)):
     is_pro = user.subscription_status == "pro"

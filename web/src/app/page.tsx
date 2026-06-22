@@ -83,6 +83,7 @@ function LandingPage() {
           <div className="hidden items-center gap-6 md:flex">
             <a href="#features" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Fitur', 'Features')}</a>
             <a href="#pricing" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Harga', 'Pricing')}</a>
+            <a href="/blog" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</a>
             <a href="#how" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Cara Kerja', 'How It Works')}</a>
             <a href="#faq" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
           </div>
@@ -105,6 +106,7 @@ function LandingPage() {
           <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-white/10 px-4 py-3 md:hidden bg-white dark:bg-[#0a0b1e]">
             <a href="#features" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Fitur', 'Features')}</a>
             <a href="#pricing" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Harga', 'Pricing')}</a>
+            <a href="/blog" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>Blog</a>
             <a href="#how" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Cara Kerja', 'How It Works')}</a>
             <a href="#faq" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
             <div className="flex gap-2 pt-2">
@@ -356,6 +358,7 @@ function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <a href="/faq" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">FAQ</a>
+            <a href="/blog" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Blog</a>
             <a href="/legal/terms" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Terms</a>
             <a href="/legal/privacy" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Privacy</a>
             <a href="/docs" className="hover:text-slate-900 dark:hover:text-white/70 transition-colors">Docs</a>
