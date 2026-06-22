@@ -48,8 +48,17 @@ function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [lang, setLang] = useState<'id' | 'en'>('id')
+  const [showLangModal, setShowLangModal] = useState(false)
 
   const t = (id: string, en: string) => lang === 'id' ? id : en
+
+  const handleLangToggle = () => {
+    if (lang === 'id') {
+      setShowLangModal(true)
+    } else {
+      setLang('id')
+    }
+  }
 
   const statItems = [
     ['📱', '1K+', t('Pengguna Aktif', 'Active Users')],
@@ -58,7 +67,7 @@ function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
+    <><div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
       {/* Promo Banner */}
       <div className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-2 px-4 text-xs font-medium">
         {t('🎉 Diskon 30% untuk pengguna awal — Rp35.000/bulan selamanya! Upgrade di Pengaturan →', '🎉 Early bird 30% off — Rp35,000/month forever! Upgrade in Settings →')}
@@ -78,7 +87,7 @@ function LandingPage() {
             <a href="#faq" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            <button onClick={() => setLang(lang === 'id' ? 'en' : 'id')} className="text-xs font-medium text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+            <button onClick={handleLangToggle} className="text-xs font-medium text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
               {lang === 'id' ? 'EN' : 'ID'}
             </button>
             <a href="/login" className="rounded-full border border-slate-300 dark:border-white/20 px-4 py-1.5 text-sm font-medium text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
@@ -99,7 +108,7 @@ function LandingPage() {
             <a href="#how" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Cara Kerja', 'How It Works')}</a>
             <a href="#faq" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
             <div className="flex gap-2 pt-2">
-              <button onClick={() => setLang(lang === 'id' ? 'en' : 'id')} className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">{lang === 'id' ? 'EN' : 'ID'}</button>
+              <button onClick={handleLangToggle} className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">{lang === 'id' ? 'EN' : 'ID'}</button>
               <a href="/login" className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">{t('Masuk', 'Login')}</a>
               <a href="/login?mode=register" className="flex-1 rounded-full bg-teal-500 py-2 text-sm font-medium text-white text-center">{t('Mulai Gratis', 'Get Started')}</a>
             </div>
@@ -353,7 +362,22 @@ function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+
+      {/* Language modal */}
+      {showLangModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowLangModal(false)}>
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative bg-white dark:bg-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in border text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-4xl mb-4">🌐</div>
+            <h3 className="text-lg font-semibold mb-2 text-slate-900 dark:text-white">English version coming soon</h3>
+            <p className="text-sm text-muted-foreground mb-6">The English interface is still in development. Go back to the default language?</p>
+            <button onClick={() => { setShowLangModal(false); setLang('id') }} className="w-full min-h-[44px] rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity">
+              Yes
+            </button>
+          </div>
+        </div>
+      )}
+    </>  )
 }
 
 // Dashboard
