@@ -76,7 +76,7 @@ function LandingPage() {
       <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#0a0b1e]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-7 w-auto" />
+            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-8 w-auto" />
             <span className="text-lg font-bold text-slate-900 dark:text-white">JatuhTempo</span>
             <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
           </div>
