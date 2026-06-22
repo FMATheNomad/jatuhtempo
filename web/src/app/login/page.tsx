@@ -76,7 +76,7 @@ function LoginContent() {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
-          <img src="/assets/logo-icon.png" alt="JatuhTempo" className="h-12 mx-auto mb-6" />
+          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-10 mx-auto mb-6" />
           <p className="text-muted-foreground">{status}</p>
         </div>
       </div>

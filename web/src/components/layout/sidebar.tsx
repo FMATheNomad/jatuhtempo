@@ -45,7 +45,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex lg:flex-col w-64 border-r bg-card h-screen sticky top-0">
       <div className="p-6 border-b">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/assets/logo-icon.png" alt="JatuhTempo" className="h-8 w-auto" />
+          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-7 w-auto" />
           <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
         </Link>
       </div>
