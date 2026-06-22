@@ -130,7 +130,7 @@ export default function MonthlyPage() {
                             )}
                             {d.interest_rate && d.status !== 'paid' && (
                               <p className="text-xs text-muted-foreground mt-0.5">
-                                {d.interest_rate < 1 ? '🔸' : d.interest_rate < 3 ? '🔹' : '🔺'} {d.interest_rate}%/{d.interest_type === 'monthly' ? 'bln' : d.interest_type === 'daily' ? 'hari' : d.interest_type === 'yearly' ? 'thn' : 'flat'}
+                                {d.interest_rate}%/{d.interest_type === 'monthly' ? 'bln' : d.interest_type === 'daily' ? 'hari' : d.interest_type === 'yearly' ? 'thn' : 'flat'}
                               </p>
                             )}
                           </div>
@@ -159,7 +159,7 @@ export default function MonthlyPage() {
                                   {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
                                 </td>
                                 <td className="py-3 text-sm text-muted-foreground">
-                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''} <span className="text-xs opacity-50">{d.interest_rate < 1 ? '🟢' : d.interest_rate < 3 ? '🟡' : '🔴'}</span></span> : '-'}
+                                  {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
                                 </td>
                                 <td className="py-3">
                                   <Badge variant={d.status === 'late' ? 'late' : d.status === 'paid' ? 'paid' : 'active'}>

@@ -145,7 +145,7 @@ function LoginContent() {
             disabled={demoLoading}
             className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border-2 border-dashed border-teal-400 bg-teal-50 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-all disabled:opacity-50"
           >
-            {demoLoading ? 'Memproses...' : '🔑 Login Demo (User Biasa)'}
+            {demoLoading ? 'Memproses...' : 'Login Demo (User Biasa)'}
           </button>
         </div>
 

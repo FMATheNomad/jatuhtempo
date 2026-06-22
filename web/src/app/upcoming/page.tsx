@@ -176,7 +176,7 @@ export default function UpcomingPage() {
                                 {d.installment_current && d.installment_total ? `${d.installment_current}/${d.installment_total}` : '-'}
                               </td>
                               <td className="py-3 text-sm text-muted-foreground">
-                                {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''} <span className="text-xs opacity-50">{d.interest_rate < 1 ? '🟢' : d.interest_rate < 3 ? '🟡' : '🔴'}</span></span> : '-'}
+                                {d.interest_rate ? <span className="text-accent font-medium">{d.interest_rate}%{d.interest_type ? '/' + {daily:'hari',monthly:'bln',yearly:'thn',flat:'flat'}[d.interest_type as string] : ''}</span> : '-'}
                               </td>
                               <td className="py-3 text-sm text-muted-foreground">{d.category || '-'}</td>
                             </tr>
