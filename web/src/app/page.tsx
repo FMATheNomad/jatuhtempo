@@ -267,8 +267,8 @@ function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a href="/settings" className="block w-full min-h-[44px] rounded-xl bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors leading-[44px]">
-                {t('Upgrade ke Pro', 'Upgrade to Pro')}
+              <a href="/login?mode=register" className="block w-full min-h-[44px] rounded-xl bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors leading-[44px]">
+                {t('Mulai Gratis', 'Get Started Free')}
               </a>
             </div>
           </div>
