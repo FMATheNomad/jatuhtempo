@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Calendar, ArrowLeft, Sparkles, Check, LayoutList, BookOpen, BarChart3, TrendingUp, Brain, Monitor, Heart } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -35,11 +36,23 @@ const PILLAR_COLORS: Record<string, string> = {
 }
 
 export default function BlogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+      <BlogContent />
+    </Suspense>
+  )
+}
+
+function BlogContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<BlogPost | null>(null)
   const [copied, setCopied] = useState(false)
   const [filter, setFilter] = useState('all')
+
+  const postId = searchParams.get('post')
+  const selected = postId !== null ? posts[parseInt(postId)] || null : null
 
   useEffect(() => {
     fetch('/api/blog')
@@ -49,13 +62,25 @@ export default function BlogPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const goToPost = (index: number) => {
+    router.push(`/blog?post=${index}`, { scroll: false })
+  }
+
+  const goToList = () => {
+    router.push('/blog', { scroll: false })
+  }
+
+  const postUrl = (index: number) => `https://jatuhtempo.up.railway.app/blog?post=${index}`
+
   const filtered = filter === 'all' ? posts : posts.filter(p => p.pillar === filter)
 
   if (selected) {
+    const idx = posts.indexOf(selected)
+    const url = postUrl(idx)
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <div className="max-w-3xl mx-auto px-4 py-12 animate-fade-in">
-          <button onClick={() => setSelected(null)} className="inline-flex items-center gap-1 text-sm text-accent hover:underline mb-8">
+          <button onClick={goToList} className="inline-flex items-center gap-1 text-sm text-accent hover:underline mb-8">
             <ArrowLeft className="w-4 h-4" /> Kembali ke daftar
           </button>
 
@@ -89,17 +114,17 @@ export default function BlogPage() {
               <div className="flex items-center gap-3 mt-10 pt-6 border-t border-border">
                 <span className="text-xs text-muted-foreground">Bagikan:</span>
                 <button onClick={() => {
-                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(selected.title + '\n\nhttps://jatuhtempo.up.railway.app/blog')}`, '_blank', 'noopener')
+                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(selected.title + '\n\n' + url)}`, '_blank', 'noopener')
                 }} className="min-h-[36px] px-3 flex items-center justify-center rounded-lg hover:bg-sky-100 dark:hover:bg-sky-900/30 text-sky-600 transition-colors text-sm font-medium">
                   𝕏
                 </button>
                 <button onClick={() => {
-                  window.open(`https://wa.me/?text=${encodeURIComponent(selected.title + '\n\nhttps://jatuhtempo.up.railway.app/blog')}`, '_blank', 'noopener')
+                  window.open(`https://wa.me/?text=${encodeURIComponent(selected.title + '\n\n' + url)}`, '_blank', 'noopener')
                 }} className="min-h-[36px] px-3 flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 transition-colors text-sm font-medium">
                   WA
                 </button>
                 <button onClick={() => {
-                  navigator.clipboard.writeText('https://jatuhtempo.up.railway.app/blog')
+                  navigator.clipboard.writeText(url)
                   setCopied(true)
                   setTimeout(() => setCopied(false), 2000)
                 }} className="min-h-[36px] px-3 flex items-center justify-center rounded-lg hover:bg-secondary transition-colors text-sm font-medium text-muted-foreground">
@@ -153,7 +178,7 @@ export default function BlogPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((post, i) => (
-              <button key={i} onClick={() => setSelected(post)}
+              <button key={i} onClick={() => goToPost(posts.indexOf(post))}
                 className="text-left bg-white dark:bg-card border border-border rounded-2xl p-5 hover:border-accent/50 hover:shadow-sm transition-all group"
               >
                 <div className="flex items-center gap-2 mb-3">
