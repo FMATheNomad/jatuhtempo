@@ -166,12 +166,14 @@ function LandingPage() {
 
       {/* Stats */}
       <section className="mx-auto max-w-4xl px-4 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {statItems.map(([emoji, val, desc], i) => (
-            <div key={desc} className="group bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 text-center hover:shadow-lg hover:border-teal-500/30 transition-all duration-300">
-              <span className="text-4xl block mb-3 group-hover:scale-110 transition-transform">{emoji}</span>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{val}</p>
-              <p className="text-sm text-slate-500 dark:text-white/60">{desc}</p>
+            <div key={desc} className="bg-white dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10 flex items-center gap-4">
+              <span className="text-3xl">{emoji}</span>
+              <div>
+                <p className="text-xl font-bold text-slate-900 dark:text-white">{val}</p>
+                <p className="text-xs text-slate-500 dark:text-white/60">{desc}</p>
+              </div>
             </div>
           ))}
         </div>
