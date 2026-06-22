@@ -167,7 +167,7 @@ function LandingPage() {
           </div>
         </div>
         <div className="flex flex-col items-center gap-1 mt-8">
-          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-12 w-auto" />
+          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-auto w-full max-w-sm" />
           <span className="text-xs text-slate-400 dark:text-white/40">AI-Powered Debt Management</span>
         </div>
       </section>
