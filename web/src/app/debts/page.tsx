@@ -6,7 +6,7 @@ import { MobileNav } from '@/components/layout/mobile-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plus, Search, Pencil, Trash2, Check, AlertTriangle, X, Upload } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Check, AlertTriangle, X, Upload, Brain, Sparkles, Camera, FileText, Star } from 'lucide-react'
 import type { DebtResponse } from '@/lib/api'
 import { getPlatformRate, getToken, fetchAPI } from '@/lib/api'
 
@@ -124,7 +124,7 @@ export default function DebtsPage() {
             <h1 className="text-xl font-semibold">Utang</h1>
             <div className="flex items-center gap-3">
               <Button onClick={() => { setSmartMode(true); setSmartText(''); setSmartResult(null); setSmartError(null); setSmartLoading(false) }} size="sm" variant="secondary">
-                🧠 AI Cepat
+                <Brain className="w-4 h-4 mr-1" /> AI Cepat
               </Button>
               <Button onClick={() => { setEditId(null); setForm({ platform: '', amount: '', due_date: '', category: '', notes: '', installment_current: '', installment_total: '', interest_rate: '', interest_type: '' }); setShowForm(!showForm) }} size="sm">
                 <Plus className="w-4 h-4 mr-1" /> Tambah
@@ -146,7 +146,7 @@ export default function DebtsPage() {
                 }} />
               ))}
               <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm mx-4 pointer-events-auto animate-fade-in border-2 border-emerald-200" onClick={e => e.stopPropagation()}>
-                <div className="text-5xl mb-4">{['🎉','🥳','🏆','⭐','🚀','💪'][Math.floor(Math.random()*6)]}</div>
+                <Sparkles className="w-12 h-12 mx-auto mb-4 text-emerald-500" />
                 <h2 className="text-2xl font-bold text-emerald-700 mb-2">
                   {['SELAMAT! Kamu sudah melunasi utang!','LUNAS! Mantap!','Keren! Utang lunas!','Yes! Satu lagi beres!','Selamat! Kamu hebat!'][Math.floor(Math.random()*5)]}
                 </h2>
@@ -195,7 +195,7 @@ export default function DebtsPage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowUpgrade(false)}>
               <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
               <div className="relative bg-white dark:bg-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in border text-center" onClick={e => e.stopPropagation()}>
-                <div className="text-4xl mb-4">⭐</div>
+                <Sparkles className="w-12 h-12 mx-auto mb-4 text-amber-500" />
                 <h3 className="text-lg font-semibold mb-2">Batas Scan Tagihan Habis</h3>
                 <p className="text-sm text-muted-foreground mb-2">{upgradeMsg}</p>
                 <p className="text-xs text-muted-foreground mb-6">Upgrade ke Pro untuk scan tagihan tanpa batas, export data, dan fitur premium lainnya.</p>
@@ -220,7 +220,7 @@ export default function DebtsPage() {
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               <Upload className="w-4 h-4" />
-              {showOcr ? 'Sembunyikan' : '📸 Upload Foto Tagihan'}
+              {showOcr ? 'Sembunyikan' : 'Upload Foto Tagihan'}
             </button>
           </div>
           {showOcr && (
@@ -304,8 +304,8 @@ export default function DebtsPage() {
                         setOcrPreview(null)
                         load()
                       } catch (e: any) { setError(e.message || 'Gagal simpan') }
-                    }}>✅ Simpan</Button>
-                    <Button size="sm" variant="outline" onClick={() => setOcrPreview(null)}>❌ Batal</Button>
+                     }}><Check className="w-4 h-4" /> Simpan</Button>
+                    <Button size="sm" variant="outline" onClick={() => setOcrPreview(null)}><X className="w-4 h-4" /> Batal</Button>
                   </div>
                 </div>
               )}
@@ -358,7 +358,7 @@ export default function DebtsPage() {
                         setSmartError(e.message || 'Gagal menghubungi AI.')
                       }
                       setSmartLoading(false)
-                    }} size="sm">🔍 Analisis</Button>
+                    }} size="sm"><Search className="w-4 h-4" /> Analisis</Button>
                   </div>
                 )}
 
@@ -372,7 +372,7 @@ export default function DebtsPage() {
                 {/* Confirmation Card */}
                 {smartResult && !smartLoading && (
                   <div className="border border-border rounded-xl p-4 space-y-2 bg-secondary/20">
-                    <h3 className="text-sm font-semibold text-accent mb-2">📋 Hasil Analisis</h3>
+                    <h3 className="text-sm font-semibold text-accent mb-2 flex items-center gap-1.5"><FileText className="w-4 h-4" /> Hasil Analisis</h3>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
                       {smartResult.platform !== null && smartResult.platform !== undefined && (
                         <><span className="text-muted-foreground">Platform</span><span className="font-medium">{smartResult.platform || '-'}</span></>
@@ -418,7 +418,7 @@ export default function DebtsPage() {
                           setSmartText('')
                           load()
                         } catch (e: any) { setError(e.message || 'Gagal simpan') }
-                      }}>✅ Simpan</Button>
+                    }}><Check className="w-4 h-4" /> Simpan</Button>
                       <Button size="sm" variant="outline" onClick={() => {
                         setForm({
                           platform: smartResult.platform || '',
@@ -603,7 +603,7 @@ export default function DebtsPage() {
                   {paidDebts.length > 0 && (
                     <div className={activeDebts.length > 0 ? 'mt-8' : ''}>
                       <h3 className="text-sm font-semibold text-emerald-600 mb-3 uppercase tracking-wider flex items-center gap-2">
-                        ✅ Lunas ({paidDebts.length})
+                        <Check className="w-4 h-4" /> Lunas ({paidDebts.length})
                       </h3>
                       {/* Mobile: Card list */}
                       <div className="space-y-3 lg:hidden">
