@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'JatuhTempo Beta — Kelola Utang dengan AI',
   description: 'AI-powered debt management assistant',
-  icons: { icon: '/assets/logo.webp' },
+  icons: { icon: '/favicon.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
