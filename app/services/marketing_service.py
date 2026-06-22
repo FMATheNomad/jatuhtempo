@@ -193,7 +193,8 @@ async def generate_content() -> dict | None:
                             "7. WAJIB akhiri dengan CTA yang relevan.\n"
                             "8. Jangan promotif berlebihan. Konten harus berdiri sendiri.\n"
                             "9. Gunakan ## untuk sub-heading. Paragraf dipisah baris kosong.\n"
-                            "10. Hindari klise. Berani beda pendapat."
+                            "10. Hindari klise. Berani beda pendapat.\n"
+                            "11. Sertakan sumber referensi di akhir artikel dengan format: 'Sumber: OJK, Bank Indonesia, [nama sumber lain]'. Jika menggunakan data spesifik, sebutkan sumbernya."
                         )},
                         {"role": "user", "content": prompt_data["prompt"]},
                     ],
