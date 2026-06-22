@@ -47,6 +47,7 @@ const faqs = [
 function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [lang, setLang] = useState<'id' | 'en'>('id')
   const [stats, setStats] = useState<{ total_users: number; total_debts?: number; total_paid?: number } | null>(null)
 
   useEffect(() => {
@@ -56,14 +57,20 @@ function LandingPage() {
       .catch(() => setStats(null))
   }, [])
 
+  const t = (id: string, en: string) => lang === 'id' ? id : en
+
   const statItems = stats ? [
-    ['📱', `${stats.total_users || 0}`, 'Pengguna aktif'],
-    ['💰', `${stats.total_debts || 0}`, 'Total utang tercatat'],
-    ['✅', `${stats.total_paid || 0}`, 'Utang lunas'],
+    ['📱', `${stats.total_users || 0}`, t('Pengguna Aktif', 'Active Users')],
+    ['💰', `${stats.total_debts || 0}`, t('Utang Tercatat', 'Debts Tracked')],
+    ['✅', `${stats.total_paid || 0}`, t('Utang Lunas', 'Debts Paid')],
   ] : null
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
+      {/* Promo Banner */}
+      <div className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-2 px-4 text-xs font-medium">
+        {t('🎉 Diskon 30% untuk pengguna awal — Rp35.000/bulan selamanya! Upgrade di Pengaturan →', '🎉 Early bird 30% off — Rp35,000/month forever! Upgrade in Settings →')}
+      </div>
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#0a0b1e]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -73,16 +80,20 @@ function LandingPage() {
             <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
           </div>
           <div className="hidden items-center gap-6 md:flex">
-            <a href="#features" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Fitur</a>
-            <a href="#how" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Cara Kerja</a>
+            <a href="#features" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Fitur', 'Features')}</a>
+            <a href="#pricing" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Harga', 'Pricing')}</a>
+            <a href="#how" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">{t('Cara Kerja', 'How It Works')}</a>
             <a href="#faq" className="text-sm text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
           </div>
           <div className="hidden items-center gap-2 md:flex">
+            <button onClick={() => setLang(lang === 'id' ? 'en' : 'id')} className="text-xs font-medium text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+              {lang === 'id' ? 'EN' : 'ID'}
+            </button>
             <a href="/login" className="rounded-full border border-slate-300 dark:border-white/20 px-4 py-1.5 text-sm font-medium text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
-              Masuk
+              {t('Masuk', 'Login')}
             </a>
             <a href="/login?mode=register" className="rounded-full bg-teal-500 px-4 py-1.5 text-sm font-medium text-white hover:bg-teal-600 transition-colors">
-              Mulai Gratis
+              {t('Mulai Gratis', 'Get Started')}
             </a>
           </div>
           <button className="md:hidden text-slate-900 dark:text-white" onClick={() => setMobileMenu(!mobileMenu)}>
@@ -91,12 +102,14 @@ function LandingPage() {
         </div>
         {mobileMenu && (
           <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-white/10 px-4 py-3 md:hidden bg-white dark:bg-[#0a0b1e]">
-            <a href="#features" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>Fitur</a>
-            <a href="#how" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>Cara Kerja</a>
+            <a href="#features" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Fitur', 'Features')}</a>
+            <a href="#pricing" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Harga', 'Pricing')}</a>
+            <a href="#how" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>{t('Cara Kerja', 'How It Works')}</a>
             <a href="#faq" className="text-sm py-1 text-slate-500 dark:text-white/60" onClick={() => setMobileMenu(false)}>FAQ</a>
             <div className="flex gap-2 pt-2">
-              <a href="/login" className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">Masuk</a>
-              <a href="/login?mode=register" className="flex-1 rounded-full bg-teal-500 py-2 text-sm font-medium text-white text-center">Mulai Gratis</a>
+              <button onClick={() => setLang(lang === 'id' ? 'en' : 'id')} className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">{lang === 'id' ? 'EN' : 'ID'}</button>
+              <a href="/login" className="flex-1 rounded-full border border-slate-300 dark:border-white/20 py-2 text-sm font-medium text-slate-700 dark:text-white/80 text-center">{t('Masuk', 'Login')}</a>
+              <a href="/login?mode=register" className="flex-1 rounded-full bg-teal-500 py-2 text-sm font-medium text-white text-center">{t('Mulai Gratis', 'Get Started')}</a>
             </div>
           </div>
         )}
@@ -151,19 +164,17 @@ function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {statItems ? statItems.map(([emoji, val, desc]) => (
-            <div key={desc} className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-slate-200 dark:border-white/10 flex items-center gap-4">
-              <span className="text-2xl">{emoji}</span>
-              <div>
-                <p className="font-semibold text-slate-900 dark:text-white">{val}</p>
-                <p className="text-slate-500 dark:text-white/60 text-xs">{desc}</p>
-              </div>
+      <section className="mx-auto max-w-4xl px-4 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {statItems ? statItems.map(([emoji, val, desc], i) => (
+            <div key={desc} className="group bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 text-center hover:shadow-lg hover:border-teal-500/30 transition-all duration-300">
+              <span className="text-4xl block mb-3 group-hover:scale-110 transition-transform">{emoji}</span>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{val}</p>
+              <p className="text-sm text-slate-500 dark:text-white/60">{desc}</p>
             </div>
           )) : (
-            <div className="col-span-3 text-center text-sm text-slate-400 dark:text-white/40 py-4">
-              Data akan muncul setelah kamu mulai menggunakan JatuhTempo
+            <div className="col-span-3 text-center text-sm text-slate-400 dark:text-white/40 py-8">
+              {t('Data akan muncul setelah kamu mulai menggunakan JatuhTempo', 'Data appears after you start using JatuhTempo')}
             </div>
           )}
         </div>
@@ -187,6 +198,73 @@ function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="border-t border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#0f1535]/50 py-20">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">{t('Pilih Paketmu', 'Choose Your Plan')}</h2>
+            <p className="mt-2 text-slate-500 dark:text-white/60">{t('Gratis selamanya, upgrade kapan saja', 'Free forever, upgrade anytime')}</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Free Card */}
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-8 text-center">
+              <p className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('Gratis', 'Free')}</p>
+              <p className="text-4xl font-bold text-slate-900 dark:text-white mb-1">Rp0</p>
+              <p className="text-sm text-slate-500 dark:text-white/60 mb-8">{t('selamanya', 'forever')}</p>
+              <ul className="space-y-3 text-sm text-left mb-8">
+                {[
+                  [t('Catat utang tanpa batas', 'Unlimited debt tracking'), '✅'],
+                  [t('OCR screenshot 5x/bulan', 'OCR screenshot 5x/month'), '✅'],
+                  [t('Reminder Telegram', 'Telegram reminders'), '✅'],
+                  [t('Dashboard & Strategi', 'Dashboard & Strategy'), '✅'],
+                  [t('Export CSV/PDF', 'Export CSV/PDF'), '❌'],
+                  [t('Debt Health Score', 'Debt Health Score'), '❌'],
+                ].map(([label, check]) => (
+                  <li key={typeof label === 'string' ? label : ''} className="flex items-center gap-3">
+                    <span>{check}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href="/login?mode=register" className="block w-full min-h-[44px] rounded-xl border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white/80 font-medium text-sm hover:bg-slate-100 dark:hover:bg-white/10 transition-colors leading-[44px]">
+                {t('Mulai Gratis', 'Get Started Free')}
+              </a>
+            </div>
+            {/* Pro Card */}
+            <div className="rounded-2xl border-2 border-teal-500 bg-white dark:bg-white/5 p-8 text-center relative">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-teal-500 text-white text-xs font-semibold">{t('DISKON 30%', '30% OFF')}</span>
+              <p className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pro</p>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-lg line-through text-slate-400">Rp50.000</span>
+                <span className="text-4xl font-bold text-teal-600 dark:text-teal-400">Rp35.000</span>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-white/60 mb-8">{t('/bulan · khusus pengguna awal', '/month · early bird price')}</p>
+              <ul className="space-y-3 text-sm text-left mb-8">
+                {[
+                  [t('Catat utang tanpa batas', 'Unlimited debt tracking'), '✅'],
+                  [t('OCR UNLIMITED', 'OCR UNLIMITED'), '✅'],
+                  [t('Reminder prioritas', 'Priority reminders'), '✅'],
+                  [t('Dashboard & Strategi', 'Dashboard & Strategy'), '✅'],
+                  [t('Export CSV/PDF', 'Export CSV/PDF'), '✅'],
+                  [t('Debt Health Score', 'Debt Health Score'), '✅'],
+                ].map(([label, check]) => (
+                  <li key={typeof label === 'string' ? label : ''} className="flex items-center gap-3">
+                    <span>{check}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href="/settings" className="block w-full min-h-[44px] rounded-xl bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors leading-[44px]">
+                {t('Upgrade ke Pro', 'Upgrade to Pro')}
+              </a>
+            </div>
+          </div>
+          <p className="text-center text-xs text-slate-400 dark:text-white/40 mt-6">
+            {t('Harga akan naik setelah pelunasan resmi. Diskon 30% untuk pengguna awal.', 'Price will increase after official launch. 30% off for early users.')}
+          </p>
         </div>
       </section>
 
