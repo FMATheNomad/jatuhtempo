@@ -118,11 +118,11 @@ async def generate_content() -> dict | None:
                             "(paylater, pinjol, kartu kredit).\n\n"
                             "Aturan:\n"
                              "1. Jangan mengarang data atau angka tanpa sumber. Jika tidak yakin, gunakan istilah umum.\n"
-                             "2. Panjang artikel: 300-500 kata. Tulis dalam format paragraf biasa. JANGAN GUNAKAN MARKDOWN, bold, italic, heading, atau format apapun. Tulis seperti artikel berita biasa.\n"
+                             "2. Panjang artikel: 300-500 kata. Gunakan markdown untuk format: ## heading, **bold**, - list, dan paragraf biasa.\n"
                              "3. Bahasa Indonesia yang baik, santai, tidak kaku.\n"
                              "4. Akhiri dengan ajakan (CTA) yang relevan tapi tidak maksa.\n"
                              "5. Jangan promotif berlebihan. Konten harus berdiri sendiri sebagai artikel informatif.\n"
-                             "6. PISAHKAN ANTAR PARAGRAF DENGAN BARIS KOSONG. Jangan gunakan tanda bintang, pagar, atau format markup apapun."
+                             "6. Gunakan ## untuk sub-heading, - untuk bullet list, ** untuk bold. PISAHKAN ANTAR PARAGRAF DENGAN BARIS KOSONG."
                         )},
                         {"role": "user", "content": prompt_data["prompt"]},
                     ],

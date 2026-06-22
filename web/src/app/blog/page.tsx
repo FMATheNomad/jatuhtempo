@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Calendar, ArrowLeft, Sparkles, Check } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface BlogPost {
   pillar: string
@@ -54,8 +56,8 @@ export default function BlogPage() {
                   <span>{selected.source}</span>
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{selected.title}</h2>
-                <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-line">
-                  {selected.content.replace(/\*\*/g, '').replace(/\*/g, '').replace(/###\s?/g, '').replace(/##\s?/g, '')}
+                <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{selected.content}</ReactMarkdown>
                 </div>
                 {/* Share */}
                 <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
