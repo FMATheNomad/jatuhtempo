@@ -78,7 +78,7 @@ function LandingPage() {
       <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#0a0b1e]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-7 w-auto" />
+            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-9 w-auto" />
             <span className="text-lg font-bold text-slate-900 dark:text-white">JatuhTempo</span>
             <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-200 dark:border-amber-800">Beta</span>
           </div>
@@ -166,8 +166,8 @@ function LandingPage() {
             <img src="/assets/hero-image.png" alt="JatuhTempo Dashboard Preview" className="w-full max-w-lg rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/30" />
           </div>
         </div>
-        <div className="flex items-center justify-center gap-3 mt-8 opacity-50">
-          <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-5 w-auto" />
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">JT</span>
           <span className="text-xs text-slate-400 dark:text-white/40">AI-Powered Debt Management</span>
         </div>
       </section>
@@ -362,7 +362,7 @@ function LandingPage() {
       <footer className="border-t border-slate-200 dark:border-white/10 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-slate-500 dark:text-white/60 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
-            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-6 w-auto opacity-60" />
+            <img src="/assets/logo-navbar.png" alt="JatuhTempo" className="h-8 w-auto" />
             JatuhTempo
           </div>
           <div className="flex items-center gap-4">
