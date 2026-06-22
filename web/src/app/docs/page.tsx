@@ -24,7 +24,7 @@ const docCards = [
   },
   {
     icon: Camera,
-    title: 'Panduan OCR',
+    title: 'Panduan Scan Tagihan',
     desc: 'Cara upload screenshot tagihan dan optimasi hasil bacaan AI.',
     link: '/docs/ocr-guide',
     gradient: 'from-emerald-600 to-teal-700',
@@ -91,7 +91,7 @@ export default function DocsPage() {
             </li>
             <li>
               <Link href="/docs/ocr-guide" className="text-accent hover:underline inline-flex items-center gap-1">
-                Panduan OCR
+                Panduan Scan Tagihan
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
             </li>

@@ -15,7 +15,7 @@ const sections = [
   {
     title: '2. Deskripsi Layanan',
     content:
-      'JatuhTempo adalah platform manajemen utang yang menyediakan pencatatan dan pelacakan utang, OCR otomatis untuk membaca tagihan, pengingat pembayaran via Telegram dan WhatsApp, dashboard analitik real-time, serta fitur lain yang ditambahkan dari waktu ke waktu.',
+      'JatuhTempo adalah platform manajemen utang yang menyediakan pencatatan dan pelacakan utang, scan otomatis untuk membaca tagihan, pengingat pembayaran via Telegram dan WhatsApp, dashboard analitik real-time, serta fitur lain yang ditambahkan dari waktu ke waktu.',
   },
   {
     title: '3. Akun Pengguna',
@@ -30,7 +30,7 @@ const sections = [
   {
     title: '5. Penggunaan yang Wajar',
     content:
-      'Anda setuju untuk tidak menyalahgunakan sistem OCR untuk tujuan ilegal, mengakses data pengguna lain, melakukan reverse engineering pada Platform, atau menggunakan bot atau skrip otomatis yang mengganggu layanan.',
+      'Anda setuju untuk tidak menyalahgunakan sistem scan tagihan untuk tujuan ilegal, mengakses data pengguna lain, melakukan reverse engineering pada Platform, atau menggunakan bot atau skrip otomatis yang mengganggu layanan.',
   },
   {
     title: '6. Batasan Tanggung Jawab',

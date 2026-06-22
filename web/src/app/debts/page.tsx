@@ -196,9 +196,9 @@ export default function DebtsPage() {
               <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
               <div className="relative bg-white dark:bg-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in border text-center" onClick={e => e.stopPropagation()}>
                 <div className="text-4xl mb-4">⭐</div>
-                <h3 className="text-lg font-semibold mb-2">Batas OCR Habis</h3>
+                <h3 className="text-lg font-semibold mb-2">Batas Scan Tagihan Habis</h3>
                 <p className="text-sm text-muted-foreground mb-2">{upgradeMsg}</p>
-                <p className="text-xs text-muted-foreground mb-6">Upgrade ke Pro untuk OCR unlimited, export data, dan fitur premium lainnya.</p>
+                <p className="text-xs text-muted-foreground mb-6">Upgrade ke Pro untuk scan tagihan tanpa batas, export data, dan fitur premium lainnya.</p>
                 <div className="flex gap-3">
                   <a href="/settings" className="flex-1 min-h-[44px] rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center">
                     Upgrade ke Pro
@@ -213,14 +213,14 @@ export default function DebtsPage() {
 
           {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">{error}</div>}
 
-          {/* OCR Upload — collapsible */}
+          {/* Scan Upload — collapsible */}
           <div className="mb-4">
             <button
               onClick={() => setShowOcr(!showOcr)}
               className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               <Upload className="w-4 h-4" />
-              {showOcr ? 'Sembunyikan' : '📸 Upload Screenshot'}
+              {showOcr ? 'Sembunyikan' : '📸 Upload Foto Tagihan'}
             </button>
           </div>
           {showOcr && (

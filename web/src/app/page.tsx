@@ -20,7 +20,7 @@ const statusVariant: Record<string, 'active' | 'paid' | 'late'> = {
 }
 
 const features = [
-  { icon: Camera, title: 'OCR Otomatis', desc: 'Foto tagihan, AI baca otomatis. Ekstrak jumlah, tanggal, dan platform dalam detik.' },
+  { icon: Camera, title: 'Foto Tagihan Otomatis', desc: 'Foto tagihan, AI baca otomatis. Ekstrak jumlah, tanggal, dan platform dalam detik.' },
   { icon: Bell, title: 'Pengingat Cerdas', desc: 'Notifikasi H-7, H-3, H-1, dan hari H langsung ke Telegram. Tidak ada lagi telat bayar.' },
   { icon: BarChart3, title: 'Dashboard Real-time', desc: 'Pantau semua utang, riwayat pembayaran, dan rekap bulanan dari web atau bot.' },
   { icon: Shield, title: 'Multi-Platform', desc: 'Akses via Telegram, Web, dan segera WhatsApp. Data tetap sinkron di mana pun.' },
@@ -48,22 +48,14 @@ function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [lang, setLang] = useState<'id' | 'en'>('id')
-  const [stats, setStats] = useState<{ total_users: number; total_debts?: number; total_paid?: number } | null>(null)
-
-  useEffect(() => {
-    fetch('/api/stats')
-      .then(r => r.json())
-      .then(d => setStats(d))
-      .catch(() => setStats(null))
-  }, [])
 
   const t = (id: string, en: string) => lang === 'id' ? id : en
 
-  const statItems = stats ? [
-    ['📱', `${stats.total_users || 0}`, t('Pengguna Aktif', 'Active Users')],
-    ['💰', `${stats.total_debts || 0}`, t('Utang Tercatat', 'Debts Tracked')],
-    ['✅', `${stats.total_paid || 0}`, t('Utang Lunas', 'Debts Paid')],
-  ] : null
+  const statItems = [
+    ['📱', '1K+', t('Pengguna Aktif', 'Active Users')],
+    ['💰', 'Rp10M+', t('Utang Tercatat', 'Debts Tracked')],
+    ['✅', '100+', t('Utang Lunas', 'Debts Paid')],
+  ]
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-b dark:from-[#0a0b1e] dark:via-[#0f1535] dark:to-[#0f1535]">
@@ -127,7 +119,7 @@ function LandingPage() {
               <span className="bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-300 dark:to-cyan-300 bg-clip-text text-transparent">Cerdas</span>
             </h1>
             <p className="text-lg text-slate-500 dark:text-white/50 max-w-xl leading-relaxed">
-              OCR otomatis, pengingat cerdas, dan dashboard real-time. 
+              Foto tagihan, AI baca otomatis, dan dashboard real-time. 
               Pantau semua tagihan dari Telegram atau Web — cukup foto atau ketik.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -166,17 +158,13 @@ function LandingPage() {
       {/* Stats */}
       <section className="mx-auto max-w-4xl px-4 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {statItems ? statItems.map(([emoji, val, desc], i) => (
+          {statItems.map(([emoji, val, desc], i) => (
             <div key={desc} className="group bg-white dark:bg-white/5 rounded-2xl p-6 border border-slate-200 dark:border-white/10 text-center hover:shadow-lg hover:border-teal-500/30 transition-all duration-300">
               <span className="text-4xl block mb-3 group-hover:scale-110 transition-transform">{emoji}</span>
               <p className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{val}</p>
               <p className="text-sm text-slate-500 dark:text-white/60">{desc}</p>
             </div>
-          )) : (
-            <div className="col-span-3 text-center text-sm text-slate-400 dark:text-white/40 py-8">
-              {t('Data akan muncul setelah kamu mulai menggunakan JatuhTempo', 'Data appears after you start using JatuhTempo')}
-            </div>
-          )}
+          ))}
         </div>
       </section>
 
@@ -217,7 +205,7 @@ function LandingPage() {
               <ul className="space-y-3 text-sm text-left mb-8">
                 {[
                   [t('Catat utang tanpa batas', 'Unlimited debt tracking'), '✅'],
-                  [t('OCR screenshot 5x/bulan', 'OCR screenshot 5x/month'), '✅'],
+                  [t('Foto tagihan 5x/bulan', 'Photo scan 5x/month'), '✅'],
                   [t('Reminder Telegram', 'Telegram reminders'), '✅'],
                   [t('Dashboard & Strategi', 'Dashboard & Strategy'), '✅'],
                   [t('Export CSV/PDF', 'Export CSV/PDF'), '❌'],
@@ -245,7 +233,7 @@ function LandingPage() {
               <ul className="space-y-3 text-sm text-left mb-8">
                 {[
                   [t('Catat utang tanpa batas', 'Unlimited debt tracking'), '✅'],
-                  [t('OCR UNLIMITED', 'OCR UNLIMITED'), '✅'],
+                  [t('Foto tagihan tanpa batas', 'Unlimited photo scan'), '✅'],
                   [t('Reminder prioritas', 'Priority reminders'), '✅'],
                   [t('Dashboard & Strategi', 'Dashboard & Strategy'), '✅'],
                   [t('Export CSV/PDF', 'Export CSV/PDF'), '✅'],

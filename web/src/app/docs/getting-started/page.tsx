@@ -31,7 +31,7 @@ export default function GettingStartedPage() {
           <li>Klik <strong>Tambah</strong>.</li>
         </ol>
 
-        <h4 className="font-semibold mt-4 mb-2">Cara OCR</h4>
+        <h4 className="font-semibold mt-4 mb-2">Cara Scan Tagihan</h4>
         <ol className="list-decimal list-inside space-y-2 text-muted-foreground mb-6">
           <li>Klik tombol upload di halaman Utang.</li>
           <li>Pilih screenshot tagihan.</li>

@@ -19,7 +19,7 @@ const categories: { title: string; items: FAQItem[] }[] = [
       },
       {
         q: 'Apakah JatuhTempo gratis?',
-        a:         'Ya! Kamu bisa menggunakan JatuhTempo secara gratis untuk mencatat utang tanpa batas. Fitur OCR gratis 5 kali per bulan, upgrade ke Pro untuk akses unlimited, export data, dan fitur premium lainnya.',
+        a:         'Ya! Kamu bisa menggunakan JatuhTempo secara gratis untuk mencatat utang tanpa batas. Fitur foto tagihan (scan) gratis 5 kali per bulan, upgrade ke Pro untuk akses unlimited, export data, dan fitur premium lainnya.',
       },
       {
         q: 'Bagaimana cara berlangganan Pro?',
@@ -36,10 +36,10 @@ const categories: { title: string; items: FAQItem[] }[] = [
     items: [
       {
         q: 'Bagaimana cara menambahkan utang?',
-        a: 'Ada dua cara. Manual: di dashboard, isi form "Tambah Utang Cepat" dengan nama platform, jumlah, dan tanggal jatuh tempo. OCR: upload screenshot tagihan, dan AI akan membaca otomatis.',
+        a: 'Ada dua cara. Manual: di dashboard, isi form "Tambah Utang Cepat" dengan nama platform, jumlah, dan tanggal jatuh tempo. Otomatis: upload screenshot tagihan, AI akan baca otomatis dan isi datanya.',
       },
       {
-        q: 'Bagaimana cara menggunakan OCR?',
+        q: 'Bagaimana cara menggunakan fitur foto tagihan?',
         a: 'Di dashboard, klik tombol upload gambar, pilih screenshot tagihan kamu, dan sistem akan mengekstrak informasi secara otomatis. Pastikan gambar jelas dan terbaca.',
       },
       {

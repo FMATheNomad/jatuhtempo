@@ -5,13 +5,13 @@ export default function OcrGuidePage() {
     <div className="min-h-screen bg-background">
       <section className="gradient-hero text-white">
         <div className="max-w-3xl mx-auto px-6 py-16 md:py-20 text-center">
-          <h1 className="text-3xl md:text-5xl font-bold mb-4 animate-fade-in">Panduan OCR</h1>
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 animate-fade-in">Panduan Scan Tagihan</h1>
           <p className="text-white/60 text-lg max-w-lg mx-auto animate-fade-in">Cara upload screenshot tagihan dan optimasi hasil bacaan AI.</p>
         </div>
       </section>
 
       <div className="max-w-3xl mx-auto px-4 lg:px-6 py-12">
-        <p className="text-muted-foreground mb-6">Fitur OCR JatuhTempo memungkinkan kamu memotret atau upload screenshot tagihan dan AI akan membaca datanya secara otomatis.</p>
+        <p className="text-muted-foreground mb-6">Fitur scan tagihan JatuhTempo memungkinkan kamu memotret atau upload screenshot tagihan dan AI akan membaca datanya secara otomatis.</p>
 
         <h3 className="text-xl font-semibold mt-8 mb-3">Melalui Web</h3>
         <ol className="list-decimal list-inside space-y-2 text-muted-foreground mb-6">
@@ -35,7 +35,7 @@ export default function OcrGuidePage() {
           <li><strong>Cahaya cukup</strong> — pastikan tagihan terang dan tidak silau.</li>
           <li><strong>Fokus tajam</strong> — hindari foto blur.</li>
           <li><strong>Seluruh tagihan</strong> — pastikan semua informasi masuk frame.</li>
-          <li>OCR optimal dengan screenshot digital dan tagihan cetak yang jelas.</li>
+          <li>Scan optimal dengan screenshot digital dan tagihan cetak yang jelas.</li>
         </ul>
 
         <h3 className="text-xl font-semibold mt-8 mb-3">Format Didukung</h3>

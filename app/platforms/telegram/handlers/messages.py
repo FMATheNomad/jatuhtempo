@@ -46,8 +46,8 @@ async def handle_photo(message: Message):
                 monthly_count = count_q.scalar() or 0
                 if monthly_count >= 5:
                     await processing_msg.edit_text(
-                        "📸 Batas OCR gratis bulan ini sudah habis (5x).\n\n"
-                        "Upgrade ke Pro untuk OCR unlimited:\n"
+                        "📸 Batas scan tagihan gratis bulan ini sudah habis (5x).\n\n"
+                        "Upgrade ke Pro untuk scan unlimited:\n"
                         "➡️ Buka web dashboard → Pengaturan → Upgrade"
                     )
                     return

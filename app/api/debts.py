@@ -208,7 +208,7 @@ async def ocr_upload(file: UploadFile = File(...), user: User = Depends(get_curr
             if monthly_count >= 5:
                 raise HTTPException(402, json.dumps({
                     "code": "ocr_limit_reached",
-                    "message": "Kamu sudah menggunakan 5x OCR gratis bulan ini.",
+                    "message": "Kamu sudah menggunakan 5x scan tagihan gratis bulan ini.",
                     "upgrade_url": "/settings",
                     "plan": "pro",
                     "price": "Rp35.000/bulan",

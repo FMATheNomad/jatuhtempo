@@ -157,7 +157,7 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
                       ['✅ Catat utang', 'Unlimited'],
-                      ['✅ OCR', 'Unlimited'],
+                      ['✅ Scan Tagihan', 'Unlimited'],
                       ['✅ Export CSV/PDF', 'Aktif'],
                       ['✅ Debt Health Score', 'Aktif'],
                       ['✅ Prioritas AI', 'Aktif'],
@@ -184,7 +184,7 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {[
                       ['Catat utang', '✅ Unlimited'],
-                      ['OCR / bulan', '5x gratis'],
+                      ['Scan / bulan', '5x gratis'],
                       ['Reminder Telegram', '✅'],
                       ['Export CSV/PDF', '🔒 Pro'],
                       ['Debt Health Score', '🔒 Pro'],
