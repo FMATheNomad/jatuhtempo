@@ -90,6 +90,31 @@ _BLOG_PILLARS = [
         "title": "Frugal Living vs Quality of Life: Mencari Titik Tengah",
         "prompt": "Bahas konsep frugal living yang realistis untuk anak muda Indonesia: tips hemat tanpa bikin stres, investasi di quality of life yang penting. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA tracking utang dan pengeluaran.",
     },
+    {
+        "pillar": "ekonomi",
+        "title": "Dampak Kebijakan Ekonomi 2026 Terhadap Daya Beli",
+        "prompt": "Bahas kebijakan ekonomi Indonesia tahun 2026: inflasi, kurs rupiah, harga pangan. Bagaimana pengaruhnya ke pengeluaran sehari-hari dan kemampuan bayar utang. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk evaluasi ulang anggaran bulanan.",
+    },
+    {
+        "pillar": "teknologi",
+        "title": "Aplikasi Fintech 2026: Mana yang Aman dan Mana yang Tidak?",
+        "prompt": "Bahas tren fintech di Indonesia 2026: aplikasi mana yang terdaftar OJK, ciri-ciri pinjol ilegal, tips aman bertransaksi digital. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk tracking semua pinjaman di satu tempat.",
+    },
+    {
+        "pillar": "psikologi",
+        "title": "Fear of Missing Out (FOMO) dan Dampaknya ke Keputusan Finansial",
+        "prompt": "Bahas FOMO dalam konteks keuangan: tren belanja, investasi ikut-ikutan, gaya hidup medsos. Dampak ke utang konsumtif dan cara mengendalikannya. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk refleksi pengeluaran.",
+    },
+    {
+        "pillar": "data",
+        "title": "Kartu Kredit vs PayLater: Mana yang Lebih Mahal?",
+        "prompt": "Bandingkan biaya kartu kredit dan paylater: bunga, denda, biaya tahunan. Hitung mana yang lebih murah untuk kebutuhan berbeda. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk tracking kedua jenis utang di JatuhTempo.",
+    },
+    {
+        "pillar": "ekonomi",
+        "title": "Tips Menyusun Anggaran di Tengah Ketidakpastian Ekonomi",
+        "prompt": "Bahas cara menyusun budget yang fleksibel di kondisi ekonomi yang tidak menentu: prioritas pengeluaran, dana darurat, dan strategi bertahan. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk mulai tracking pengeluaran harian.",
+    },
 ]
 
 
@@ -111,18 +136,17 @@ async def generate_content() -> dict | None:
                 json={
                     "model": settings.deepseek_model,
                     "messages": [
-                        {"role": "system", "content": (
-                            "Kamu adalah Tim Riset JatuhTempo — penulis konten keuangan yang informatif, "
-                            "berbasis data, dan tepercaya. Gaya penulisan: hangat, jelas, tidak menggurui. "
-                            "Target pembaca: orang Indonesia 20-35 tahun yang punya utang konsumtif "
-                            "(paylater, pinjol, kartu kredit).\n\n"
+                    {"role": "system", "content": (
+                            "Kamu adalah Tim Riset JatuhTempo — penulis konten keuangan. "
+                            "Gaya: hangat, jelas, berbasis data, tidak menggurui. "
+                            "Target: orang Indonesia 20-35 tahun.\n\n"
                             "Aturan:\n"
-                             "1. Jangan mengarang data atau angka tanpa sumber. Jika tidak yakin, gunakan istilah umum.\n"
-                             "2. Panjang artikel: 300-500 kata. Gunakan markdown untuk format: ## heading, **bold**, - list, dan paragraf biasa.\n"
-                             "3. Bahasa Indonesia yang baik, santai, tidak kaku.\n"
-                             "4. Akhiri dengan ajakan (CTA) yang relevan tapi tidak maksa.\n"
-                             "5. Jangan promotif berlebihan. Konten harus berdiri sendiri sebagai artikel informatif.\n"
-                             "6. Gunakan ## untuk sub-heading, - untuk bullet list, ** untuk bold. PISAHKAN ANTAR PARAGRAF DENGAN BARIS KOSONG."
+                            "1. Jangan mengarang data. Jika tidak yakin, gunakan istilah umum.\n"
+                            "2. Panjang: 300-500 kata. Gunakan markdown: ## heading, **bold**, - list.\n"
+                            "3. Bahasa Indonesia santai.\n"
+                            "4. WAJIB akhiri dengan CTA yang relevan. Contoh: 'Tracking utangmu sekarang di JatuhTempo, gratis.'\n"
+                            "5. Jangan promotif berlebihan. Konten harus berdiri sendiri.\n"
+                            "6. Gunakan ## untuk sub-heading. Paragraf dipisah baris kosong."
                         )},
                         {"role": "user", "content": prompt_data["prompt"]},
                     ],
