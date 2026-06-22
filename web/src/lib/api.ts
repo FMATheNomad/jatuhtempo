@@ -72,7 +72,8 @@ export async function getDebts(status?: string, platform?: string) {
   const params = new URLSearchParams()
   if (status) params.set('status', status)
   if (platform) params.set('platform', platform)
-  return fetchAPI(`/api/debts?${params}`) as Promise<DebtResponse[]>
+  const res = await fetchAPI(`/api/debts?${params}`) as any
+  return (res.data || res) as DebtResponse[]
 }
 
 export async function getSummary() {

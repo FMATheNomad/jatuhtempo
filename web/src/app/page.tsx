@@ -304,7 +304,7 @@ function DashboardPage() {
     try {
       const { getSummary, getDebts } = await import('@/lib/api')
       const [s, d] = await Promise.all([getSummary(), getDebts()])
-      setSummary(s); setDebts(d.data || d)
+      setSummary(s); setDebts(d)
     } catch { setError('Gagal memuat data. Coba refresh.') }
     setLoading(false)
   }
