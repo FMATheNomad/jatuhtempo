@@ -54,7 +54,9 @@ export default function BlogPage() {
                   <span>{selected.source}</span>
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{selected.title}</h2>
-                <div className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">{selected.content}</div>
+                <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-line">
+                  {selected.content.replace(/\*\*/g, '').replace(/\*/g, '').replace(/###\s?/g, '').replace(/##\s?/g, '')}
+                </div>
                 {/* Share */}
                 <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
                   <span className="text-xs text-muted-foreground">Bagikan:</span>
