@@ -116,6 +116,26 @@ _BLOG_PILLARS = [
         "title": "Tips Menyusun Anggaran di Tengah Ketidakpastian Ekonomi",
         "prompt": "Bahas cara menyusun budget yang fleksibel di kondisi ekonomi yang tidak menentu: prioritas pengeluaran, dana darurat, dan strategi bertahan. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA untuk mulai tracking pengeluaran harian.",
     },
+    {
+        "pillar": "psikologi",
+        "title": "5 Kebiasaan Finansial yang Diam-diam Bikin Kamu Miskin",
+        "prompt": "Bahas kebiasaan finansial buruk yang sering gak disadari: kopi tiap hari, subscribe ga kepake, utang buat gaya hidup. Berani judge dikit. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA tracking pengeluaran.",
+    },
+    {
+        "pillar": "ekonomi",
+        "title": "Gaji Rp5 Juta Tapi Cicilan Rp3 Juta: Masalah atau Pilihan?",
+        "prompt": "Bahas fenomena orang dengan gaji pas-pasan tapi gaya hidup cicilan gede. Analisis psikologi dan solusinya. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA evaluasi rasio utang.",
+    },
+    {
+        "pillar": "data",
+        "title": "Berapa Lama Waktu yang Dibutuhkan buat Lunasi Utang Rp10 Juta?",
+        "prompt": "Simulasi lunasi utang Rp10 juta dengan berbagai skenario: bayar minimum, bayar double, snowball. Hitung selisih bunganya. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA simulasi di JatuhTempo.",
+    },
+    {
+        "pillar": "gaya-hidup",
+        "title": "Gue Berhenti Pakai PayLater Selama 6 Bulan, Ini yang Terjadi",
+        "prompt": "Cerita first-person pengalaman berhenti pakai paylater: perubahan keuangan, mental, dan cara bertahan. Relatable, jujur. Gaya: Tim Riset JatuhTempo. Akhiri dengan CTA tracking utang.",
+    },
 ]
 
 
@@ -138,16 +158,20 @@ async def generate_content() -> dict | None:
                     "model": settings.deepseek_model,
                     "messages": [
                     {"role": "system", "content": (
-                            "Kamu adalah Tim Riset JatuhTempo — penulis konten keuangan. "
+                            "Kamu adalah Tim Riset JatuhTempo. "
                             "Gaya: hangat, jelas, berbasis data, tidak menggurui. "
                             "Target: orang Indonesia 20-35 tahun.\n\n"
                             "Aturan:\n"
                             "1. Jangan mengarang data. Jika tidak yakin, gunakan istilah umum.\n"
-                            "2. Panjang: 300-500 kata. Gunakan markdown: ## heading, **bold**, - list.\n"
+                            "2. Panjang: 300-500 kata. Gunakan markdown.\n"
                             "3. Bahasa Indonesia santai.\n"
-                            "4. WAJIB akhiri dengan CTA yang relevan. Contoh: 'Tracking utangmu sekarang di JatuhTempo, gratis.'\n"
-                            "5. Jangan promotif berlebihan. Konten harus berdiri sendiri.\n"
-                            "6. Gunakan ## untuk sub-heading. Paragraf dipisah baris kosong."
+                            "4. Buat konten yang SEDIKIT KONTROVERSIAL, bikin pembaca mikir. Berani ambil posisi.\n"
+                            "5. Gunakan hook yang strong di paragraf pertama biar orang lanjut baca.\n"
+                            "6. Ajak pembaca berdiskusi di akhir: 'Gimana menurut kamu?' atau lo pernah ngalamin?'\n"
+                            "7. WAJIB akhiri dengan CTA yang relevan.\n"
+                            "8. Jangan promotif berlebihan. Konten harus berdiri sendiri.\n"
+                            "9. Gunakan ## untuk sub-heading. Paragraf dipisah baris kosong.\n"
+                            "10. Hindari klise. Berani beda pendapat."
                         )},
                         {"role": "user", "content": prompt_data["prompt"]},
                     ],

@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Head from 'next/head'
 import { Calendar, ArrowLeft, Sparkles, Check, LayoutList, BookOpen, BarChart3, TrendingUp, Brain, Monitor, Heart } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -62,6 +63,14 @@ function BlogContent() {
       .catch(() => setPosts([]))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (selected) {
+      document.title = `${selected.title} — JatuhTempo Blog`
+    } else {
+      document.title = 'Blog JatuhTempo — Tips, Wawasan, dan Data Keuangan'
+    }
+  }, [selected])
 
   const goToPost = (s: string) => {
     router.push(`/blog?s=${s}`, { scroll: false })
