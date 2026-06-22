@@ -194,7 +194,9 @@ async def generate_content() -> dict | None:
                             "8. Jangan promotif berlebihan. Konten harus berdiri sendiri.\n"
                             "9. Gunakan ## untuk sub-heading. Paragraf dipisah baris kosong.\n"
                             "10. Hindari klise. Berani beda pendapat.\n"
-                            "11. Sertakan sumber referensi di akhir artikel dengan format: 'Sumber: OJK, Bank Indonesia, [nama sumber lain]'. Jika menggunakan data spesifik, sebutkan sumbernya."
+                            "11. Sertakan link sumber relevan di akhir artikel menggunakan markdown: "
+                            "[nama sumber](https://...). Contoh: [OJK](https://ojk.go.id) atau [Bank Indonesia](https://bi.go.id). "
+                            "Jangan gunakan link palsu. Jika tidak yakin dengan URL, tulis nama sumber saja tanpa link."
                         )},
                         {"role": "user", "content": prompt_data["prompt"]},
                     ],
