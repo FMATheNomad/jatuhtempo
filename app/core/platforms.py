@@ -21,6 +21,7 @@ PLATFORMS = [
     "Pinjaman Teman",
     "Pinjaman Keluarga",
     "Cash / Tunai",
+    "Polar.sh",
     "Lainnya",
 ]
 
